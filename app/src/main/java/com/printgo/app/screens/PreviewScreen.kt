@@ -209,7 +209,7 @@ fun PreviewScreen(
     // Keep settings aligned with selected printer capabilities
     LaunchedEffect(selectedPrinter, printerCapabilities) {
         val caps = (printerCapabilities as? com.printgo.app.viewmodel.CapabilitiesState.Ready)?.capabilities
-        printSettingsViewModel.validateAgainstCapabilities(caps)
+        printSettingsViewModel.onPrinterSelected(selectedPrinter, caps)
     }
 
     // Extract ready printable documents in original selection order
@@ -646,6 +646,8 @@ private fun SettingsSummaryHeaderCard(
                 // Line 3: Copies | Page Selection • Color Mode • Pages Per Sheet
                 val pageSelectionText = when (val sel = settings.pageSelection) {
                     is PageSelection.All -> "All pages"
+                    is PageSelection.Odd -> "Odd pages"
+                    is PageSelection.Even -> "Even pages"
                     is PageSelection.Range -> "Pages: ${sel.text}"
                     is PageSelection.Custom -> "${sel.pages.size} selected page(s)"
                 }
