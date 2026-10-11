@@ -1,21 +1,18 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# PrintGo release (R8) rules
+-keepattributes *Annotation*, Signature, InnerClasses, EnclosingMethod, SourceFile, LineNumberTable
+-renamesourcefileattribute SourceFile
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# Data classes that are stored with Room or serialised with Moshi, and the IPP model.
+-keep class com.printgo.app.data.local.** { *; }
+-keep class com.printgo.app.model.** { *; }
+-keep class com.printgo.app.data.ipp.** { *; }
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# Moshi generated adapters
+-keep @com.squareup.moshi.JsonClass class * { *; }
+-keepclassmembers class * { @com.squareup.moshi.Json <fields>; }
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# Optional TLS providers referenced by OkHttp
+-dontwarn org.bouncycastle.**
+-dontwarn org.conscrypt.**
+-dontwarn org.openjsse.**
+-dontwarn javax.annotation.**

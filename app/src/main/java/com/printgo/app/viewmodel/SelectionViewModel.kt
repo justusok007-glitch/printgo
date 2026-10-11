@@ -167,7 +167,7 @@ class SelectionViewModel(application: Application) : AndroidViewModel(applicatio
             if (items.isNotEmpty()) {
                 // Save documents to recent
                 items.forEach { item ->
-                    if (item.type != PrintItemType.IMAGE) {
+                    if (item.type != PrintItemType.IMAGE && item.uri.scheme != "file") {
                         saveRecentDocument(item)
                     }
                 }
@@ -178,35 +178,75 @@ class SelectionViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    private fun resolvePrintItem(context: Context, uri: Uri, fallbackMime: String): PrintItem? {
-        return try {
-            var name = "Document"
-            var size = 0L
-            val mime = context.contentResolver.getType(uri) ?: fallbackMime
+    /**
+     * Reads the shared content right away (permissions on shared URIs are temporary), sniffs the real
+     * file type when the sender gave a vague one, and keeps a private copy so printing still works later.
+     */
+    private suspend fun resolvePrintItem(context: Context, uri: Uri, fallbackMime: String): PrintItem? =
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            try {
+                var name = "Document"
+                var size = 0L
+                var mime = context.contentResolver.getType(uri) ?: fallbackMime
 
-            if (uri.scheme == "content") {
-                context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
-                    val nameIdx = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                    val sizeIdx = cursor.getColumnIndex(OpenableColumns.SIZE)
-                    if (cursor.moveToFirst()) {
-                        if (nameIdx != -1) name = cursor.getString(nameIdx) ?: name
-                        if (sizeIdx != -1) size = cursor.getLong(sizeIdx)
+                if (uri.scheme == "content") {
+                    context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                        val nameIdx = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                        val sizeIdx = cursor.getColumnIndex(OpenableColumns.SIZE)
+                        if (cursor.moveToFirst()) {
+                            if (nameIdx != -1) name = cursor.getString(nameIdx) ?: name
+                            if (sizeIdx != -1) size = cursor.getLong(sizeIdx)
+                        }
+                    }
+                } else if (uri.scheme == "file") {
+                    uri.lastPathSegment?.let { name = it }
+                }
+
+                var finalUri = uri
+                if (uri.scheme == "content") {
+                    val dir = java.io.File(context.cacheDir, "printgo_shared").apply { mkdirs() }
+                    val safe = name.replace(Regex("[^A-Za-z0-9._-]"), "_").take(60).ifBlank { "shared" }
+                    val copy = java.io.File(dir, "${java.util.UUID.randomUUID().toString().take(8)}_$safe")
+                    val ok = try {
+                        context.contentResolver.openInputStream(uri)?.use { input ->
+                            copy.outputStream().use { out -> input.copyTo(out) }
+                            true
+                        } ?: false
+                    } catch (e: Exception) { false }
+                    if (ok && copy.length() > 0) {
+                        finalUri = Uri.fromFile(copy)
+                        size = copy.length()
+                        if (mime.isBlank() || mime == "*/*" || mime == "application/octet-stream") {
+                            sniffMime(copy)?.let { mime = it }
+                        }
                     }
                 }
-            } else if (uri.scheme == "file") {
-                uri.lastPathSegment?.let { name = it }
-            }
 
-            val itemType = PrintItem.resolveType(mime, name)
-            PrintItem(
-                uri = uri,
-                displayName = name,
-                mimeType = mime,
-                sizeBytes = size,
-                type = itemType
-            )
-        } catch (e: Exception) {
-            null
+                PrintItem(
+                    uri = finalUri,
+                    displayName = name,
+                    mimeType = mime,
+                    sizeBytes = size,
+                    type = PrintItem.resolveType(mime, name)
+                )
+            } catch (e: Exception) {
+                null
+            }
+        }
+
+    private fun sniffMime(f: java.io.File): String? {
+        val head = ByteArray(8)
+        val n = try { f.inputStream().use { it.read(head) } } catch (e: Exception) { return null }
+        if (n < 4) return null
+        fun b(i: Int) = head[i].toInt() and 0xFF
+        return when {
+            b(0) == 0x25 && b(1) == 0x50 && b(2) == 0x44 && b(3) == 0x46 -> "application/pdf"
+            b(0) == 0xFF && b(1) == 0xD8 && b(2) == 0xFF -> "image/jpeg"
+            b(0) == 0x89 && b(1) == 0x50 && b(2) == 0x4E && b(3) == 0x47 -> "image/png"
+            b(0) == 0x47 && b(1) == 0x49 && b(2) == 0x46 -> "image/gif"
+            b(0) == 0x52 && b(1) == 0x49 && b(2) == 0x46 && b(3) == 0x46 -> "image/webp"
+            b(0) == 0x50 && b(1) == 0x4B -> "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            else -> null
         }
     }
 }
