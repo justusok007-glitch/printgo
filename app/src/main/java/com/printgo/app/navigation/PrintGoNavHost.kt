@@ -81,6 +81,17 @@ fun PrintGoNavHost(
     }
 
     val start = firstRoute ?: return
+    androidx.compose.runtime.DisposableEffect(navController) {
+        val listener = androidx.navigation.NavController.OnDestinationChangedListener { _, destination, _ ->
+            if (destination.route == Screen.Home.route) {
+                selectionViewModel.clearSelection()
+                com.printgo.app.data.layout.SheetLayoutEngine.clearCache()
+            }
+        }
+        navController.addOnDestinationChangedListener(listener)
+        onDispose { navController.removeOnDestinationChangedListener(listener) }
+    }
+
     NavHost(
         navController = navController,
         startDestination = start,

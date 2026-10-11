@@ -20,9 +20,6 @@ object PclEncoder {
     }
 
     fun start(out: OutputStream, copies: Int, duplex: Int, paperCode: Int, jobName: String) {
-        out.esc("%-12345X")
-        out.write("@PJL JOB NAME=\"${jobName.replace('"', '\'').take(40)}\"\r\n".toByteArray())
-        out.write("@PJL ENTER LANGUAGE=PCL\r\n".toByteArray())
         out.esc("E")
         out.esc("&l${paperCode}A")
         out.esc("&l0O")
@@ -59,9 +56,6 @@ object PclEncoder {
 
     fun end(out: OutputStream) {
         out.esc("E")
-        out.esc("%-12345X")
-        out.write("@PJL EOJ\r\n".toByteArray())
-        out.esc("%-12345X")
     }
 
     fun parseCmd(deviceId: String?): Set<String> {

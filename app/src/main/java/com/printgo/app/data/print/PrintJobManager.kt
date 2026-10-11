@@ -170,13 +170,15 @@ object PrintJobManager {
         scope.launch {
             val job = dao.get(id) ?: return@launch
             if (!JobStatus.isActive(job.status)) return@launch
-            if (job.status == JobStatus.QUEUED) {
-                dao.upsert(job.copy(status = JobStatus.CANCELLED, statusMessage = "Cancelled.", updatedAt = now()))
-                notifyFinished(dao.get(id))
-            }
+            // Show "Cancelled" straight away; the work is stopped right behind it.
+            dao.upsert(job.copy(status = JobStatus.CANCELLED, statusMessage = "Cancelled.", progress = 0f, updatedAt = now()))
+            pending.remove(id)
             running[id]?.cancel()
-            if (job.remoteJobId > 0 && job.protocol != PrinterProtocol.RAW9100.name) {
-                withContext(NonCancellable) { remoteCancel(job) }
+            notifyFinished(dao.get(id))
+            val latest = dao.get(id) ?: job
+            val remote = maxOf(job.remoteJobId, latest.remoteJobId)
+            if (remote > 0 && job.connectionType == ConnectionType.WIFI.name && job.protocol != PrinterProtocol.RAW9100.name) {
+                withContext(NonCancellable) { remoteCancel(job.copy(remoteJobId = remote)) }
             }
         }
     }
@@ -515,7 +517,7 @@ object PrintJobManager {
         "samsung", "xerox", "ricoh", "kyocera", "lexmark", "oki", "konica", "sharp", "dell", "hp "
     )
 
-    internal fun pickLanguage(deviceId: String?, name: String, btPref: String): RawLanguage? {
+    internal fun pickLanguage(deviceId: String?, name: String, btPref: String, strict: Boolean = false): RawLanguage? {
         val cmd = PclEncoder.parseCmd(deviceId)
         if (cmd.isNotEmpty()) {
             return when {
@@ -525,6 +527,13 @@ object PrintJobManager {
                 cmd.any { it.startsWith("PCL") } -> RawLanguage.PCL
                 else -> null
             }
+        }
+        if (strict) {
+            // No device id to go on: only a clearly thermal/receipt printer is safe to guess. Anything else
+            // would print the raw commands as text, so refuse instead.
+            val n = name.lowercase()
+            val thermal = listOf("pos", "receipt", "thermal", "xprinter", "goojprt", "zjiang", "label", "tm-", "star ", "rongta", "sunmi")
+            return if (thermal.any { n.contains(it) }) RawLanguage.ESCPOS else null
         }
         return when (btPref) {
             "ESCPOS" -> RawLanguage.ESCPOS
@@ -552,12 +561,14 @@ object PrintJobManager {
         else -> 0
     }
 
-    private fun renderRawFile(job: PrintJobEntity, lang: RawLanguage, pdf: File, out: File) {
+    private fun renderRawFile(job: PrintJobEntity, lang: RawLanguage, pdf: File, out: File, pjl: Boolean = false) {
         val copies = job.copies.coerceIn(1, 99)
         val grayscale = job.colorMode == PrintColorMode.GRAYSCALE.name
         out.outputStream().buffered(64 * 1024).use { os ->
             when (lang) {
-                RawLanguage.PDF -> {
+                RawLanguage.PDF -> if (!pjl) {
+                    pdf.inputStream().use { it.copyTo(os) }
+                } else {
                     os.write(byteArrayOf(0x1B)); os.write("%-12345X".toByteArray())
                     os.write("@PJL SET COPIES=$copies\r\n".toByteArray())
                     when (duplexCode(job)) {
@@ -625,13 +636,14 @@ object PrintJobManager {
             session.use { s ->
                 if (s.isIppUsb) { sendIppUsb(job, s, pdf); return }
                 val id = withContext(Dispatchers.IO) { s.deviceId() }
-                val lang = pickLanguage(id, job.printerName, "AUTO") ?: throw PrintFailure(
+                val lang = pickLanguage(id, job.printerName, "AUTO", strict = true) ?: throw PrintFailure(
                     "This printer uses its own USB language that PrintGo cannot create. Connect it over Wi-Fi, or use \"Print with system dialog\".", false
                 )
                 update(job.id) { it.copy(method = "USB • ${lang.label}", statusMessage = "Preparing pages…", progress = 0.25f) }
                 val tmp = File(appContext.cacheDir, "job_${job.id}.raw")
                 try {
-                    withContext(Dispatchers.Default) { renderRawFile(job, lang, pdf, tmp) }
+                    val pjl = "PJL" in PclEncoder.parseCmd(id)
+                    withContext(Dispatchers.Default) { renderRawFile(job, lang, pdf, tmp, pjl) }
                     update(job.id) { it.copy(statusMessage = "Sending to printer…", progress = 0.6f) }
                     withContext(Dispatchers.IO) { s.writeAll(fileChunks(tmp)) }
                 } finally { tmp.delete() }

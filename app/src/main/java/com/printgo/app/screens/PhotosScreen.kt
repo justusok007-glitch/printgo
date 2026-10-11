@@ -425,7 +425,7 @@ fun PhotosScreen(
                         verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         items(uiState.filteredPhotos, key = { it.uri.toString() }) { photo ->
-                            val isSelected = selectionViewModel.isSelected(photo)
+                            val isSelected = selectedItems.any { it.uri == photo.uri }
 
                             PhotoGridItem(
                                 photo = photo,

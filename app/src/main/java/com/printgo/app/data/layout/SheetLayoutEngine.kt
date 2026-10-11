@@ -381,7 +381,9 @@ object SheetLayoutEngine {
         val clampedWidth = targetWidthPx.coerceIn(160, MAX_RENDER_WIDTH_PX)
         val targetHeight = (clampedWidth * sheet.aspectRatio).toInt().coerceAtLeast(100)
 
-        val cacheKey = "${sheet.sheetIndex}_${clampedWidth}_${settings.hashCode()}_${sheet.placements.size}"
+        val docSig = documents.joinToString("|") { "${it.pdfFile.absolutePath}:${it.pdfFile.lastModified()}:${it.pdfFile.length()}" }.hashCode()
+        val placeSig = sheet.placements.joinToString(",") { "${it.docIndex}.${it.pageIndexInDoc}.${it.rotationDegrees}.${it.isExcluded}" }.hashCode()
+        val cacheKey = "${sheet.sheetIndex}_${clampedWidth}_${settings.hashCode()}_${sheet.placements.size}_${docSig}_${placeSig}"
         sheetBitmapCache.get(cacheKey)?.let { cached ->
             if (!cached.isRecycled) return@withContext cached
         }

@@ -13,6 +13,10 @@ import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okio.BufferedSink
 import java.io.File
+import kotlinx.coroutines.suspendCancellableCoroutine
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.Response
 import java.io.IOException
 import java.net.SocketTimeoutException
 import javax.net.ssl.SSLException
@@ -198,7 +202,7 @@ class IppPrintClient(private val base: IppClient = IppClient()) {
         }
         val request = Request.Builder().url(url).post(body).header("Content-Type", "application/ipp").build()
         try {
-            client.newCall(request).execute().use { resp ->
+            client.newCall(request).await().use { resp ->
                 if (!resp.isSuccessful) {
                     val retry = resp.code >= 500 || resp.code == 408
                     val text = when (resp.code) {
@@ -279,4 +283,15 @@ class IppPrintClient(private val base: IppClient = IppClient()) {
         val msg = simpleOp(printer, pinned, OP_CANCEL_JOB, jobId) ?: return false
         return msg.isSuccess
     }
+}
+
+/** Runs an OkHttp call so that cancelling the coroutine really aborts the network transfer. */
+internal suspend fun Call.await(): Response = suspendCancellableCoroutine { cont ->
+    cont.invokeOnCancellation { try { cancel() } catch (_: Throwable) { } }
+    enqueue(object : Callback {
+        override fun onFailure(call: Call, e: IOException) { if (cont.isActive) cont.resumeWith(Result.failure(e)) }
+        override fun onResponse(call: Call, response: Response) {
+            if (cont.isActive) cont.resumeWith(Result.success(response)) else response.close()
+        }
+    })
 }

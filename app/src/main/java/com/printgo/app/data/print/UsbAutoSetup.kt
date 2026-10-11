@@ -72,9 +72,8 @@ object UsbAutoSetup {
                 }
             }
 
-            val lang = PrintJobManager.pickLanguage(id, name, "AUTO")
-            val unknownLanguage = id != null && PclEncoder.parseCmd(id).isNotEmpty() && lang == null
-            if (unknownLanguage) {
+            val lang = PrintJobManager.pickLanguage(id, name, "AUTO", strict = true)
+            if (lang == null) {
                 val caps = PrinterCapabilities.defaultFor(base).copy(makeAndModel = name)
                 return@withContext Result.NeedsPrintService(base, caps)
             }

@@ -410,7 +410,7 @@ fun DocumentsScreen(
                     }
                 } else {
                     items(uiState.filteredFiles, key = { it.uri.toString() }) { item ->
-                        val isSelected = selectionViewModel.isSelected(item)
+                        val isSelected = selectedItems.any { it.uri == item.uri }
 
                         DocumentListItem(
                             item = item,
