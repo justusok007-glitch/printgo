@@ -48,7 +48,7 @@ class IppClient {
         val initialPath = printer.resourcePath.trim().removePrefix("/").ifBlank { "ipp/print" }
         pathsToTry.add(initialPath)
 
-        val fallbackPaths = listOf("ipp/print", "ipp/printer", "ipp", "printers/ipp", "")
+        val fallbackPaths = listOf("ipp/print", "ipp/printer", "ipp", "ipp/port1", "printers/ipp", "")
         for (fb in fallbackPaths) {
             if (!pathsToTry.contains(fb)) {
                 pathsToTry.add(fb)

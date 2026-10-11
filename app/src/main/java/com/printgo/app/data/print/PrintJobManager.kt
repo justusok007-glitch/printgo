@@ -384,10 +384,12 @@ object PrintJobManager {
 
         // Raster first: a printer that cannot read PDF would otherwise print the PDF source as text.
         val ordered = when (appPrefs.dataFormat) {
-            "PDF" -> listOf("application/pdf", "image/pwg-raster", "image/jpeg")
-            "JPEG" -> listOf("image/jpeg", "image/pwg-raster", "application/pdf")
-            "PWG" -> listOf("image/pwg-raster", "application/pdf", "image/jpeg")
-            else -> listOf("image/pwg-raster", "application/pdf", "image/jpeg")
+            "PDF" -> listOf("application/pdf", "image/pwg-raster", "image/jpeg", MIME_PCL, MIME_PS)
+            "JPEG" -> listOf("image/jpeg", "image/pwg-raster", "application/pdf", MIME_PCL, MIME_PS)
+            "PWG" -> listOf("image/pwg-raster", "application/pdf", "image/jpeg", MIME_PCL, MIME_PS)
+            // Older office printers (no PWG raster) get PCL/PostScript pages rendered here, which they always
+            // understand, before PDF/JPEG, which they often only half support.
+            else -> listOf("image/pwg-raster", MIME_PCL, MIME_PS, "application/pdf", "image/jpeg")
         }
         val candidates = if (live.isNotEmpty()) ordered.filter { it in live } else ordered
         if (candidates.isEmpty()) {
@@ -407,6 +409,15 @@ object PrintJobManager {
                 val payloads = mutableListOf<Payload>()
                 when (mime) {
                     "application/pdf" -> payloads += Payload(pdf, mime, "PDF")
+                    MIME_PCL, MIME_PS -> {
+                        update(job.id) { it.copy(statusMessage = "Rendering pages…", progress = 0.15f) }
+                        val isPcl = mime == MIME_PCL
+                        val out = File(appContext.cacheDir, "job_${job.id}.${if (isPcl) "pcl" else "ps"}").also { temps += it }
+                        withContext(Dispatchers.Default) {
+                            renderRawFile(job, if (isPcl) RawLanguage.PCL else RawLanguage.POSTSCRIPT, pdf, out)
+                        }
+                        payloads += Payload(out, probe?.formats?.firstOrNull { it.equals(mime, true) } ?: mime, if (isPcl) "PCL" else "PostScript")
+                    }
                     "image/pwg-raster" -> {
                         update(job.id) { it.copy(statusMessage = "Rendering pages…", progress = 0.15f) }
                         val out = File(appContext.cacheDir, "job_${job.id}.pwg").also { temps += it }
@@ -442,9 +453,11 @@ object PrintJobManager {
                         )
                     }
                     var lastTick = 0L
-                    val sendOpts = when (p.mime) {
+                    val sendOpts = when (p.mime.lowercase()) {
                         "image/jpeg" -> opts.copy(printScaling = "fit")
                         "image/pwg-raster" -> opts.copy(printScaling = null)
+                        // Copies are already inside the PCL/PostScript data; asking again would multiply them.
+                        MIME_PCL, MIME_PS -> opts.copy(printScaling = null, copies = 1)
                         else -> opts
                     }
                     val res = ipp.printJob(printer, fingerprint, p.file, p.mime, sendOpts) { frac ->
@@ -488,13 +501,21 @@ object PrintJobManager {
     private suspend fun sendRawNetwork(job: PrintJobEntity, printer: Printer, pdf: File) {
         update(job.id) { it.copy(statusMessage = "Looking for a better way to talk to the printer…", progress = 0.12f) }
         val ippTry = printer.copy(protocol = PrinterProtocol.IPP, port = 631, resourcePath = "ipp/print")
-        val ippOpen = withContext(Dispatchers.IO) {
-            try { java.net.Socket().use { it.connect(java.net.InetSocketAddress(printer.host, 631), 1500) }; true } catch (e: Exception) { false }
-        }
+        val ippOpen = withContext(Dispatchers.IO) { Transports.isPortOpen(printer.host, 631) }
         val probe = if (ippOpen) ipp.probe(ippTry, null) else null
         if (probe != null) {
             sendIpp(job.copy(protocol = PrinterProtocol.IPP.name, port = 631), ippTry, pdf)
             return
+        }
+        // Many printers announce LPD (port 515) as well as raw 9100. LPD is a different protocol, so raw data
+        // sent there comes out as a few lines of junk. Prefer 9100; speak real LPD only when 9100 is closed.
+        val savedPort = if (printer.port > 0) printer.port else 9100
+        val (port, useLpd) = withContext(Dispatchers.IO) {
+            when {
+                savedPort == 515 && Transports.isPortOpen(printer.host, 9100) -> 9100 to false
+                savedPort == 515 -> 515 to true
+                else -> savedPort to false
+            }
         }
         val prefs = com.printgo.app.data.prefs.AppPreferences(appContext).current()
         val lang = if (prefs.bluetoothLanguage != "AUTO") pickLanguage(null, job.printerName, prefs.bluetoothLanguage)
@@ -504,14 +525,19 @@ object PrintJobManager {
             "This printer only accepts raw data on port 9100 and does not say which language it reads. " +
                 "Choose it in Settings → Raw printer language, or use \"Print with system dialog\".", false
         )
-        update(job.id) { it.copy(method = "Network • ${lang.label}", statusMessage = "Preparing pages…", progress = 0.25f) }
+        val via = if (useLpd) "LPD 515" else "port $port"
+        update(job.id) { it.copy(method = "Network ($via) • ${lang.label}", statusMessage = "Preparing pages…", progress = 0.25f) }
         val tmp = File(appContext.cacheDir, "job_${job.id}.raw")
         try {
             withContext(Dispatchers.Default) { renderRawFile(job, lang, pdf, tmp, pjl = false) }
             update(job.id) { it.copy(status = JobStatus.SENDING, statusMessage = "Sending to printer…", progress = 0.5f) }
             withContext(Dispatchers.IO) {
-                Transports.sendRaw9100(printer.host, printer.port, tmp) { p ->
-                    scope.launch { update(job.id) { j -> j.copy(progress = 0.5f + 0.45f * p) } }
+                val onProgress: (Float) -> Unit = { p -> scope.launch { update(job.id) { j -> j.copy(progress = 0.5f + 0.45f * p) } } }
+                if (useLpd) {
+                    val q = printer.resourcePath.trim().trim('/').takeIf { it.isNotBlank() && !it.equals("text", true) } ?: "raw"
+                    Transports.sendLpd(printer.host, 515, q, job.title, tmp, onProgress)
+                } else {
+                    Transports.sendRaw9100(printer.host, port, tmp, onProgress)
                 }
             }
         } finally { tmp.delete() }
@@ -572,6 +598,9 @@ object PrintJobManager {
             }
         }
     }
+
+    private const val MIME_PCL = "application/vnd.hp-pcl"
+    private const val MIME_PS = "application/postscript"
 
     enum class RawLanguage(val label: String) {
         PDF("PDF"), POSTSCRIPT("PostScript"), PCL("PCL"), ESCPOS("ESC/POS")
@@ -651,7 +680,7 @@ object PrintJobManager {
                     PdfPageRenderer(pdf).use { r ->
                         for (i in 0 until r.pageCount) {
                             val bmp = r.renderPage(i, (job.paperWidthMm / 25.4f * dpi).toInt())
-                            PclEncoder.writePage(os, bmp, dpi)
+                            PclEncoder.writePage(os, bmp, dpi, PclEncoder.logicalOffset300(job.paperWidthMm) * dpi / 300)
                             r.clearCache()
                         }
                     }

@@ -162,7 +162,9 @@ class WifiDiscoveryManager(
 
         if (result != null) {
             val hostAddress = result.host?.hostAddress ?: return
-            val port = result.port
+            val isLpd = (result.serviceType ?: "").contains("_printer")
+            // An LPD (port 515) entry is not a raw-data port: use the printer's raw port 9100 when it has one.
+            val port = if (isLpd && checkReachability(hostAddress, 9100, 1500)) 9100 else result.port
             val serviceName = result.serviceName ?: "Network Printer"
             val serviceType = result.serviceType ?: ""
 
@@ -194,10 +196,15 @@ class WifiDiscoveryManager(
                 isManual = false
             )
 
-            // De-duplicate matching host and name, keeping higher security protocol if already present
+            // De-duplicate matching host and name, keeping the best way in: IPPS > IPP > raw 9100 > LPD.
             val dedupeKey = "${hostAddress}_${serviceName.lowercase()}"
             val existing = printersMap[dedupeKey]
-            if (existing == null || (existing.protocol != PrinterProtocol.IPPS && protocol == PrinterProtocol.IPPS)) {
+            fun rank(p: Printer) = when (p.protocol) {
+                PrinterProtocol.IPPS -> 4
+                PrinterProtocol.IPP -> 3
+                else -> if (p.port == 515) 1 else 2
+            }
+            if (existing == null || rank(printer) > rank(existing)) {
                 printersMap[dedupeKey] = printer
                 publishPrinters()
             }

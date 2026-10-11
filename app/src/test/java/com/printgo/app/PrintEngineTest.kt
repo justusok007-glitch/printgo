@@ -164,3 +164,55 @@ class FormatChoiceTest {
         assertEquals(listOf("image/jpeg", "application/pdf"), ordered.filter { it in live })
     }
 }
+
+class NetworkTransportTest {
+
+    /** Fake RFC 1179 server: acks every step and records what arrives. */
+    @Test
+    fun lpdSendsQueueDataAndControlFile() {
+        val server = java.net.ServerSocket(0)
+        val received = java.util.concurrent.atomic.AtomicReference<ByteArray>()
+        val t = Thread {
+            server.accept().use { c ->
+                val inp = java.io.DataInputStream(c.getInputStream())
+                val out = c.getOutputStream()
+                val log = ByteArrayOutputStream()
+                fun line(): String { val sb = StringBuilder(); while (true) { val b = inp.read(); if (b < 0 || b == '\n'.code) break; sb.append(b.toChar()) }; return sb.toString() }
+                val cmd = line(); log.write((cmd + "\n").toByteArray()); out.write(0)
+                repeat(2) {
+                    val sub = line(); log.write((sub + "\n").toByteArray()); out.write(0)
+                    val len = sub.substring(1).substringBefore(' ').toInt()
+                    val data = ByteArray(len); inp.readFully(data); log.write(data)
+                    check(inp.read() == 0); out.write(0)
+                }
+                received.set(log.toByteArray())
+            }
+        }
+        t.start()
+        val f = java.io.File.createTempFile("job", ".pcl")
+        val payload = byteArrayOf(0x1B, 'E'.code.toByte(), 0, 10, 13, 0x0C, -1)
+        f.writeBytes(payload)
+        com.printgo.app.data.print.Transports.sendLpd("127.0.0.1", server.localPort, "raw", "Test job", f) { }
+        t.join(5000)
+        server.close()
+        val text = String(received.get(), Charsets.ISO_8859_1)
+        assertTrue(text.startsWith("\u0002raw\n"))
+        assertTrue(text.contains("\u0003${payload.size} dfA"))
+        assertTrue(String(received.get(), Charsets.ISO_8859_1).contains(String(payload, Charsets.ISO_8859_1)))
+        assertTrue(text.contains("\nldfA"))
+        assertTrue(text.contains("JTest job\n"))
+        f.delete()
+    }
+
+    @Test
+    fun pclHeaderClearsTopMarginAndOffsetsMatchPaper() {
+        val out = ByteArrayOutputStream()
+        com.printgo.app.data.print.PclEncoder.start(out, 1, 0, 26, "x")
+        val s = String(out.toByteArray(), Charsets.ISO_8859_1)
+        assertTrue(s.startsWith("\u001BE"))
+        assertTrue(s.contains("\u001B&l26A"))
+        assertTrue(s.indexOf("\u001B&l0E") > s.indexOf("\u001B&l0O"))
+        assertEquals(71, com.printgo.app.data.print.PclEncoder.logicalOffset300(210))
+        assertEquals(75, com.printgo.app.data.print.PclEncoder.logicalOffset300(216))
+    }
+}

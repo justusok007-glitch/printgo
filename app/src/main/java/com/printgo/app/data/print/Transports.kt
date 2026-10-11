@@ -22,6 +22,11 @@ object Transports {
 
     private val SPP: UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
 
+    /** True when [port] on [host] accepts a TCP connection within [timeoutMs]. */
+    fun isPortOpen(host: String, port: Int, timeoutMs: Int = 1500): Boolean = try {
+        Socket().use { it.connect(InetSocketAddress(host, port), timeoutMs) }; true
+    } catch (e: Exception) { false }
+
     fun sendRaw9100(host: String, port: Int, file: File, onProgress: (Float) -> Unit) {
         try {
             Socket().use { s ->
@@ -29,20 +34,83 @@ object Transports {
                 s.soTimeout = 15000
                 val total = file.length().coerceAtLeast(1)
                 var sent = 0L
-                s.getOutputStream().use { out ->
-                    file.inputStream().use { input ->
-                        val buf = ByteArray(8192)
-                        while (true) {
-                            val n = input.read(buf)
-                            if (n < 0) break
-                            out.write(buf, 0, n)
-                            sent += n
-                            onProgress(sent.toFloat() / total)
-                        }
+                val out = s.getOutputStream()
+                file.inputStream().use { input ->
+                    val buf = ByteArray(8192)
+                    while (true) {
+                        val n = input.read(buf)
+                        if (n < 0) break
+                        out.write(buf, 0, n)
+                        sent += n
+                        onProgress(sent.toFloat() / total)
                     }
-                    out.flush()
                 }
+                out.flush()
+                // Close gracefully: half-close, then let the printer finish reading before the socket goes away,
+                // so the end of the job is never cut off by a reset.
+                s.shutdownOutput()
+                drain(s, 5000)
             }
+        } catch (e: IOException) {
+            throw TransportException("Could not reach the printer at $host. Check that it is on and on the same Wi-Fi.")
+        }
+    }
+
+    private fun drain(s: Socket, timeoutMs: Int) {
+        try {
+            s.soTimeout = timeoutMs
+            val input = s.getInputStream()
+            val buf = ByteArray(1024)
+            val until = System.currentTimeMillis() + timeoutMs
+            while (System.currentTimeMillis() < until) { if (input.read(buf) < 0) break }
+        } catch (_: IOException) { }
+    }
+
+    /**
+     * Sends [file] as a binary job over LPD (RFC 1179, port 515). Used only when a printer offers LPD but
+     * not raw port 9100. [queue] "raw" passes the data through untouched on HP JetDirect and most others.
+     */
+    fun sendLpd(host: String, port: Int, queue: String, jobName: String, file: File, onProgress: (Float) -> Unit) {
+        try {
+            Socket().use { s ->
+                s.connect(InetSocketAddress(host, if (port > 0) port else 515), 6000)
+                s.soTimeout = 30000
+                val out = java.io.BufferedOutputStream(s.getOutputStream(), 32 * 1024)
+                val input = s.getInputStream()
+                fun ack(step: String) {
+                    out.flush()
+                    val b = input.read()
+                    if (b != 0) throw TransportException("The printer refused the job ($step). Try again or use \"Print with system dialog\".")
+                }
+                val num = (System.currentTimeMillis() % 1000).toString().padStart(3, '0')
+                val host8 = "printgo"
+                val df = "dfA$num$host8"
+                val cf = "cfA$num$host8"
+                val title = jobName.filter { it.code in 32..126 }.take(60).ifBlank { "PrintGo" }
+
+                out.write(byteArrayOf(2)); out.write("$queue\n".toByteArray(Charsets.US_ASCII)); ack("queue")
+
+                val total = file.length().coerceAtLeast(1)
+                out.write(byteArrayOf(3)); out.write("${file.length()} $df\n".toByteArray(Charsets.US_ASCII)); ack("data")
+                var sent = 0L
+                file.inputStream().use { inp ->
+                    val buf = ByteArray(8192)
+                    while (true) {
+                        val n = inp.read(buf)
+                        if (n < 0) break
+                        out.write(buf, 0, n)
+                        sent += n
+                        onProgress(sent.toFloat() / total)
+                    }
+                }
+                out.write(0); ack("data end")
+
+                val control = "H$host8\nPprintgo\nJ$title\nl$df\nU$df\nN$title\n".toByteArray(Charsets.US_ASCII)
+                out.write(byteArrayOf(2)); out.write("${control.size} $cf\n".toByteArray(Charsets.US_ASCII)); ack("control")
+                out.write(control); out.write(0); ack("control end")
+            }
+        } catch (e: TransportException) {
+            throw e
         } catch (e: IOException) {
             throw TransportException("Could not reach the printer at $host. Check that it is on and on the same Wi-Fi.")
         }

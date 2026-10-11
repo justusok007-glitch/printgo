@@ -23,26 +23,38 @@ object PclEncoder {
         out.esc("E")
         out.esc("&l${paperCode}A")
         out.esc("&l0O")
+        out.esc("&l0E")   // top margin 0: otherwise raster starts 1/2 inch down and the page bottom is lost
+        out.esc("&l0L")   // no perforation skip
         out.esc("&l${copies.coerceIn(1, 99)}X")
         out.esc("&l${duplex}S")   // 0 simplex, 1 long-edge, 2 short-edge
     }
 
+    /**
+     * PCL's x = 0 is the left edge of the "logical page", which sits about 1/4 inch in from the paper edge
+     * (71 dots at 300 dpi for A-sizes, 75 for US sizes). Skipping that many pixels keeps the printout where
+     * the preview shows it instead of shifting it right and cutting off the right edge.
+     */
+    fun logicalOffset300(widthMm: Int): Int = if (widthMm == 216 || widthMm == 215 || widthMm == 217) 75 else 71
+
     /** Writes one page as 1-bit (ordered-dither) raster at [dpi]. */
-    fun writePage(out: OutputStream, bmp: Bitmap, dpi: Int) {
+    fun writePage(out: OutputStream, bmp: Bitmap, dpi: Int, leftSkipPx: Int = 0) {
         out.esc("*t${dpi}R")
         out.esc("*r0F")
         out.esc("*p0x0Y")
+        val skip = leftSkipPx.coerceIn(0, (bmp.width - 8).coerceAtLeast(0))
+        val w = bmp.width
+        val outW = w - skip
+        val bytesPerRow = (outW + 7) / 8
+        out.esc("*r${outW}S")
         out.esc("*r1A")
         out.esc("*b0M")
-        val w = bmp.width
-        val bytesPerRow = (w + 7) / 8
         val px = IntArray(w)
         val bayer = intArrayOf(0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5)
         for (y in 0 until bmp.height) {
             bmp.getPixels(px, 0, w, 0, y, w, 1)
             val line = ByteArray(bytesPerRow)
-            for (x in 0 until w) {
-                val p = px[x]
+            for (x in 0 until outW) {
+                val p = px[x + skip]
                 val lum = (((p shr 16) and 0xFF) * 299 + ((p shr 8) and 0xFF) * 587 + (p and 0xFF) * 114) / 1000
                 val threshold = (bayer[(y and 3) * 4 + (x and 3)] * 16) + 8
                 if (lum < threshold) line[x shr 3] = (line[x shr 3].toInt() or (0x80 shr (x and 7))).toByte()
