@@ -9,7 +9,9 @@ data class PagePlacement(
     val destRectPt: RectF,
     val rotationDegrees: Int,
     val isExcluded: Boolean = false,
-    val docTitle: String = ""
+    val docTitle: String = "",
+    /** The grid cell this page belongs to; the page is clipped to it (matters for Fill and large scales). */
+    val cellRectPt: RectF? = null
 )
 
 data class Sheet(

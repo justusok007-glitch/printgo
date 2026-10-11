@@ -14,6 +14,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -194,27 +198,9 @@ fun HomeScreenContent(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(6.dp))
-                androidx.compose.material3.TextButton(
-                    onClick = onNavigateToJobs,
-                    modifier = Modifier.align(Alignment.CenterHorizontally).testTag("jobs_link")
-                ) {
-                    Text(
-                        text = "Print jobs & history",
-                        color = PrimaryBlue,
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
-                    )
-                }
-                Text(
-                    text = "Tip: share any file from your phone to PrintGo to print it",
-                    fontSize = 12.sp,
-                    color = BodyGray,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 24.dp)
-                )
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(14.dp))
+                CreatorCredit(modifier = Modifier.fillMaxWidth())
+                Spacer(modifier = Modifier.height(4.dp))
 
                 // Anchored bottom decoration at the bottom edge behind navigation bar inset
                 BottomWaveDecoration(
@@ -224,6 +210,52 @@ fun HomeScreenContent(
                         .navigationBarsPadding()
                 )
             }
+        }
+    }
+}
+
+private const val CREATOR_NAME = "Muhammad Saad Awan"
+private const val CREATOR_EMAIL = "saadawanok@gmail.com"
+
+/** "Created by" line with a tappable e-mail address, shown at the bottom of the home screen. */
+@Composable
+fun CreatorCredit(modifier: Modifier = Modifier) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    androidx.compose.foundation.layout.Column(
+        modifier = modifier.testTag("creator_credit"),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Created by : $CREATOR_NAME",
+            fontSize = 15.sp,
+            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+            color = PrimaryBlue,
+            textAlign = TextAlign.Center
+        )
+        androidx.compose.foundation.layout.Row(
+            modifier = Modifier
+                .padding(top = 2.dp)
+                .clip(androidx.compose.foundation.shape.RoundedCornerShape(8.dp))
+                .clickable {
+                    val intent = android.content.Intent(android.content.Intent.ACTION_SENDTO, android.net.Uri.parse("mailto:$CREATOR_EMAIL"))
+                    try { context.startActivity(intent) } catch (_: Exception) { }
+                }
+                .padding(horizontal = 8.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            androidx.compose.material3.Icon(
+                imageVector = androidx.compose.material.icons.Icons.Filled.Email,
+                contentDescription = null,
+                tint = PrimaryBlue,
+                modifier = Modifier.size(20.dp)
+            )
+            androidx.compose.foundation.layout.Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = CREATOR_EMAIL,
+                fontSize = 14.sp,
+                fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                color = PrimaryBlue
+            )
         }
     }
 }

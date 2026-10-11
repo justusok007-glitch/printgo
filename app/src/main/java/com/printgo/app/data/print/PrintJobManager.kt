@@ -163,6 +163,15 @@ object PrintJobManager {
         if (s.copies > 1) parts.add("${s.copies} copies")
         if (s.duplex != DuplexMode.ONE_SIDED) parts.add("Two-sided")
         if (s.pagesPerSheet.count > 1) parts.add("${s.pagesPerSheet.count} per sheet")
+        if (s.orientation != com.printgo.app.model.PrintOrientation.AUTO) parts.add(s.orientation.label)
+        when (val sel = s.pageSelection) {
+            is com.printgo.app.model.PageSelection.Odd -> parts.add("Odd pages")
+            is com.printgo.app.model.PageSelection.Even -> parts.add("Even pages")
+            is com.printgo.app.model.PageSelection.Range -> parts.add("Pages ${sel.text}")
+            else -> {}
+        }
+        if (s.reverseOrder) parts.add("Reversed")
+        if (s.scale is com.printgo.app.model.PrintScale.CustomPercent) parts.add(s.scale.label)
         return parts.joinToString(" • ")
     }
 
@@ -428,9 +437,9 @@ object PrintJobManager {
                         update(job.id) { it.copy(statusMessage = "Rendering pages…", progress = 0.15f) }
                         withContext(Dispatchers.Default) {
                             PdfPageRenderer(pdf).use { r ->
-                                val widthPx = (job.paperWidthMm / 25.4f * dpi).toInt()
+                                val widthPx = (minOf(job.paperWidthMm, job.paperHeightMm) / 25.4f * dpi).toInt()
                                 for (i in 0 until r.pageCount) {
-                                    val bmp = r.renderPage(i, widthPx)
+                                    val bmp = r.renderForPortraitPaper(i, widthPx)
                                     val f = File(appContext.cacheDir, "job_${job.id}_$i.jpg").also { temps += it }
                                     f.outputStream().use { o -> bmp.compress(Bitmap.CompressFormat.JPEG, 92, o) }
                                     r.clearCache()
@@ -587,8 +596,8 @@ object PrintJobManager {
             out.outputStream().buffered().use { os ->
                 PwgRasterEncoder.writeDocumentStart(os)
                 for (i in 0 until r.pageCount) {
-                    val widthPx = (job.paperWidthMm / 25.4f * dpi).toInt()
-                    val bmp = r.renderPage(i, widthPx)
+                    val widthPx = (minOf(job.paperWidthMm, job.paperHeightMm) / 25.4f * dpi).toInt()
+                    val bmp = r.renderForPortraitPaper(i, widthPx)
                     val header = PwgRasterEncoder.buildPageHeader(
                         bmp.width, bmp.height, dpi, grayscale, twoSided, tumble, 1, ptW, ptH, quality
                     )
@@ -679,7 +688,7 @@ object PrintJobManager {
                     val dpi = 300
                     PdfPageRenderer(pdf).use { r ->
                         for (i in 0 until r.pageCount) {
-                            val bmp = r.renderPage(i, (job.paperWidthMm / 25.4f * dpi).toInt())
+                            val bmp = r.renderForPortraitPaper(i, (minOf(job.paperWidthMm, job.paperHeightMm) / 25.4f * dpi).toInt())
                             PclEncoder.writePage(os, bmp, dpi, PclEncoder.logicalOffset300(job.paperWidthMm) * dpi / 300)
                             r.clearCache()
                         }
@@ -692,7 +701,7 @@ object PrintJobManager {
                     val dpi = if (job.quality == PrintQuality.HIGH.name) 200 else 150
                     PdfPageRenderer(pdf).use { r ->
                         for (i in 0 until r.pageCount) {
-                            val bmp = r.renderPage(i, (job.paperWidthMm / 25.4f * dpi).toInt())
+                            val bmp = r.renderForPortraitPaper(i, (minOf(job.paperWidthMm, job.paperHeightMm) / 25.4f * dpi).toInt())
                             PostScriptEncoder.writePage(os, bmp, ptW, ptH, grayscale, copies, duplexCode(job))
                             r.clearCache()
                         }
@@ -792,10 +801,10 @@ object PrintJobManager {
             } else {
                 withContext(Dispatchers.Default) {
                     PdfPageRenderer(pdf).use { r ->
-                        val widthPx = (job.paperWidthMm / 25.4f * dpiFor(job)).toInt()
+                        val widthPx = (minOf(job.paperWidthMm, job.paperHeightMm) / 25.4f * dpiFor(job)).toInt()
                         for (i in 0 until r.pageCount) {
                             val f = File(appContext.cacheDir, "job_${job.id}_$i.jpg").also { temps += it }
-                            f.outputStream().use { o -> r.renderPage(i, widthPx).compress(Bitmap.CompressFormat.JPEG, 92, o) }
+                            f.outputStream().use { o -> r.renderForPortraitPaper(i, widthPx).compress(Bitmap.CompressFormat.JPEG, 92, o) }
                             r.clearCache()
                             files += f to "image/jpeg"
                         }

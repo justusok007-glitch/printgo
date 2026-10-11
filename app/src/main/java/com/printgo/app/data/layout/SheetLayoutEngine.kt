@@ -59,6 +59,22 @@ object SheetLayoutEngine {
         val defaultHeightPt: Float = 841.89f // A4 height
     )
 
+    // Page sizes per PDF (points), keyed by file identity, so layouts use each page's real shape.
+    private val pageSizeCache = object : LruCache<String, List<Pair<Float, Float>>>(32) {}
+
+    private fun pageSizesFor(doc: PrintableDocument): List<Pair<Float, Float>>? {
+        val f = doc.pdfFile
+        val key = "${f.absolutePath}:${f.lastModified()}:${f.length()}"
+        pageSizeCache.get(key)?.let { return it }
+        return try {
+            PdfPageRenderer(f).use { r ->
+                (0 until r.pageCount).map { i -> r.pageSizePt(i).let { (w, h) -> w.toFloat() to h.toFloat() } }
+            }.also { pageSizeCache.put(key, it) }
+        } catch (e: Throwable) {
+            null // missing file or no native renderer (unit tests): fall back to A4
+        }
+    }
+
     /**
      * Collects all candidate source pages across all provided printable documents.
      */
@@ -66,13 +82,17 @@ object SheetLayoutEngine {
         val list = mutableListOf<SourceCandidate>()
         var globalIndex = 0
         documents.forEachIndexed { docIndex, doc ->
+            val sizes = pageSizesFor(doc)
             for (p in 0 until doc.pageCount) {
+                val size = sizes?.getOrNull(p)?.takeIf { it.first > 0f && it.second > 0f }
                 list.add(
                     SourceCandidate(
                         docIndex = docIndex,
                         pageIndexInDoc = p,
                         globalPageIndex = globalIndex++,
-                        document = doc
+                        document = doc,
+                        defaultWidthPt = size?.first ?: 595.28f,
+                        defaultHeightPt = size?.second ?: 841.89f
                     )
                 )
             }
@@ -130,125 +150,88 @@ object SheetLayoutEngine {
 
         if (pagesToLayout.isEmpty() && !includeExcludedForPreview) return emptyList()
 
-        // 1. Determine Paper Size & Sheet Orientation in points
-        val paperWidthMm = settings.paperSize.widthMm.toFloat()
-        val paperHeightMm = settings.paperSize.heightMm.toFloat()
-        val rawPaperWPt = paperWidthMm * POINTS_PER_MM
-        val rawPaperHPt = paperHeightMm * POINTS_PER_MM
+        val rawPaperWPt = settings.paperSize.widthMm.toFloat() * POINTS_PER_MM
+        val rawPaperHPt = settings.paperSize.heightMm.toFloat() * POINTS_PER_MM
 
-        val isLandscape = when (settings.orientation) {
-            PrintOrientation.PORTRAIT -> false
-            PrintOrientation.LANDSCAPE -> true
-            PrintOrientation.AUTO -> {
-                // Choose landscape when pagesPerSheet is 2 or 6, or when first source page is landscape
-                if (settings.pagesPerSheet == PagesPerSheet.TWO || settings.pagesPerSheet == PagesPerSheet.SIX) {
-                    true
-                } else {
-                    false
-                }
-            }
+        fun effectiveSize(c: SourceCandidate): Pair<Float, Float> {
+            val rotation = (settings.pageRotations[c.globalPageIndex] ?: 0) % 360
+            return if (rotation == 90 || rotation == 270) c.defaultHeightPt to c.defaultWidthPt
+            else c.defaultWidthPt to c.defaultHeightPt
         }
 
-        val sheetWidthPt = if (isLandscape) maxOf(rawPaperWPt, rawPaperHPt) else minOf(rawPaperWPt, rawPaperHPt)
-        val sheetHeightPt = if (isLandscape) minOf(rawPaperWPt, rawPaperHPt) else maxOf(rawPaperWPt, rawPaperHPt)
-
-        // 2. Margins
-        val marginLeftPt = settings.margins.leftMm * POINTS_PER_MM
-        val marginRightPt = settings.margins.rightMm * POINTS_PER_MM
-        val marginTopPt = settings.margins.topMm * POINTS_PER_MM
-        val marginBottomPt = settings.margins.bottomMm * POINTS_PER_MM
-
-        val printableWidthPt = maxOf(1f, sheetWidthPt - marginLeftPt - marginRightPt)
-        val printableHeightPt = maxOf(1f, sheetHeightPt - marginTopPt - marginBottomPt)
-
-        // 3. Grid Columns & Rows
-        val cols: Int
-        val rows: Int
-        if (sheetWidthPt >= sheetHeightPt) {
-            // Landscape sheet
-            when (settings.pagesPerSheet) {
-                PagesPerSheet.ONE -> { cols = 1; rows = 1 }
-                PagesPerSheet.TWO -> { cols = 2; rows = 1 }
-                PagesPerSheet.FOUR -> { cols = 2; rows = 2 }
-                PagesPerSheet.SIX -> { cols = 3; rows = 2 }
-                PagesPerSheet.NINE -> { cols = 3; rows = 3 }
-            }
-        } else {
-            // Portrait sheet
-            when (settings.pagesPerSheet) {
-                PagesPerSheet.ONE -> { cols = 1; rows = 1 }
-                PagesPerSheet.TWO -> { cols = 1; rows = 2 }
-                PagesPerSheet.FOUR -> { cols = 2; rows = 2 }
-                PagesPerSheet.SIX -> { cols = 2; rows = 3 }
-                PagesPerSheet.NINE -> { cols = 3; rows = 3 }
-            }
-        }
-
-        val cellWidthPt = printableWidthPt / cols
-        val cellHeightPt = printableHeightPt / rows
-        val cellsPerSheet = cols * rows
-
+        val cellsPerSheet = settings.pagesPerSheet.count
         val sheets = mutableListOf<Sheet>()
-        val chunked = pagesToLayout.chunked(cellsPerSheet)
 
-        chunked.forEachIndexed { sheetIdx, chunk ->
-            val placements = mutableListOf<PagePlacement>()
-
-            chunk.forEachIndexed { cellIdx, candidate ->
-                val col: Int
-                val row: Int
-                when (settings.pageOrder) {
-                    PageOrder.LEFT_TO_RIGHT -> {
-                        row = cellIdx / cols
-                        col = cellIdx % cols
-                    }
-                    PageOrder.RIGHT_TO_LEFT -> {
-                        row = cellIdx / cols
-                        col = (cols - 1) - (cellIdx % cols)
-                    }
-                    PageOrder.TOP_TO_BOTTOM -> {
-                        col = cellIdx / rows
-                        row = cellIdx % rows
-                    }
+        pagesToLayout.chunked(cellsPerSheet).forEachIndexed { sheetIdx, chunk ->
+            // Orientation: forced by the user, or (Auto) taken from the page itself for 1-up, landscape for 2/6-up.
+            val isLandscape = when (settings.orientation) {
+                PrintOrientation.PORTRAIT -> false
+                PrintOrientation.LANDSCAPE -> true
+                PrintOrientation.AUTO -> when (settings.pagesPerSheet) {
+                    PagesPerSheet.TWO, PagesPerSheet.SIX -> true
+                    PagesPerSheet.ONE -> chunk.firstOrNull()?.let { effectiveSize(it).let { (w, h) -> w > h } } ?: false
+                    else -> false
                 }
+            }
+            val sheetWidthPt = if (isLandscape) maxOf(rawPaperWPt, rawPaperHPt) else minOf(rawPaperWPt, rawPaperHPt)
+            val sheetHeightPt = if (isLandscape) minOf(rawPaperWPt, rawPaperHPt) else maxOf(rawPaperWPt, rawPaperHPt)
 
+            val marginLeftPt = settings.margins.leftMm * POINTS_PER_MM
+            val marginRightPt = settings.margins.rightMm * POINTS_PER_MM
+            val marginTopPt = settings.margins.topMm * POINTS_PER_MM
+            val marginBottomPt = settings.margins.bottomMm * POINTS_PER_MM
+            val printableWidthPt = maxOf(1f, sheetWidthPt - marginLeftPt - marginRightPt)
+            val printableHeightPt = maxOf(1f, sheetHeightPt - marginTopPt - marginBottomPt)
+
+            val (cols, rows) = if (sheetWidthPt >= sheetHeightPt) {
+                when (settings.pagesPerSheet) {
+                    PagesPerSheet.ONE -> 1 to 1
+                    PagesPerSheet.TWO -> 2 to 1
+                    PagesPerSheet.FOUR -> 2 to 2
+                    PagesPerSheet.SIX -> 3 to 2
+                    PagesPerSheet.NINE -> 3 to 3
+                }
+            } else {
+                when (settings.pagesPerSheet) {
+                    PagesPerSheet.ONE -> 1 to 1
+                    PagesPerSheet.TWO -> 1 to 2
+                    PagesPerSheet.FOUR -> 2 to 2
+                    PagesPerSheet.SIX -> 2 to 3
+                    PagesPerSheet.NINE -> 3 to 3
+                }
+            }
+            val cellWidthPt = printableWidthPt / cols
+            val cellHeightPt = printableHeightPt / rows
+
+            val placements = chunk.mapIndexed { cellIdx, candidate ->
+                val (col, row) = when (settings.pageOrder) {
+                    PageOrder.LEFT_TO_RIGHT -> (cellIdx % cols) to (cellIdx / cols)
+                    PageOrder.RIGHT_TO_LEFT -> ((cols - 1) - (cellIdx % cols)) to (cellIdx / cols)
+                    PageOrder.TOP_TO_BOTTOM -> (cellIdx / rows) to (cellIdx % rows)
+                }
                 val cellLeft = marginLeftPt + col * cellWidthPt
                 val cellTop = marginTopPt + row * cellHeightPt
-
                 val rotation = (settings.pageRotations[candidate.globalPageIndex] ?: 0) % 360
-                val effectiveSrcW: Float
-                val effectiveSrcH: Float
-                if (rotation == 90 || rotation == 270) {
-                    effectiveSrcW = candidate.defaultHeightPt
-                    effectiveSrcH = candidate.defaultWidthPt
-                } else {
-                    effectiveSrcW = candidate.defaultWidthPt
-                    effectiveSrcH = candidate.defaultHeightPt
-                }
+                val (srcW, srcH) = effectiveSize(candidate)
 
-                val destRect = computeDestinationRect(
-                    cellLeft = cellLeft,
-                    cellTop = cellTop,
-                    cellWidth = cellWidthPt,
-                    cellHeight = cellHeightPt,
-                    srcWidth = effectiveSrcW,
-                    srcHeight = effectiveSrcH,
-                    scale = settings.scale,
-                    alignment = settings.alignment
-                )
-
-                val isExcluded = settings.excludedPages.contains(candidate.globalPageIndex)
-
-                placements.add(
-                    PagePlacement(
-                        docIndex = candidate.docIndex,
-                        pageIndexInDoc = candidate.pageIndexInDoc,
-                        globalPageIndex = candidate.globalPageIndex,
-                        destRectPt = destRect,
-                        rotationDegrees = rotation,
-                        isExcluded = isExcluded,
-                        docTitle = candidate.document.title
-                    )
+                PagePlacement(
+                    docIndex = candidate.docIndex,
+                    pageIndexInDoc = candidate.pageIndexInDoc,
+                    globalPageIndex = candidate.globalPageIndex,
+                    destRectPt = computeDestinationRect(
+                        cellLeft = cellLeft,
+                        cellTop = cellTop,
+                        cellWidth = cellWidthPt,
+                        cellHeight = cellHeightPt,
+                        srcWidth = srcW,
+                        srcHeight = srcH,
+                        scale = settings.scale,
+                        alignment = settings.alignment
+                    ),
+                    rotationDegrees = rotation,
+                    isExcluded = settings.excludedPages.contains(candidate.globalPageIndex),
+                    docTitle = candidate.document.title,
+                    cellRectPt = RectF(cellLeft, cellTop, cellLeft + cellWidthPt, cellTop + cellHeightPt)
                 )
             }
 
@@ -265,6 +248,13 @@ object SheetLayoutEngine {
         }
 
         return sheets
+    }
+
+    /** Part of a placement that is actually printed: the page box clipped to its cell (and margins). */
+    fun visibleRect(p: PagePlacement): RectF? {
+        val r = RectF(p.destRectPt)
+        val clip = p.cellRectPt ?: return r
+        return if (r.intersect(clip)) r else null
     }
 
     /**
@@ -442,35 +432,20 @@ object SheetLayoutEngine {
                         }
                     }
 
-                    var pageBmp: Bitmap? = null
-                    try {
-                        pageBmp = renderer.renderPage(
-                            pageIndex = placement.pageIndexInDoc,
-                            targetWidth = destWPx
-                        )
-                    } catch (e: Exception) {
-                        // Fallback placeholder bitmap for test/missing native environment
-                        pageBmp = Bitmap.createBitmap(destWPx, destHPx, Bitmap.Config.ARGB_8888).apply {
-                            eraseColor(Color.WHITE)
-                        }
-                    }
-
-                    if (pageBmp != null) {
-                        val matrix = Matrix()
-                        if (placement.rotationDegrees != 0) {
-                            matrix.postRotate(
-                                placement.rotationDegrees.toFloat(),
-                                pageBmp.width / 2f,
-                                pageBmp.height / 2f
+                    val visible = visibleRect(placement)
+                    if (visible != null) {
+                        try {
+                            val part = renderer.renderRegion(
+                                placement.pageIndexInDoc, placement.destRectPt, visible, placement.rotationDegrees, ptToPx
                             )
+                            canvas.drawBitmap(
+                                part, null,
+                                RectF(visible.left * ptToPx, visible.top * ptToPx, visible.right * ptToPx, visible.bottom * ptToPx),
+                                paint
+                            )
+                        } catch (e: Exception) {
+                            // Missing native renderer (tests) or unreadable page: leave the area white.
                         }
-                        matrix.postScale(
-                            destWPx.toFloat() / pageBmp.width,
-                            destHPx.toFloat() / pageBmp.height
-                        )
-                        matrix.postTranslate(destLeftPx, destTopPx)
-
-                        canvas.drawBitmap(pageBmp, matrix, paint)
                     }
                 } else if (placement.isExcluded) {
                     // Dimmed exclusion overlay
@@ -515,6 +490,12 @@ object SheetLayoutEngine {
         outputFile: File
     ): File = withContext(Dispatchers.Default) {
         val paddedSheets = padSheetsForDuplex(sheets, settings.duplex)
+        // Pixels per point for page images inside the PDF: 1 pt = 1/72 inch, so 2.5 ≈ 180 dpi, 4 ≈ 288 dpi.
+        val exportPxPerPt = when (settings.quality) {
+            com.printgo.app.model.PrintQuality.DRAFT -> 1.5f
+            com.printgo.app.model.PrintQuality.HIGH -> 4f
+            else -> 2.5f
+        }
 
         try {
             val pdfDoc = PdfDocument()
@@ -543,32 +524,18 @@ object SheetLayoutEngine {
                                 PdfPageRenderer(doc.pdfFile)
                             }
 
-                            val destW = (placement.destRectPt.right - placement.destRectPt.left).toInt().coerceAtLeast(1)
-                            val destH = (placement.destRectPt.bottom - placement.destRectPt.top).toInt().coerceAtLeast(1)
-
+                            val visible = visibleRect(placement) ?: continue
                             try {
-                                val pageBmp = renderer.renderPage(placement.pageIndexInDoc, destW * 2)
-                                val matrix = Matrix().apply {
-                                    if (placement.rotationDegrees != 0) {
-                                        postRotate(
-                                            placement.rotationDegrees.toFloat(),
-                                            pageBmp.width / 2f,
-                                            pageBmp.height / 2f
-                                        )
-                                    }
-                                    postScale(
-                                        destW.toFloat() / pageBmp.width,
-                                        destH.toFloat() / pageBmp.height
-                                    )
-                                    postTranslate(placement.destRectPt.left, placement.destRectPt.top)
-                                }
+                                val part = renderer.renderRegion(
+                                    placement.pageIndexInDoc, placement.destRectPt, visible, placement.rotationDegrees, exportPxPerPt
+                                )
                                 val paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
                                 if (settings.colorMode == PrintColorMode.GRAYSCALE) {
                                     paint.colorFilter = ColorMatrixColorFilter(ColorMatrix().apply { setSaturation(0f) })
                                 }
-                                canvas.drawBitmap(pageBmp, matrix, paint)
+                                canvas.drawBitmap(part, null, visible, paint)
                             } catch (e: Exception) {
-                                // Draw fallback in tests
+                                // Unreadable page: leave it white rather than failing the whole job.
                             }
                         }
 

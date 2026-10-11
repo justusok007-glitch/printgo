@@ -88,19 +88,26 @@ data class PrinterCapabilities(
             val a4 = PaperSize("A4", 210, 297)
             val letter = PaperSize("Letter", 216, 279)
             val photo4x6 = PaperSize("4x6 Photo", 102, 152)
+            val legal = PaperSize("Legal", 216, 356)
+            val a5 = PaperSize("A5", 148, 210)
+            val a3 = PaperSize("A3", 297, 420)
 
+            // Used when the printer cannot be asked (raw port 9100, Bluetooth, USB without IPP). Nothing is
+            // known for sure, so allow every common option; a printer without a duplex unit simply prints
+            // one-sided, and the printer itself asks for paper it does not have loaded.
             return PrinterCapabilities(
                 makeAndModel = printer.model ?: printer.make ?: printer.name,
                 state = if (printer.isOnline) "Idle" else "Offline",
                 stateReasons = if (printer.isOnline) emptyList() else listOf("offline"),
                 isAcceptingJobs = printer.isOnline,
-                mediaSupported = listOf(a4, letter, photo4x6),
+                mediaSupported = listOf(a4, a5, a3, letter, legal, photo4x6),
                 mediaDefault = "A4",
                 mediaReady = listOf("A4"),
-                sidesSupported = if (printer.supportsDuplex) listOf("one-sided", "two-sided-long-edge") else listOf("one-sided"),
+                sidesSupported = if (printer.connectionType == ConnectionType.PDF) listOf("one-sided")
+                else listOf("one-sided", "two-sided-long-edge", "two-sided-short-edge"),
                 colorSupported = printer.supportsColor,
                 colorModesSupported = if (printer.supportsColor) listOf("color", "monochrome") else listOf("monochrome"),
-                qualitiesSupported = listOf("normal", "high"),
+                qualitiesSupported = listOf("draft", "normal", "high"),
                 resolutionsSupported = listOf(300, 600),
                 copiesMax = 99,
                 orientationsSupported = listOf("portrait", "landscape"),
@@ -108,12 +115,7 @@ data class PrinterCapabilities(
                 pageRangesSupported = true,
                 numberUpSupported = listOf(1, 2, 4),
                 printScalingSupported = listOf("auto", "fit", "fill"),
-                markerLevels = if (printer.connectionType == ConnectionType.PDF) emptyList() else listOf(
-                    Marker("Black Toner", "#000000", 85, "toner"),
-                    Marker("Cyan Toner", "#00BCD4", 70, "toner"),
-                    Marker("Magenta Toner", "#E91E63", 65, "toner"),
-                    Marker("Yellow Toner", "#FFEB3B", 90, "toner")
-                ),
+                markerLevels = emptyList(), // unknown: never show made-up toner levels
                 location = null,
                 infoUrl = null
             )

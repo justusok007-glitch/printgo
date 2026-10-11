@@ -281,4 +281,64 @@ class SheetLayoutEngineTest {
         assertTrue(p[0].destRectPt.top < p[1].destRectPt.top)
         assertTrue(p[2].destRectPt.left > p[0].destRectPt.left)
     }
+
+    private fun doc(pages: Int) = PrintableDocument(
+        sourceItem = com.printgo.app.model.PrintItem(
+            uri = android.net.Uri.parse("file:///tmp/doc_sel.pdf"),
+            displayName = "Sel",
+            mimeType = "application/pdf",
+            sizeBytes = 1L,
+            type = com.printgo.app.model.PrintItemType.PDF
+        ),
+        pdfFile = File("/tmp/nonexistent_sel.pdf"),
+        pageCount = pages,
+        title = "Sel"
+    )
+
+    @Test
+    fun `odd pages in reverse order`() {
+        val sheets = SheetLayoutEngine.computeSheets(
+            listOf(doc(7)), PrintSettings(pageSelection = PageSelection.Odd, reverseOrder = true), includeExcludedForPreview = false
+        )
+        assertEquals(listOf(6, 4, 2, 0), sheets.map { it.placements.single().globalPageIndex })
+    }
+
+    @Test
+    fun `range selection keeps only listed pages`() {
+        val sheets = SheetLayoutEngine.computeSheets(
+            listOf(doc(10)), PrintSettings(pageSelection = PageSelection.Range("2-3, 9")), includeExcludedForPreview = false
+        )
+        assertEquals(listOf(1, 2, 8), sheets.map { it.placements.single().globalPageIndex })
+    }
+
+    @Test
+    fun `landscape orientation gives wide sheets and auto keeps portrait pages portrait`() {
+        val land = SheetLayoutEngine.computeSheets(listOf(doc(1)), PrintSettings(orientation = com.printgo.app.model.PrintOrientation.LANDSCAPE), false)
+        assertTrue(land[0].paperWidthPt > land[0].paperHeightPt)
+        val auto = SheetLayoutEngine.computeSheets(listOf(doc(1)), PrintSettings(), false)
+        assertTrue(auto[0].paperWidthPt < auto[0].paperHeightPt)
+    }
+
+    @Test
+    fun `legal paper gives legal sized sheets`() {
+        val sheets = SheetLayoutEngine.computeSheets(
+            listOf(doc(1)), PrintSettings(paperSize = com.printgo.app.model.PaperSize("Legal", 216, 356)), false
+        )
+        assertEquals(216 * SheetLayoutEngine.POINTS_PER_MM, sheets[0].paperWidthPt, 0.5f)
+        assertEquals(356 * SheetLayoutEngine.POINTS_PER_MM, sheets[0].paperHeightPt, 0.5f)
+    }
+
+    @Test
+    fun `large custom scale is clipped to the printable cell`() {
+        val sheets = SheetLayoutEngine.computeSheets(
+            listOf(doc(1)), PrintSettings(scale = PrintScale.CustomPercent(300), alignment = PrintAlignment.TOP_LEFT), false
+        )
+        val p = sheets[0].placements.single()
+        assertTrue(p.destRectPt.width() > sheets[0].paperWidthPt)
+        val visible = SheetLayoutEngine.visibleRect(p)!!
+        val cell = p.cellRectPt!!
+        assertEquals(cell.left, visible.left, 0.01f)
+        assertEquals(cell.right, visible.right, 0.01f)
+        assertEquals(cell.bottom, visible.bottom, 0.01f)
+    }
 }

@@ -2,6 +2,17 @@ package com.printgo.app.screens
 
 import android.graphics.Bitmap
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.ui.text.input.KeyboardType
+import com.printgo.app.model.PageRangeParser
+import com.printgo.app.model.PageRangeResult
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
@@ -208,6 +219,13 @@ fun PreviewScreen(
             }
         }
         isConvertingAny = false
+    }
+
+    // Page range / rotations belong to this selection of documents
+    LaunchedEffect(selectedItems) {
+        if (selectedItems.isNotEmpty()) {
+            printSettingsViewModel.onDocumentsChanged(selectedItems.joinToString("|") { it.uri.toString() })
+        }
     }
 
     // Keep settings aligned with selected printer capabilities
@@ -543,7 +561,9 @@ fun PreviewScreen(
             capabilities = (printerCapabilities as? com.printgo.app.viewmodel.CapabilitiesState.Ready)?.capabilities,
             onDismiss = { showSettingsDialog = false },
             onUpdateSettings = { printSettingsViewModel.updateSettings(it) },
-            onResetDefaults = { printSettingsViewModel.resetToDefaults() }
+            onResetDefaults = { printSettingsViewModel.resetToDefaults() },
+            totalPages = totalSourcePages,
+            onSetPageSelection = { printSettingsViewModel.setPageSelection(it) }
         )
     }
 
@@ -652,7 +672,7 @@ private fun SettingsSummaryHeaderCard(
             Column(modifier = Modifier.weight(1f)) {
                 // Line 1: Paper Size | Quality | Duplex
                 Text(
-                    text = "${settings.paperSize.name} • ${settings.quality.label} • ${settings.duplex.label}",
+                    text = "${settings.paperSize.name} • ${settings.orientation.label} • ${settings.duplex.label}",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
                     color = HeadingNavy
@@ -660,7 +680,7 @@ private fun SettingsSummaryHeaderCard(
                 Spacer(modifier = Modifier.height(2.dp))
                 // Line 2: Scale | Margins | Alignment
                 Text(
-                    text = "${settings.scale.label} • ${settings.margins.label} • ${settings.alignment.label}",
+                    text = "${settings.scale.label} • ${settings.margins.label} • Position: ${settings.alignment.label}",
                     fontSize = 11.sp,
                     color = Color(0xFF475569)
                 )
@@ -674,7 +694,7 @@ private fun SettingsSummaryHeaderCard(
                     is PageSelection.Custom -> "${sel.pages.size} selected page(s)"
                 }
                 Text(
-                    text = "Copies: ${settings.copies} • $pageSelectionText • ${settings.colorMode.label} • ${settings.pagesPerSheet.count}-up",
+                    text = "Copies: ${settings.copies} • $pageSelectionText${if (settings.reverseOrder) " (reversed)" else ""} • ${settings.colorMode.label} • ${settings.pagesPerSheet.count}-up",
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Medium,
                     color = PrimaryBlue
@@ -1038,7 +1058,9 @@ private fun PrintSettingsBottomSheet(
     capabilities: com.printgo.app.model.PrinterCapabilities?,
     onDismiss: () -> Unit,
     onUpdateSettings: ((PrintSettings) -> PrintSettings) -> Unit,
-    onResetDefaults: () -> Unit
+    onResetDefaults: () -> Unit,
+    totalPages: Int,
+    onSetPageSelection: (PageSelection) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -1054,20 +1076,15 @@ private fun PrintSettingsBottomSheet(
                 .padding(horizontal = 20.dp, vertical = 12.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            // Header Row
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "Print Settings",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = HeadingNavy
-                )
+                Text("Print Settings", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = HeadingNavy)
                 TextButton(onClick = {
                     onResetDefaults()
+                    onSetPageSelection(PageSelection.All)
                     onDismiss()
                 }) {
                     Text("Reset Defaults", fontSize = 12.sp, color = ActionBlue)
@@ -1076,7 +1093,7 @@ private fun PrintSettingsBottomSheet(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // 1. Copies Stepper
+            // Copies
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -1087,13 +1104,7 @@ private fun PrintSettingsBottomSheet(
                     Text("1 to ${capabilities?.copiesMax ?: 99}", fontSize = 11.sp, color = Color.Gray)
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(
-                        onClick = {
-                            if (settings.copies > 1) {
-                                onUpdateSettings { it.copy(copies = it.copies - 1) }
-                            }
-                        }
-                    ) {
+                    IconButton(onClick = { if (settings.copies > 1) onUpdateSettings { it.copy(copies = it.copies - 1) } }) {
                         Icon(Icons.Default.Remove, contentDescription = "Decrease copies")
                     }
                     Text(
@@ -1103,14 +1114,10 @@ private fun PrintSettingsBottomSheet(
                         color = HeadingNavy,
                         modifier = Modifier.padding(horizontal = 8.dp)
                     )
-                    IconButton(
-                        onClick = {
-                            val max = capabilities?.copiesMax ?: 99
-                            if (settings.copies < max) {
-                                onUpdateSettings { it.copy(copies = it.copies + 1) }
-                            }
-                        }
-                    ) {
+                    IconButton(onClick = {
+                        val max = capabilities?.copiesMax ?: 99
+                        if (settings.copies < max) onUpdateSettings { it.copy(copies = it.copies + 1) }
+                    }) {
                         Icon(Icons.Default.Add, contentDescription = "Increase copies")
                     }
                 }
@@ -1118,170 +1125,345 @@ private fun PrintSettingsBottomSheet(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // 2. Paper Size
-            Text("Paper Size", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = HeadingNavy)
-            Spacer(modifier = Modifier.height(6.dp))
+            // Pages: all / odd / even / range, and reverse order
+            PageSelectionSection(
+                selection = settings.pageSelection,
+                totalPages = totalPages,
+                onSetPageSelection = onSetPageSelection
+            )
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(10.dp))
+                    .clickable { onUpdateSettings { it.copy(reverseOrder = !it.reverseOrder) } }
+                    .padding(vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                val sizes = listOf(
-                    PaperSize("A4", 210, 297),
-                    PaperSize("Letter", 216, 279),
-                    PaperSize("Legal", 216, 356),
-                    PaperSize("4x6 Photo", 102, 152)
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Reverse order", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = HeadingNavy)
+                    Text("Print the selected pages last page first", fontSize = 11.sp, color = Color.Gray)
+                }
+                Switch(
+                    checked = settings.reverseOrder,
+                    onCheckedChange = { checked -> onUpdateSettings { it.copy(reverseOrder = checked) } },
+                    colors = SwitchDefaults.colors(checkedTrackColor = PrimaryBlue)
                 )
-                sizes.forEach { size ->
-                    val selected = settings.paperSize.name.equals(size.name, ignoreCase = true)
-                    FilterChip(
-                        selected = selected,
-                        onClick = { onUpdateSettings { it.copy(paperSize = size) } },
-                        label = { Text(size.name, fontSize = 12.sp) },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = PrimaryBlue,
-                            selectedLabelColor = Color.White
-                        )
-                    )
-                }
             }
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // 3. Scale Mode
-            Text("Scale", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = HeadingNavy)
-            Spacer(modifier = Modifier.height(6.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                listOf(
-                    PrintScale.FitToPage to "Fit",
-                    PrintScale.FillPage to "Fill",
-                    PrintScale.ActualSize to "Actual"
-                ).forEach { (scale, label) ->
-                    val selected = settings.scale::class == scale::class
-                    FilterChip(
-                        selected = selected,
-                        onClick = { onUpdateSettings { it.copy(scale = scale) } },
-                        label = { Text(label, fontSize = 12.sp) },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = PrimaryBlue,
-                            selectedLabelColor = Color.White
-                        )
-                    )
-                }
-            }
+            ChipGroup(
+                title = "Paper Size",
+                options = listOf(
+                    PaperSize("A4", 210, 297) to "A4",
+                    PaperSize("A5", 148, 210) to "A5",
+                    PaperSize("Letter", 216, 279) to "Letter",
+                    PaperSize("Legal", 216, 356) to "Legal",
+                    PaperSize("4x6 Photo", 102, 152) to "4x6 Photo"
+                ),
+                isSelected = { settings.paperSize.name.equals(it.name, ignoreCase = true) },
+                onSelect = { size -> onUpdateSettings { it.copy(paperSize = size) } }
+            )
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // 4. Pages Per Sheet (N-Up)
-            Text("Pages Per Sheet", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = HeadingNavy)
-            Spacer(modifier = Modifier.height(6.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                PagesPerSheet.entries.forEach { pps ->
-                    val selected = settings.pagesPerSheet == pps
-                    FilterChip(
-                        selected = selected,
-                        onClick = { onUpdateSettings { it.copy(pagesPerSheet = pps) } },
-                        label = { Text("${pps.count}-up", fontSize = 12.sp) },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = PrimaryBlue,
-                            selectedLabelColor = Color.White
-                        )
-                    )
-                }
-            }
+            ChipGroup(
+                title = "Orientation",
+                options = listOf(
+                    PrintOrientation.AUTO to "Auto",
+                    PrintOrientation.PORTRAIT to "Portrait",
+                    PrintOrientation.LANDSCAPE to "Landscape"
+                ),
+                isSelected = { settings.orientation == it },
+                onSelect = { o -> onUpdateSettings { it.copy(orientation = o) } },
+                hint = "Auto follows each page's own shape."
+            )
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // 5. Duplex Mode
-            Text("2-Sided Printing", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = HeadingNavy)
-            Spacer(modifier = Modifier.height(6.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                listOf(
+            ScaleSection(settings = settings, onUpdateSettings = onUpdateSettings)
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            PrintPositionSection(
+                alignment = settings.alignment,
+                onSelect = { a -> onUpdateSettings { it.copy(alignment = a) } }
+            )
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            ChipGroup(
+                title = "Pages Per Sheet",
+                options = PagesPerSheet.entries.map { it to "${it.count}-up" },
+                isSelected = { settings.pagesPerSheet == it },
+                onSelect = { pps -> onUpdateSettings { it.copy(pagesPerSheet = pps) } }
+            )
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            ChipGroup(
+                title = "2-Sided Printing",
+                options = listOf(
                     DuplexMode.ONE_SIDED to "1-Sided",
                     DuplexMode.TWO_SIDED_LONG_EDGE to "Long Edge",
                     DuplexMode.TWO_SIDED_SHORT_EDGE to "Short Edge"
-                ).forEach { (mode, label) ->
-                    val selected = settings.duplex == mode
-                    FilterChip(
-                        selected = selected,
-                        onClick = { onUpdateSettings { it.copy(duplex = mode) } },
-                        label = { Text(label, fontSize = 12.sp) },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = PrimaryBlue,
-                            selectedLabelColor = Color.White
-                        )
-                    )
-                }
-            }
+                ),
+                isSelected = { settings.duplex == it },
+                onSelect = { mode -> onUpdateSettings { it.copy(duplex = mode) } },
+                hint = "Long edge: book style. Short edge: notepad style (for landscape pages). Needs a printer with automatic 2-sided printing."
+            )
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // 6. Color Mode
-            Text("Color Mode", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = HeadingNavy)
-            Spacer(modifier = Modifier.height(6.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                PrintColorMode.entries.forEach { mode ->
-                    val selected = settings.colorMode == mode
-                    FilterChip(
-                        selected = selected,
-                        onClick = { onUpdateSettings { it.copy(colorMode = mode) } },
-                        label = { Text(mode.label, fontSize = 12.sp) },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = PrimaryBlue,
-                            selectedLabelColor = Color.White
-                        )
-                    )
-                }
-            }
+            ChipGroup(
+                title = "Color Mode",
+                options = PrintColorMode.entries.map { it to it.label },
+                isSelected = { settings.colorMode == it },
+                onSelect = { mode -> onUpdateSettings { it.copy(colorMode = mode) } }
+            )
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // 7. Margins
-            Text("Margins", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = HeadingNavy)
-            Spacer(modifier = Modifier.height(6.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                listOf(
+            ChipGroup(
+                title = "Margins",
+                options = listOf(
                     PrintMargins.None to "None",
                     PrintMargins.Narrow to "Narrow",
                     PrintMargins.Normal to "Normal",
                     PrintMargins.Wide to "Wide"
-                ).forEach { (m, label) ->
-                    val selected = settings.margins::class == m::class
-                    FilterChip(
-                        selected = selected,
-                        onClick = { onUpdateSettings { it.copy(margins = m) } },
-                        label = { Text(label, fontSize = 12.sp) },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = PrimaryBlue,
-                            selectedLabelColor = Color.White
-                        )
-                    )
-                }
-            }
+                ),
+                isSelected = { settings.margins::class == it::class },
+                onSelect = { m -> onUpdateSettings { it.copy(margins = m) } }
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            PrimaryButton(
-                text = "Apply & Close",
-                onClick = onDismiss,
-                backgroundColor = ActionBlue
-            )
+            PrimaryButton(text = "Apply & Close", onClick = onDismiss, backgroundColor = ActionBlue)
             Spacer(modifier = Modifier.height(12.dp))
         }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun <T> ChipGroup(
+    title: String,
+    options: List<Pair<T, String>>,
+    isSelected: (T) -> Boolean,
+    onSelect: (T) -> Unit,
+    hint: String? = null
+) {
+    Text(title, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = HeadingNavy)
+    if (hint != null) Text(hint, fontSize = 11.sp, color = Color.Gray)
+    Spacer(modifier = Modifier.height(6.dp))
+    FlowRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        options.forEach { (value, label) ->
+            FilterChip(
+                selected = isSelected(value),
+                onClick = { onSelect(value) },
+                label = { Text(label, fontSize = 12.sp) },
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = PrimaryBlue,
+                    selectedLabelColor = Color.White
+                )
+            )
+        }
+    }
+}
+
+private fun selectedPageCount(selection: PageSelection, total: Int): Int = when (selection) {
+    is PageSelection.All -> total
+    is PageSelection.Odd -> (total + 1) / 2
+    is PageSelection.Even -> total / 2
+    is PageSelection.Range -> (PageRangeParser.parse(selection.text, total) as? PageRangeResult.Success)?.pages?.size ?: total
+    is PageSelection.Custom -> selection.pages.count { it in 1..total }
+}
+
+@Composable
+private fun PageSelectionSection(
+    selection: PageSelection,
+    totalPages: Int,
+    onSetPageSelection: (PageSelection) -> Unit
+) {
+    var rangeMode by remember { mutableStateOf(selection is PageSelection.Range) }
+    var rangeText by remember { mutableStateOf((selection as? PageSelection.Range)?.text ?: "") }
+    val rangeResult = if (rangeText.isBlank()) null else PageRangeParser.parse(rangeText, totalPages)
+
+    ChipGroup(
+        title = "Pages",
+        options = listOf("all" to "All", "odd" to "Odd", "even" to "Even", "range" to "Range"),
+        isSelected = { key ->
+            when (key) {
+                "range" -> rangeMode
+                "odd" -> !rangeMode && selection is PageSelection.Odd
+                "even" -> !rangeMode && selection is PageSelection.Even
+                else -> !rangeMode && (selection is PageSelection.All || selection is PageSelection.Custom)
+            }
+        },
+        onSelect = { key ->
+            when (key) {
+                "range" -> {
+                    rangeMode = true
+                    if (rangeResult is PageRangeResult.Success) onSetPageSelection(PageSelection.Range(rangeText.trim()))
+                }
+                "odd" -> { rangeMode = false; onSetPageSelection(PageSelection.Odd) }
+                "even" -> { rangeMode = false; onSetPageSelection(PageSelection.Even) }
+                else -> { rangeMode = false; onSetPageSelection(PageSelection.All) }
+            }
+        }
+    )
+    if (rangeMode) {
+        Spacer(modifier = Modifier.height(6.dp))
+        OutlinedTextField(
+            value = rangeText,
+            onValueChange = { input ->
+                val clean = input.filter { it.isDigit() || it == ',' || it == '-' || it == ' ' }
+                rangeText = clean
+                val r = PageRangeParser.parse(clean, totalPages)
+                if (r is PageRangeResult.Success) onSetPageSelection(PageSelection.Range(clean.trim()))
+            },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            label = { Text("Pages to print") },
+            placeholder = { Text("e.g. 1-3, 5, 8") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            isError = rangeResult is PageRangeResult.Error,
+            supportingText = {
+                Text(
+                    when (rangeResult) {
+                        is PageRangeResult.Error -> rangeResult.message
+                        is PageRangeResult.Success -> "${rangeResult.pages.size} of $totalPages pages selected"
+                        null -> "Document has $totalPages pages. Use commas and dashes, e.g. 1-3, 5, 8"
+                    },
+                    fontSize = 11.sp
+                )
+            }
+        )
+    } else if (totalPages > 0) {
+        Text(
+            "${selectedPageCount(selection, totalPages)} of $totalPages pages selected",
+            fontSize = 11.sp,
+            color = Color.Gray
+        )
+    }
+}
+
+@Composable
+private fun ScaleSection(
+    settings: PrintSettings,
+    onUpdateSettings: ((PrintSettings) -> PrintSettings) -> Unit
+) {
+    val custom = settings.scale as? PrintScale.CustomPercent
+    ChipGroup(
+        title = "Scale",
+        options = listOf("fit" to "Fit", "fill" to "Fill", "actual" to "Actual size", "custom" to "Custom"),
+        isSelected = { key ->
+            when (key) {
+                "fit" -> settings.scale is PrintScale.FitToPage
+                "fill" -> settings.scale is PrintScale.FillPage
+                "actual" -> settings.scale is PrintScale.ActualSize
+                else -> custom != null
+            }
+        },
+        onSelect = { key ->
+            val scale = when (key) {
+                "fit" -> PrintScale.FitToPage
+                "fill" -> PrintScale.FillPage
+                "actual" -> PrintScale.ActualSize
+                else -> custom ?: PrintScale.CustomPercent(100)
+            }
+            onUpdateSettings { it.copy(scale = scale) }
+        }
+    )
+    if (custom != null) {
+        var sliderValue by remember(custom.percent) { mutableFloatStateOf(custom.percent.toFloat()) }
+        fun apply(p: Int) {
+            val v = p.coerceIn(25, 400)
+            onUpdateSettings { it.copy(scale = PrintScale.CustomPercent(v)) }
+        }
+        Spacer(modifier = Modifier.height(4.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            IconButton(onClick = { apply(custom.percent - 5) }) {
+                Icon(Icons.Default.Remove, contentDescription = "Smaller")
+            }
+            Slider(
+                value = sliderValue,
+                onValueChange = { sliderValue = (it / 5f).roundToInt() * 5f },
+                onValueChangeFinished = { apply(sliderValue.roundToInt()) },
+                valueRange = 25f..400f,
+                modifier = Modifier.weight(1f),
+                colors = SliderDefaults.colors(thumbColor = PrimaryBlue, activeTrackColor = PrimaryBlue)
+            )
+            IconButton(onClick = { apply(custom.percent + 5) }) {
+                Icon(Icons.Default.Add, contentDescription = "Larger")
+            }
+            Text(
+                "${sliderValue.roundToInt()}%",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = HeadingNavy,
+                modifier = Modifier.widthIn(min = 48.dp)
+            )
+        }
+        Text("Percent of the page's actual size (25–400%).", fontSize = 11.sp, color = Color.Gray)
+    }
+}
+
+@Composable
+private fun PrintPositionSection(
+    alignment: PrintAlignment,
+    onSelect: (PrintAlignment) -> Unit
+) {
+    Text("Print Position", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = HeadingNavy)
+    Text(
+        "Where the page sits on the paper when it does not fill it (actual size, custom scale, or a different shape).",
+        fontSize = 11.sp,
+        color = Color.Gray
+    )
+    Spacer(modifier = Modifier.height(8.dp))
+    val grid = listOf(
+        listOf(PrintAlignment.TOP_LEFT, PrintAlignment.TOP, PrintAlignment.TOP_RIGHT),
+        listOf(PrintAlignment.LEFT, PrintAlignment.CENTER, PrintAlignment.RIGHT),
+        listOf(PrintAlignment.BOTTOM_LEFT, PrintAlignment.BOTTOM, PrintAlignment.BOTTOM_RIGHT)
+    )
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Surface(
+            shape = RoundedCornerShape(10.dp),
+            color = Color(0xFFF1F5F9),
+            border = BorderStroke(1.dp, PrimaryBlue.copy(alpha = 0.18f))
+        ) {
+            Column(modifier = Modifier.padding(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                grid.forEach { row ->
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        row.forEach { a ->
+                            val selected = a == alignment
+                            Box(
+                                modifier = Modifier
+                                    .size(width = 40.dp, height = 34.dp)
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(if (selected) PrimaryBlue else Color.White)
+                                    .border(1.dp, PrimaryBlue.copy(alpha = if (selected) 1f else 0.25f), RoundedCornerShape(6.dp))
+                                    .clickable { onSelect(a) }
+                                    .testTag("position_${a.name}"),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(10.dp)
+                                        .clip(CircleShape)
+                                        .background(if (selected) Color.White else PrimaryBlue.copy(alpha = 0.35f))
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        Spacer(modifier = Modifier.width(14.dp))
+        Text(alignment.label, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = HeadingNavy)
     }
 }
 

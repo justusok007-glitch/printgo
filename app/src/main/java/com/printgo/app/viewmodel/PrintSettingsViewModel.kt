@@ -239,6 +239,22 @@ class PrintSettingsViewModel(application: Application) : AndroidViewModel(applic
         updateSettings { it.copy(watermark = watermark) }
     }
 
+    private var lastDocumentsKey: String? = null
+
+    /**
+     * Page choices (range, odd/even, rotations, removed pages) belong to one set of documents; start fresh
+     * when the user opens a different selection, but keep them while moving around the same one.
+     */
+    fun onDocumentsChanged(key: String) {
+        if (key == lastDocumentsKey) return
+        val first = lastDocumentsKey == null
+        lastDocumentsKey = key
+        if (first && _settings.value.pageSelection == PageSelection.All) return
+        _settings.update {
+            it.copy(pageSelection = PageSelection.All, pageRotations = emptyMap(), excludedPages = emptySet())
+        }
+    }
+
     fun resetToDefaults() {
         _settings.update { current ->
             val def = PrintSettings.DEFAULT.copy(
