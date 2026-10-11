@@ -75,6 +75,7 @@ jobs:
         run: |
           mkdir -p "$RUNNER_TEMP/logs"
           tail -n 6000 "$RUNNER_TEMP/test.log" > "$RUNNER_TEMP/logs/test.log" || true
+          cp app/build/test-results/testDebugUnitTest/*.xml "$RUNNER_TEMP/logs/" 2>/dev/null || true
           cd "$RUNNER_TEMP/logs"
           git init -q -b ci-logs-tests
           git config user.name "github-actions"
