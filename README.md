@@ -20,7 +20,7 @@ Wi-Fi printers are discovered with mDNS and driven directly over IPP. No account
 - **Locally:** open in Android Studio (JDK 17) and run the `app` configuration.
 
 ## Docs
-[Release guide](docs/RELEASE.md) · [Test checklist](docs/TEST_CHECKLIST.md) · [Privacy policy](docs/PRIVACY_POLICY.md) · [Play Store listing](docs/PLAY_STORE_LISTING.md)
+[Master prompt for future updates](docs/MASTER_PROMPT.md) · [Project guide](CLAUDE.md) · [Release guide](docs/RELEASE.md) · [Test checklist](docs/TEST_CHECKLIST.md) · [Privacy policy](docs/PRIVACY_POLICY.md) · [Play Store listing](docs/PLAY_STORE_LISTING.md)
 
 ## Known limitations
 - USB/Bluetooth laser and inkjet printing works only when the printer understands IPP-USB, PDF, PostScript or PCL. Host-based (GDI) printers and vendor-only languages need Wi-Fi or the system print dialog. Few office printers accept Bluetooth serial data at all.
