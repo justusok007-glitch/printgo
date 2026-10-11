@@ -22,6 +22,9 @@ object PrintNotifications {
     const val CHANNEL_RESULT = "printgo_result"
     const val ID_FOREGROUND = 4101
 
+    /** Mirrors the "Job notifications" setting. */
+    @Volatile var resultsEnabled: Boolean = true
+
     fun createChannels(context: Context) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
         val nm = context.getSystemService(NotificationManager::class.java)
@@ -67,6 +70,7 @@ object PrintNotifications {
 
     @SuppressLint("MissingPermission")
     fun result(context: Context, job: PrintJobEntity) {
+        if (!resultsEnabled) return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
         ) return

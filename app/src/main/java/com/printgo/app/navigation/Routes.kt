@@ -9,6 +9,10 @@ sealed class Screen(val route: String) {
     data object Preview : Screen("preview")
     data object Settings : Screen("settings")
     data object Jobs : Screen("jobs")
+    data object Help : Screen("help")
+    data object About : Screen("about")
+    data object Privacy : Screen("privacy")
+    data object Onboarding : Screen("onboarding")
     data object JobDetails : Screen("job/{jobId}") {
         fun create(id: String) = "job/$id"
     }
