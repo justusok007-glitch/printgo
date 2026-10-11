@@ -91,6 +91,7 @@ fun SettingsScreen(
     val settings by prefs.settings.collectAsState(initial = AppSettings())
     var showHistoryDialog by remember { mutableStateOf(false) }
     var showBtDialog by remember { mutableStateOf(false) }
+    var showFormatDialog by remember { mutableStateOf(false) }
     var showClearCache by remember { mutableStateOf(false) }
     var cacheMessage by remember { mutableStateOf<String?>(null) }
 
@@ -123,7 +124,11 @@ fun SettingsScreen(
             ) { showHistoryDialog = true }
 
             SettingsRow(
-                Icons.Filled.Print, "Bluetooth printer language",
+                Icons.Filled.Print, "File format for Wi-Fi printers",
+                if (settings.dataFormat == "PDF") "PDF first (sharper text, needs a PDF-capable printer)" else "Automatic (safest: picture pages)"
+            ) { showFormatDialog = true }
+            SettingsRow(
+                Icons.Filled.Print, "Raw printer language",
                 when (settings.bluetoothLanguage) {
                     "ESCPOS" -> "Receipt / label (ESC/POS)"
                     "PCL" -> "Laser / inkjet (PCL)"
@@ -191,13 +196,40 @@ fun SettingsScreen(
         )
     }
 
+    if (showFormatDialog) {
+        AlertDialog(
+            onDismissRequest = { showFormatDialog = false },
+            title = { Text("File format for Wi-Fi printers") },
+            text = {
+                Column {
+                    Text("Automatic sends picture pages, which every IPP printer understands. Choose PDF only if your printer prints PDFs correctly and you want smaller, sharper files.", fontSize = 13.sp, color = BodyGray)
+                    Spacer(Modifier.height(8.dp))
+                    listOf("AUTO" to "Automatic (recommended)", "PDF" to "PDF first").forEach { (code, label) ->
+                        Row(
+                            Modifier.fillMaxWidth().clickable {
+                                scope.launch { prefs.setDataFormat(code) }
+                                showFormatDialog = false
+                            }.padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(selected = settings.dataFormat == code, onClick = null)
+                            Spacer(Modifier.width(8.dp))
+                            Text(label)
+                        }
+                    }
+                }
+            },
+            confirmButton = { TextButton(onClick = { showFormatDialog = false }) { Text("Close") } }
+        )
+    }
+
     if (showBtDialog) {
         AlertDialog(
             onDismissRequest = { showBtDialog = false },
-            title = { Text("Bluetooth printer language") },
+            title = { Text("Raw printer language") },
             text = {
                 Column {
-                    Text("Bluetooth printers do not tell PrintGo what they understand. Pick the one that matches your printer. USB printers are detected automatically.", fontSize = 13.sp, color = BodyGray)
+                    Text("Used for Bluetooth printers and Wi-Fi printers that only accept raw data (port 9100). Pick the language your printer reads. USB printers are detected automatically.", fontSize = 13.sp, color = BodyGray)
                     Spacer(Modifier.height(8.dp))
                     listOf(
                         "AUTO" to "Automatic (guess from the name)",

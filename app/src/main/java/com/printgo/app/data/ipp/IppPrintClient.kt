@@ -34,6 +34,8 @@ data class IppJobOptions(
     val supportsColorModes: Boolean = true
 )
 
+data class IppProbe(val formats: List<String>, val path: String, val pwgResolutions: List<Int>)
+
 sealed interface IppSendResult {
     data class Accepted(val jobId: Int, val jobUri: String?, val statusCode: Int) : IppSendResult
     data class Failed(val message: String, val statusCode: Int = -1, val retryable: Boolean = true) : IppSendResult
@@ -93,6 +95,17 @@ class IppPrintClient(private val base: IppClient = IppClient()) {
                 else -> null
             }
         }
+    }
+
+    /** Live Get-Printer-Attributes: which formats the printer accepts right now and where to send them. */
+    suspend fun probe(printer: Printer, pinned: String?): IppProbe? {
+        val r = base.getPrinterAttributes(printer, pinned)
+        if (r !is IppResult.Success) return null
+        val msg = r.response
+        val res = msg.findAttribute("pwg-raster-document-resolution-supported")?.values
+            ?.mapNotNull { (it as? IppValue.ResolutionValue)?.let { v -> if (v.units.toInt() == 4) (v.xRes * 2.54f).toInt() else v.xRes } }
+            ?: emptyList()
+        return IppProbe(msg.getStrings("document-format-supported"), r.effectivePath, res)
     }
 
     private fun opAttrs(printerUri: String, extra: List<IppAttribute> = emptyList()): IppAttributeGroup {

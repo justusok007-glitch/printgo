@@ -340,15 +340,7 @@ object PrintJobManager {
             printer.connectionType == ConnectionType.PDF -> savePdf(job, pdf)
             printer.connectionType == ConnectionType.WIFI && (printer.protocol == PrinterProtocol.IPP || printer.protocol == PrinterProtocol.IPPS) ->
                 sendIpp(job, printer, pdf)
-            printer.connectionType == ConnectionType.WIFI && printer.protocol == PrinterProtocol.RAW9100 -> {
-                update(job.id) { it.copy(status = JobStatus.SENDING, statusMessage = "Sending to printer…", method = "RAW 9100") }
-                withContext(Dispatchers.IO) {
-                    Transports.sendRaw9100(printer.host, printer.port, pdf) { p ->
-                        scope.launch { update(job.id) { j -> j.copy(progress = 0.1f + 0.85f * p) } }
-                    }
-                }
-                complete(job.id, "Sent to ${job.printerName}.")
-            }
+            printer.connectionType == ConnectionType.WIFI && printer.protocol == PrinterProtocol.RAW9100 -> sendRawNetwork(job, printer, pdf)
             printer.connectionType == ConnectionType.BLUETOOTH || printer.connectionType == ConnectionType.USB ->
                 sendDirect(job, printer, pdf)
             else -> throw PrintFailure("This printer type is not supported yet. Use \"Print with system dialog\".", false)
@@ -367,10 +359,17 @@ object PrintJobManager {
 
     private fun dpiFor(job: PrintJobEntity): Int = if (job.quality == PrintQuality.DRAFT.name) 150 else 300
 
-    private suspend fun sendIpp(job: PrintJobEntity, printer: Printer, pdf: File) {
-        val formats = job.formatsCsv.lowercase().split(",").map { it.trim() }
+    private suspend fun sendIpp(job: PrintJobEntity, printer0: Printer, pdf: File) {
         val fingerprint = printerDao.getPrinter(job.printerId)?.tlsFingerprint
+        val appPrefs = com.printgo.app.data.prefs.AppPreferences(appContext).current()
         val sides = job.sidesCsv.split(",").map { it.trim() }
+
+        // Ask the printer what it accepts right now instead of trusting saved guesses.
+        update(job.id) { it.copy(statusMessage = "Asking the printer what it accepts…", progress = 0.12f) }
+        val probe = ipp.probe(printer0, fingerprint)
+        val printer = if (probe != null && probe.path.isNotBlank()) printer0.copy(resourcePath = probe.path) else printer0
+        val live = probe?.formats?.map { it.lowercase() } ?: emptyList()
+
         val opts = IppJobOptions(
             jobName = job.title,
             copies = job.copies,
@@ -383,79 +382,140 @@ object PrintJobManager {
             supportsColorModes = job.colorModesSupported
         )
 
-        val sendPdf = formats.isEmpty() || "application/pdf" in formats
-        val sendPwg = !sendPdf && "image/pwg-raster" in formats
-        val sendJpeg = !sendPdf && !sendPwg && "image/jpeg" in formats
-        if (!sendPdf && !sendPwg && !sendJpeg) {
+        // Raster first: a printer that cannot read PDF would otherwise print the PDF source as text.
+        val all = listOf("image/pwg-raster", "image/jpeg", "application/pdf")
+        val ordered = when (appPrefs.dataFormat) {
+            "PDF" -> listOf("application/pdf", "image/pwg-raster", "image/jpeg")
+            else -> all
+        }
+        val candidates = if (live.isNotEmpty()) ordered.filter { it in live } else ordered
+        if (candidates.isEmpty()) {
             throw PrintFailure(
-                "This printer only understands formats PrintGo cannot send directly (${formats.take(3).joinToString()}). Use \"Print with system dialog\" instead.",
+                "This printer only accepts formats PrintGo cannot send (${live.take(3).joinToString()}). Use \"Print with system dialog\" on the job screen.",
                 false
             )
         }
+        val dpi = pickDpi(job, probe?.pwgResolutions ?: emptyList())
 
-        data class Payload(val file: File, val mime: String, val label: String)
-        val payloads = mutableListOf<Payload>()
         val temps = mutableListOf<File>()
         try {
-            when {
-                sendPdf -> payloads += Payload(pdf, "application/pdf", "PDF")
-                sendPwg -> {
-                    update(job.id) { it.copy(statusMessage = "Rendering pages…", progress = 0.15f) }
-                    val out = File(appContext.cacheDir, "job_${job.id}.pwg").also { temps += it }
-                    withContext(Dispatchers.Default) { renderPwg(job, pdf, out) }
-                    payloads += Payload(out, "image/pwg-raster", "PWG raster")
-                }
-                else -> {
-                    update(job.id) { it.copy(statusMessage = "Rendering pages…", progress = 0.15f) }
-                    withContext(Dispatchers.Default) {
-                        PdfPageRenderer(pdf).use { r ->
-                            val dpi = dpiFor(job)
-                            val widthPx = (job.paperWidthMm / 25.4f * dpi).toInt()
-                            for (i in 0 until r.pageCount) {
-                                val bmp = r.renderPage(i, widthPx)
-                                val f = File(appContext.cacheDir, "job_${job.id}_$i.jpg").also { temps += it }
-                                f.outputStream().use { o -> bmp.compress(Bitmap.CompressFormat.JPEG, 92, o) }
-                                r.clearCache()
-                                payloads += Payload(f, "image/jpeg", "page ${i + 1}")
+            var done = false
+            var lastFormatError: String? = null
+            for (mime in candidates) {
+                data class Payload(val file: File, val mime: String, val label: String)
+                val payloads = mutableListOf<Payload>()
+                when (mime) {
+                    "application/pdf" -> payloads += Payload(pdf, mime, "PDF")
+                    "image/pwg-raster" -> {
+                        update(job.id) { it.copy(statusMessage = "Rendering pages…", progress = 0.15f) }
+                        val out = File(appContext.cacheDir, "job_${job.id}.pwg").also { temps += it }
+                        withContext(Dispatchers.Default) { renderPwg(job, pdf, out, dpi) }
+                        payloads += Payload(out, mime, "PWG raster")
+                    }
+                    else -> {
+                        update(job.id) { it.copy(statusMessage = "Rendering pages…", progress = 0.15f) }
+                        withContext(Dispatchers.Default) {
+                            PdfPageRenderer(pdf).use { r ->
+                                val widthPx = (job.paperWidthMm / 25.4f * dpi).toInt()
+                                for (i in 0 until r.pageCount) {
+                                    val bmp = r.renderPage(i, widthPx)
+                                    val f = File(appContext.cacheDir, "job_${job.id}_$i.jpg").also { temps += it }
+                                    f.outputStream().use { o -> bmp.compress(Bitmap.CompressFormat.JPEG, 92, o) }
+                                    r.clearCache()
+                                    payloads += Payload(f, "image/jpeg", "page ${i + 1}")
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            payloads.forEachIndexed { index, p ->
-                val base = 0.2f + 0.7f * index / payloads.size
-                val span = 0.7f / payloads.size
-                update(job.id) {
-                    it.copy(
-                        status = JobStatus.SENDING,
-                        statusMessage = if (payloads.size > 1) "Sending ${p.label} (${index + 1}/${payloads.size})…" else "Sending to printer…",
-                        method = "IPP • ${p.label}", progress = base
-                    )
-                }
-                var lastTick = 0L
-                val res = ipp.printJob(printer, fingerprint, p.file, p.mime, opts) { frac ->
-                    val t = now()
-                    if (t - lastTick > 400) {
-                        lastTick = t
-                        scope.launch { update(job.id) { j -> if (j.status == JobStatus.SENDING) j.copy(progress = base + span * frac) else j } }
+                var rejected = false
+                for ((index, p) in payloads.withIndex()) {
+                    val base = 0.2f + 0.7f * index / payloads.size
+                    val span = 0.7f / payloads.size
+                    update(job.id) {
+                        it.copy(
+                            status = JobStatus.SENDING,
+                            statusMessage = if (payloads.size > 1) "Sending ${p.label} (${index + 1}/${payloads.size})…" else "Sending to printer…",
+                            method = "IPP • ${p.label}", progress = base
+                        )
                     }
-                }
-                when (res) {
-                    is IppSendResult.Accepted -> {
-                        update(job.id) { it.copy(remoteJobId = res.jobId, status = JobStatus.PRINTING, statusMessage = "Printer accepted the job…", progress = base + span) }
-                        if (res.jobId > 0) track(job.id, printer, fingerprint, res.jobId)
+                    var lastTick = 0L
+                    val res = ipp.printJob(printer, fingerprint, p.file, p.mime, opts) { frac ->
+                        val t = now()
+                        if (t - lastTick > 400) {
+                            lastTick = t
+                            scope.launch { update(job.id) { j -> if (j.status == JobStatus.SENDING) j.copy(progress = base + span * frac) else j } }
+                        }
                     }
-                    is IppSendResult.Failed -> throw PrintFailure(res.message, res.retryable)
-                    is IppSendResult.TlsUntrusted -> throw PrintFailure(
-                        "PrintGo does not trust this printer's certificate yet. Open Printers, tap the printer and connect again.", false
-                    )
+                    when (res) {
+                        is IppSendResult.Accepted -> {
+                            update(job.id) { it.copy(remoteJobId = res.jobId, status = JobStatus.PRINTING, statusMessage = "Printer accepted the job…", progress = base + span) }
+                            if (res.jobId > 0) track(job.id, printer, fingerprint, res.jobId)
+                        }
+                        is IppSendResult.Failed -> {
+                            // 0x040A / 0x040B: the printer does not take this format; try the next one.
+                            if (index == 0 && (res.statusCode == 0x040A || res.statusCode == 0x040B || res.statusCode == 0x0400)) {
+                                rejected = true
+                                lastFormatError = res.message
+                            } else throw PrintFailure(res.message, res.retryable)
+                        }
+                        is IppSendResult.TlsUntrusted -> throw PrintFailure(
+                            "PrintGo does not trust this printer's certificate yet. Open Printers, tap the printer and connect again.", false
+                        )
+                    }
+                    if (rejected) break
                 }
+                if (!rejected) { done = true; break }
             }
+            if (!done) throw PrintFailure(lastFormatError ?: "The printer rejected every file format PrintGo can send. Use \"Print with system dialog\".", false)
             complete(job.id, "Printed on ${job.printerName}.")
         } finally {
             temps.forEach { it.delete() }
         }
+    }
+
+    /**
+     * Port-9100 printers take raw data in their own language. Most of them also answer IPP, which is
+     * far safer, so try that first; otherwise use the chosen raw language. Raw PDF is never guessed.
+     */
+    private suspend fun sendRawNetwork(job: PrintJobEntity, printer: Printer, pdf: File) {
+        update(job.id) { it.copy(statusMessage = "Looking for a better way to talk to the printer…", progress = 0.12f) }
+        val ippTry = printer.copy(protocol = PrinterProtocol.IPP, port = 631, resourcePath = "ipp/print")
+        val ippOpen = withContext(Dispatchers.IO) {
+            try { java.net.Socket().use { it.connect(java.net.InetSocketAddress(printer.host, 631), 1500) }; true } catch (e: Exception) { false }
+        }
+        val probe = if (ippOpen) ipp.probe(ippTry, null) else null
+        if (probe != null) {
+            sendIpp(job.copy(protocol = PrinterProtocol.IPP.name, port = 631), ippTry, pdf)
+            return
+        }
+        val prefs = com.printgo.app.data.prefs.AppPreferences(appContext).current()
+        val lang = if (prefs.bluetoothLanguage != "AUTO") pickLanguage(null, job.printerName, prefs.bluetoothLanguage)
+        else if (officeBrandHints.any { h -> job.printerName.lowercase().contains(h) }) RawLanguage.PCL
+        else null
+        if (lang == null) throw PrintFailure(
+            "This printer only accepts raw data on port 9100 and does not say which language it reads. " +
+                "Choose it in Settings → Raw printer language, or use \"Print with system dialog\".", false
+        )
+        update(job.id) { it.copy(method = "Network • ${lang.label}", statusMessage = "Preparing pages…", progress = 0.25f) }
+        val tmp = File(appContext.cacheDir, "job_${job.id}.raw")
+        try {
+            withContext(Dispatchers.Default) { renderRawFile(job, lang, pdf, tmp, pjl = false) }
+            update(job.id) { it.copy(status = JobStatus.SENDING, statusMessage = "Sending to printer…", progress = 0.5f) }
+            withContext(Dispatchers.IO) {
+                Transports.sendRaw9100(printer.host, printer.port, tmp) { p ->
+                    scope.launch { update(job.id) { j -> j.copy(progress = 0.5f + 0.45f * p) } }
+                }
+            }
+        } finally { tmp.delete() }
+        complete(job.id, "Sent to ${job.printerName}.")
+    }
+
+    private fun pickDpi(job: PrintJobEntity, supported: List<Int>): Int {
+        val want = if (job.quality == PrintQuality.DRAFT.name) 150 else 300
+        if (supported.isEmpty()) return want
+        return supported.minByOrNull { kotlin.math.abs(it - want) } ?: want
     }
 
     private suspend fun track(id: String, printer: Printer, fp: String?, remoteId: Int) {
@@ -484,9 +544,9 @@ object PrintJobManager {
         }
     }
 
-    private fun renderPwg(job: PrintJobEntity, pdf: File, out: File) {
+    private fun renderPwg(job: PrintJobEntity, pdf: File, out: File, dpiOverride: Int? = null) {
         val grayscale = job.colorMode == PrintColorMode.GRAYSCALE.name
-        val dpi = dpiFor(job)
+        val dpi = dpiOverride ?: dpiFor(job)
         val (ptW, ptH) = IppMedia.pointsFor(PaperSize(job.paperName, job.paperWidthMm, job.paperHeightMm))
         val twoSided = job.duplex != DuplexMode.ONE_SIDED.name
         val tumble = job.duplex == DuplexMode.TWO_SIDED_SHORT_EDGE.name

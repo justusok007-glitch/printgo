@@ -20,7 +20,8 @@ data class AppSettings(
     val autoCleanCache: Boolean = true,
     val defaultColorMode: String = "COLOR",
     val defaultPaper: String = "A4",
-    val bluetoothLanguage: String = "AUTO"   // AUTO, ESCPOS, PCL, POSTSCRIPT, PDF
+    val bluetoothLanguage: String = "AUTO",   // AUTO, ESCPOS, PCL, POSTSCRIPT, PDF (Bluetooth and raw port 9100)
+    val dataFormat: String = "AUTO"          // AUTO = raster first (safest), PDF = send PDF first
 )
 
 class AppPreferences(private val context: Context) {
@@ -34,6 +35,7 @@ class AppPreferences(private val context: Context) {
         val COLOR = stringPreferencesKey("default_color")
         val PAPER = stringPreferencesKey("default_paper")
         val BT_LANG = stringPreferencesKey("bt_language")
+        val DATA_FORMAT = stringPreferencesKey("data_format")
     }
 
     val settings: Flow<AppSettings> = context.dataStore.data.map { p ->
@@ -45,7 +47,8 @@ class AppPreferences(private val context: Context) {
             autoCleanCache = p[Keys.AUTO_CLEAN] ?: true,
             defaultColorMode = p[Keys.COLOR] ?: "COLOR",
             defaultPaper = p[Keys.PAPER] ?: "A4",
-            bluetoothLanguage = p[Keys.BT_LANG] ?: "AUTO"
+            bluetoothLanguage = p[Keys.BT_LANG] ?: "AUTO",
+            dataFormat = p[Keys.DATA_FORMAT] ?: "AUTO"
         )
     }
 
@@ -56,5 +59,6 @@ class AppPreferences(private val context: Context) {
     suspend fun setNotifications(v: Boolean) = context.dataStore.edit { it[Keys.NOTIFICATIONS] = v }
     suspend fun setConfirmBeforePrint(v: Boolean) = context.dataStore.edit { it[Keys.CONFIRM] = v }
     suspend fun setBluetoothLanguage(v: String) = context.dataStore.edit { it[Keys.BT_LANG] = v }
+    suspend fun setDataFormat(v: String) = context.dataStore.edit { it[Keys.DATA_FORMAT] = v }
     suspend fun setAutoCleanCache(v: Boolean) = context.dataStore.edit { it[Keys.AUTO_CLEAN] = v }
 }

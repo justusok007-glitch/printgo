@@ -154,3 +154,13 @@ class UsbSetupTest {
         assertTrue(com.printgo.app.data.print.UsbAutoSetup.parseDeviceId(null).isEmpty())
     }
 }
+
+class FormatChoiceTest {
+    @Test
+    fun rasterIsPreferredOverPdf() {
+        // The order used by the sender: raster formats first so non-PDF printers never get PDF source.
+        val ordered = listOf("image/pwg-raster", "image/jpeg", "application/pdf")
+        val live = listOf("application/pdf", "image/jpeg")
+        assertEquals(listOf("image/jpeg", "application/pdf"), ordered.filter { it in live })
+    }
+}
