@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">PrintGo</string>
+    <string name="tagline">Print • Scan • Share</string>
+    <string name="headline">Your Documents,\nJust a Tap Away!</string>
+    <string name="photos_title">Photos and Images</string>
+    <string name="photos_subtitle">Print your photos, pictures and images</string>
+    <string name="documents_title">Documents</string>
+    <string name="documents_subtitle">Print PDF, Word, Excel and more</string>
+    <string name="webpages_title">Web pages</string>
+    <string name="webpages_subtitle">Print web pages, articles and online content</string>
+    <string name="settings_title">Settings</string>
+    <string name="printers_title">Printers</string>
+    <string name="preview_title">Print Preview</string>
+</resources>
