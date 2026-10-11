@@ -124,3 +124,22 @@ class PrintEngineTest {
         assertTrue(PageRangeParser.parse("a", 10) is PageRangeResult.Error)
     }
 }
+
+class RawLanguageTest {
+    @Test
+    fun deviceIdCommandSetsAreParsed() {
+        val id = "MFG:HP;MDL:LaserJet Pro M404;CMD:PJL,PCL,PCLXL,POSTSCRIPT,PDF;CLS:PRINTER;"
+        val cmd = com.printgo.app.data.print.PclEncoder.parseCmd(id)
+        assertTrue("PDF" in cmd)
+        assertTrue("POSTSCRIPT" in cmd)
+        assertTrue("PCL" in cmd)
+        assertTrue(com.printgo.app.data.print.PclEncoder.parseCmd("MFG:X;MDL:Y;").isEmpty())
+        assertTrue(com.printgo.app.data.print.PclEncoder.parseCmd(null).isEmpty())
+    }
+
+    @Test
+    fun pclPaperCodes() {
+        assertEquals(26, com.printgo.app.data.print.PclEncoder.paperSizeCode(210, 297))
+        assertEquals(2, com.printgo.app.data.print.PclEncoder.paperSizeCode(216, 279))
+    }
+}

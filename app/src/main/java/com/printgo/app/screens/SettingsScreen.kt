@@ -90,6 +90,7 @@ fun SettingsScreen(
     val prefs = remember { AppPreferences(context.applicationContext) }
     val settings by prefs.settings.collectAsState(initial = AppSettings())
     var showHistoryDialog by remember { mutableStateOf(false) }
+    var showBtDialog by remember { mutableStateOf(false) }
     var showClearCache by remember { mutableStateOf(false) }
     var cacheMessage by remember { mutableStateOf<String?>(null) }
 
@@ -120,6 +121,17 @@ fun SettingsScreen(
                 Icons.Filled.History, "Keep history for",
                 if (settings.keepHistoryDays == 0) "Do not keep history" else "${settings.keepHistoryDays} days"
             ) { showHistoryDialog = true }
+
+            SettingsRow(
+                Icons.Filled.Print, "Bluetooth printer language",
+                when (settings.bluetoothLanguage) {
+                    "ESCPOS" -> "Receipt / label (ESC/POS)"
+                    "PCL" -> "Laser / inkjet (PCL)"
+                    "POSTSCRIPT" -> "PostScript"
+                    "PDF" -> "PDF"
+                    else -> "Automatic"
+                }
+            ) { showBtDialog = true }
 
             SectionLabel("Notifications")
             SettingsSwitchRow(
@@ -176,6 +188,39 @@ fun SettingsScreen(
                 }
             },
             confirmButton = { TextButton(onClick = { showHistoryDialog = false }) { Text("Close") } }
+        )
+    }
+
+    if (showBtDialog) {
+        AlertDialog(
+            onDismissRequest = { showBtDialog = false },
+            title = { Text("Bluetooth printer language") },
+            text = {
+                Column {
+                    Text("Bluetooth printers do not tell PrintGo what they understand. Pick the one that matches your printer. USB printers are detected automatically.", fontSize = 13.sp, color = BodyGray)
+                    Spacer(Modifier.height(8.dp))
+                    listOf(
+                        "AUTO" to "Automatic (guess from the name)",
+                        "ESCPOS" to "Receipt / label printer (ESC/POS)",
+                        "PCL" to "Laser or inkjet (PCL)",
+                        "POSTSCRIPT" to "PostScript printer",
+                        "PDF" to "Printer that reads PDF directly"
+                    ).forEach { (code, label) ->
+                        Row(
+                            Modifier.fillMaxWidth().clickable {
+                                scope.launch { prefs.setBluetoothLanguage(code) }
+                                showBtDialog = false
+                            }.padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(selected = settings.bluetoothLanguage == code, onClick = null)
+                            Spacer(Modifier.width(8.dp))
+                            Text(label)
+                        }
+                    }
+                }
+            },
+            confirmButton = { TextButton(onClick = { showBtDialog = false }) { Text("Close") } }
         )
     }
 

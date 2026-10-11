@@ -7,7 +7,9 @@ Wi-Fi printers are discovered with mDNS and driven directly over IPP. No account
 - Photos, PDF, Word/Excel/PowerPoint, text and web pages; share-into-app and "open with"
 - Full print settings: copies, collate, page ranges, odd/even, pages-per-sheet, duplex, paper, orientation, scale, margins, alignment, colour, quality, rotate/exclude pages, borders, page numbers, date stamp, file name header, watermark, presets
 - Direct IPP printing (PDF / PWG Raster / JPEG chosen from the printer's capabilities), IPPS with trust-on-first-use certificates
-- Save as PDF, system print dialog fallback, ESC/POS thermal printers over Bluetooth or USB, raw port 9100
+- Save as PDF, system print dialog fallback, raw port 9100
+- USB laser/inkjet printers: IPP-over-USB when the printer offers it, otherwise PDF, PostScript or PCL chosen from the printer's own USB device ID; ESC/POS for thermal printers
+- Bluetooth printers: ESC/POS, PCL, PostScript or PDF (pick in Settings)
 - Job queue with live status, cancel, retry, notifications and a foreground service
 - History: search, filters, reprint, CSV export, configurable retention
 - Settings, Help/FAQ, About, Privacy policy, first-run tour
@@ -21,7 +23,7 @@ Wi-Fi printers are discovered with mDNS and driven directly over IPP. No account
 [Release guide](docs/RELEASE.md) · [Test checklist](docs/TEST_CHECKLIST.md) · [Privacy policy](docs/PRIVACY_POLICY.md) · [Play Store listing](docs/PLAY_STORE_LISTING.md)
 
 ## Known limitations
-- Bluetooth/USB output is for thermal (ESC/POS) printers, not general inkjet/laser models.
+- USB/Bluetooth laser and inkjet printing works only when the printer understands IPP-USB, PDF, PostScript or PCL. Host-based (GDI) printers and vendor-only languages need Wi-Fi or the system print dialog. Few office printers accept Bluetooth serial data at all.
 - Printers that accept none of PDF, PWG Raster or JPEG over IPP need the "Print with system dialog" fallback.
 - Office conversion is best-effort; export to PDF from the source app for exact layout.
 - Authentication-protected printers are not supported.

@@ -5,6 +5,8 @@ import android.graphics.Bitmap
 import com.printgo.app.data.converter.PdfPageRenderer
 import com.printgo.app.data.converter.PrintableDocument
 import com.printgo.app.data.ipp.IppClient
+import com.printgo.app.data.ipp.IppDecoder
+import com.printgo.app.data.ipp.IppEncoder
 import com.printgo.app.data.ipp.IppJobOptions
 import com.printgo.app.data.ipp.IppPrintClient
 import com.printgo.app.data.ipp.IppSendResult
@@ -346,7 +348,7 @@ object PrintJobManager {
                 complete(job.id, "Sent to ${job.printerName}.")
             }
             printer.connectionType == ConnectionType.BLUETOOTH || printer.connectionType == ConnectionType.USB ->
-                sendThermal(job, printer, pdf)
+                sendDirect(job, printer, pdf)
             else -> throw PrintFailure("This printer type is not supported yet. Use \"Print with system dialog\".", false)
         }
     }
@@ -503,38 +505,204 @@ object PrintJobManager {
         }
     }
 
-    private suspend fun sendThermal(job: PrintJobEntity, printer: Printer, pdf: File) {
-        update(job.id) {
-            it.copy(
-                status = JobStatus.SENDING, statusMessage = "Preparing for the label printer…", progress = 0.2f,
-                method = if (printer.connectionType == ConnectionType.USB) "USB • ESC/POS" else "Bluetooth • ESC/POS"
-            )
+    enum class RawLanguage(val label: String) {
+        PDF("PDF"), POSTSCRIPT("PostScript"), PCL("PCL"), ESCPOS("ESC/POS")
+    }
+
+    private val thermalHints = listOf("ESC/POS", "ESCPOS", "STAR", "CPCL", "ZPL", "TSPL", "EPL")
+    private val officeBrandHints = listOf(
+        "laserjet", "deskjet", "officejet", "pixma", "envy", "photosmart", "brother", "epson", "canon",
+        "samsung", "xerox", "ricoh", "kyocera", "lexmark", "oki", "konica", "sharp", "dell", "hp "
+    )
+
+    private fun pickLanguage(deviceId: String?, name: String, btPref: String): RawLanguage? {
+        val cmd = PclEncoder.parseCmd(deviceId)
+        if (cmd.isNotEmpty()) {
+            return when {
+                cmd.any { c -> thermalHints.any { c.contains(it) } } -> RawLanguage.ESCPOS
+                "PDF" in cmd -> RawLanguage.PDF
+                cmd.any { it == "POSTSCRIPT" || it == "PS" || it.startsWith("POSTSCRIPT") || it == "PS3" || it == "PS2" } -> RawLanguage.POSTSCRIPT
+                cmd.any { it.startsWith("PCL") } -> RawLanguage.PCL
+                else -> null
+            }
         }
-        val width = if (job.paperWidthMm in 70..90) 576 else 384
-        val copies = job.copies.coerceAtLeast(1)
-        val chunks = withContext(Dispatchers.Default) {
-            val list = ArrayList<ByteArray>()
-            PdfPageRenderer(pdf).use { r ->
-                for (i in 0 until r.pageCount) {
-                    val src = r.renderPage(i, width)
-                    val bmp = EscPosEncoder.scaleForPaper(src, width)
-                    list += EscPosEncoder.rasterBytes(bmp)
-                    list += EscPosEncoder.feedAndCut()
-                    if (bmp !== src) bmp.recycle()
-                    r.clearCache()
+        return when (btPref) {
+            "ESCPOS" -> RawLanguage.ESCPOS
+            "PCL" -> RawLanguage.PCL
+            "POSTSCRIPT" -> RawLanguage.POSTSCRIPT
+            "PDF" -> RawLanguage.PDF
+            else -> if (officeBrandHints.any { name.lowercase().contains(it) }) RawLanguage.PCL else RawLanguage.ESCPOS
+        }
+    }
+
+    private fun fileChunks(f: File): Sequence<ByteArray> = sequence {
+        f.inputStream().use { input ->
+            val buf = ByteArray(32 * 1024)
+            while (true) {
+                val n = input.read(buf)
+                if (n < 0) break
+                yield(if (n == buf.size) buf.copyOf() else buf.copyOf(n))
+            }
+        }
+    }
+
+    private fun duplexCode(job: PrintJobEntity) = when (job.duplex) {
+        DuplexMode.TWO_SIDED_LONG_EDGE.name -> 1
+        DuplexMode.TWO_SIDED_SHORT_EDGE.name -> 2
+        else -> 0
+    }
+
+    private fun renderRawFile(job: PrintJobEntity, lang: RawLanguage, pdf: File, out: File) {
+        val copies = job.copies.coerceIn(1, 99)
+        val grayscale = job.colorMode == PrintColorMode.GRAYSCALE.name
+        out.outputStream().buffered(64 * 1024).use { os ->
+            when (lang) {
+                RawLanguage.PDF -> {
+                    os.write(byteArrayOf(0x1B)); os.write("%-12345X".toByteArray())
+                    os.write("@PJL SET COPIES=$copies\r\n".toByteArray())
+                    when (duplexCode(job)) {
+                        1 -> os.write("@PJL SET DUPLEX=ON\r\n@PJL SET BINDING=LONGEDGE\r\n".toByteArray())
+                        2 -> os.write("@PJL SET DUPLEX=ON\r\n@PJL SET BINDING=SHORTEDGE\r\n".toByteArray())
+                    }
+                    os.write("@PJL ENTER LANGUAGE=PDF\r\n".toByteArray())
+                    pdf.inputStream().use { it.copyTo(os) }
+                    os.write(byteArrayOf(0x1B)); os.write("%-12345X".toByteArray())
+                }
+                RawLanguage.PCL -> {
+                    PclEncoder.start(os, copies, duplexCode(job), PclEncoder.paperSizeCode(job.paperWidthMm, job.paperHeightMm), job.title)
+                    val dpi = 300
+                    PdfPageRenderer(pdf).use { r ->
+                        for (i in 0 until r.pageCount) {
+                            val bmp = r.renderPage(i, (job.paperWidthMm / 25.4f * dpi).toInt())
+                            PclEncoder.writePage(os, bmp, dpi)
+                            r.clearCache()
+                        }
+                    }
+                    PclEncoder.end(os)
+                }
+                RawLanguage.POSTSCRIPT -> {
+                    val (ptW, ptH) = IppMedia.pointsFor(PaperSize(job.paperName, job.paperWidthMm, job.paperHeightMm))
+                    PostScriptEncoder.start(os, job.title)
+                    val dpi = if (job.quality == PrintQuality.HIGH.name) 200 else 150
+                    PdfPageRenderer(pdf).use { r ->
+                        for (i in 0 until r.pageCount) {
+                            val bmp = r.renderPage(i, (job.paperWidthMm / 25.4f * dpi).toInt())
+                            PostScriptEncoder.writePage(os, bmp, ptW, ptH, grayscale, copies, duplexCode(job))
+                            r.clearCache()
+                        }
+                    }
+                    PostScriptEncoder.end(os)
+                }
+                RawLanguage.ESCPOS -> {
+                    val width = if (job.paperWidthMm in 70..90) 576 else 384
+                    os.write(EscPosEncoder.INIT)
+                    repeat(copies) {
+                        PdfPageRenderer(pdf).use { r ->
+                            for (i in 0 until r.pageCount) {
+                                val src = r.renderPage(i, width)
+                                val bmp = EscPosEncoder.scaleForPaper(src, width)
+                                os.write(EscPosEncoder.rasterBytes(bmp))
+                                os.write(EscPosEncoder.feedAndCut())
+                                if (bmp !== src) bmp.recycle()
+                                r.clearCache()
+                            }
+                        }
+                    }
                 }
             }
-            list
         }
-        update(job.id) { it.copy(statusMessage = "Sending to printer…", progress = 0.5f) }
-        withContext(Dispatchers.IO) {
-            val seq = sequence {
-                yield(EscPosEncoder.INIT)
-                repeat(copies) { chunks.forEach { yield(it) } }
+    }
+
+    private suspend fun sendDirect(job: PrintJobEntity, printer: Printer, pdf: File) {
+        val isUsb = printer.connectionType == ConnectionType.USB
+        val prefs = com.printgo.app.data.prefs.AppPreferences(appContext).current()
+        update(job.id) {
+            it.copy(status = JobStatus.SENDING, statusMessage = "Connecting to the printer…", progress = 0.15f,
+                method = if (isUsb) "USB" else "Bluetooth")
+        }
+        if (isUsb) {
+            val session = withContext(Dispatchers.IO) { UsbSession.open(appContext, printer.host) }
+            session.use { s ->
+                if (s.isIppUsb) { sendIppUsb(job, s, pdf); return }
+                val id = withContext(Dispatchers.IO) { s.deviceId() }
+                val lang = pickLanguage(id, job.printerName, "AUTO") ?: throw PrintFailure(
+                    "This printer uses its own USB language that PrintGo cannot create. Connect it over Wi-Fi, or use \"Print with system dialog\".", false
+                )
+                update(job.id) { it.copy(method = "USB • ${lang.label}", statusMessage = "Preparing pages…", progress = 0.25f) }
+                val tmp = File(appContext.cacheDir, "job_${job.id}.raw")
+                try {
+                    withContext(Dispatchers.Default) { renderRawFile(job, lang, pdf, tmp) }
+                    update(job.id) { it.copy(statusMessage = "Sending to printer…", progress = 0.6f) }
+                    withContext(Dispatchers.IO) { s.writeAll(fileChunks(tmp)) }
+                } finally { tmp.delete() }
             }
-            if (printer.connectionType == ConnectionType.USB) Transports.sendUsb(appContext, printer.host, seq)
-            else Transports.sendBluetooth(appContext, printer.host, seq)
+        } else {
+            val lang = pickLanguage(null, job.printerName, prefs.bluetoothLanguage)!!
+            update(job.id) { it.copy(method = "Bluetooth • ${lang.label}", statusMessage = "Preparing pages…", progress = 0.25f) }
+            val tmp = File(appContext.cacheDir, "job_${job.id}.raw")
+            try {
+                withContext(Dispatchers.Default) { renderRawFile(job, lang, pdf, tmp) }
+                update(job.id) { it.copy(statusMessage = "Sending to printer…", progress = 0.6f) }
+                withContext(Dispatchers.IO) { Transports.sendBluetooth(appContext, printer.host, fileChunks(tmp)) }
+            } finally { tmp.delete() }
         }
         complete(job.id, "Sent to ${job.printerName}.")
+    }
+
+    /** Printers that expose the standard IPP-over-USB interface take the same jobs as Wi-Fi printers. */
+    private suspend fun sendIppUsb(job: PrintJobEntity, s: UsbSession, pdf: File) {
+        val uri = "ipp://localhost:631/ipp/print"
+        update(job.id) { it.copy(method = "USB • IPP", statusMessage = "Asking the printer what it accepts…", progress = 0.2f) }
+        val formats = withContext(Dispatchers.IO) {
+            val req = IppEncoder.encode(IppEncoder.createGetPrinterAttributesRequest(uri, 1, listOf("document-format-supported", "sides-supported", "media-supported")))
+            val resp = IppDecoder.decode(s.ippRequest(req))
+            resp.getStrings("document-format-supported").map { it.lowercase() }
+        }
+        val sendPdf = formats.isEmpty() || "application/pdf" in formats
+        val sendPwg = !sendPdf && "image/pwg-raster" in formats
+        val sendJpeg = !sendPdf && !sendPwg && "image/jpeg" in formats
+        if (!sendPdf && !sendPwg && !sendJpeg) throw PrintFailure("This printer's USB connection does not accept PDF, PWG Raster or JPEG. Use \"Print with system dialog\".", false)
+
+        val opts = IppJobOptions(
+            jobName = job.title,
+            copies = job.copies,
+            duplex = runCatching { DuplexMode.valueOf(job.duplex) }.getOrDefault(DuplexMode.ONE_SIDED),
+            colorMode = runCatching { PrintColorMode.valueOf(job.colorMode) }.getOrDefault(PrintColorMode.COLOR),
+            quality = runCatching { PrintQuality.valueOf(job.quality) }.getOrDefault(PrintQuality.NORMAL),
+            mediaKeyword = IppMedia.keywordFor(PaperSize(job.paperName, job.paperWidthMm, job.paperHeightMm)),
+            collate = job.collate,
+            supportedSides = emptyList(),
+            supportsColorModes = true
+        )
+        val temps = mutableListOf<File>()
+        try {
+            val files = mutableListOf<Pair<File, String>>()
+            if (sendPdf) files += pdf to "application/pdf"
+            else if (sendPwg) {
+                val f = File(appContext.cacheDir, "job_${job.id}.pwg").also { temps += it }
+                withContext(Dispatchers.Default) { renderPwg(job, pdf, f) }
+                files += f to "image/pwg-raster"
+            } else {
+                withContext(Dispatchers.Default) {
+                    PdfPageRenderer(pdf).use { r ->
+                        val widthPx = (job.paperWidthMm / 25.4f * dpiFor(job)).toInt()
+                        for (i in 0 until r.pageCount) {
+                            val f = File(appContext.cacheDir, "job_${job.id}_$i.jpg").also { temps += it }
+                            f.outputStream().use { o -> r.renderPage(i, widthPx).compress(Bitmap.CompressFormat.JPEG, 92, o) }
+                            r.clearCache()
+                            files += f to "image/jpeg"
+                        }
+                    }
+                }
+            }
+            files.forEachIndexed { idx, (f, mime) ->
+                update(job.id) { it.copy(statusMessage = "Sending to printer…", progress = 0.4f + 0.5f * idx / files.size) }
+                val resp = withContext(Dispatchers.IO) {
+                    IppDecoder.decode(s.ippRequest(ipp.buildPrintJob(uri, mime, opts), f))
+                }
+                if (!resp.isSuccess) throw PrintFailure(IppPrintClient.statusText(resp.code.toInt()), true)
+            }
+        } finally { temps.forEach { it.delete() } }
+        complete(job.id, "Sent to ${job.printerName} over USB.")
     }
 }
