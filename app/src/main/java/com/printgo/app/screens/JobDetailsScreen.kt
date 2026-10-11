@@ -41,6 +41,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.produceState
+import androidx.compose.foundation.Image
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -142,6 +147,37 @@ fun JobDetailsScreen(
                     DetailLine("Paper", job.paperName)
                     DetailLine("Settings", job.settingsSummary)
                     if (job.attempts > 1) DetailLine("Attempts", job.attempts.toString())
+                }
+            }
+
+            val firstPage = produceState<android.graphics.Bitmap?>(null, job.pdfPath) {
+                value = job.pdfPath?.let { path ->
+                    kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                        try {
+                            val f = File(path)
+                            if (!f.exists()) null else com.printgo.app.data.converter.PdfPageRenderer(f).use { r ->
+                                r.renderPage(0, 600).copy(android.graphics.Bitmap.Config.ARGB_8888, false)
+                            }
+                        } catch (e: Exception) { null }
+                    }
+                }
+            }.value
+            firstPage?.let { bmp ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    border = BorderStroke(1.dp, PrintGoTheme.colors.cardBorder)
+                ) {
+                    Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("First page as sent to the printer", color = BodyGray, fontSize = 13.sp)
+                        Image(
+                            bitmap = bmp.asImageBitmap(),
+                            contentDescription = "First page",
+                            modifier = Modifier.fillMaxWidth().aspectRatio(bmp.width.toFloat() / bmp.height),
+                            contentScale = ContentScale.Fit
+                        )
+                    }
                 }
             }
 

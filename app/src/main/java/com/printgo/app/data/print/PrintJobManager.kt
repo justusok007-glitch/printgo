@@ -383,10 +383,11 @@ object PrintJobManager {
         )
 
         // Raster first: a printer that cannot read PDF would otherwise print the PDF source as text.
-        val all = listOf("image/pwg-raster", "image/jpeg", "application/pdf")
         val ordered = when (appPrefs.dataFormat) {
             "PDF" -> listOf("application/pdf", "image/pwg-raster", "image/jpeg")
-            else -> all
+            "JPEG" -> listOf("image/jpeg", "image/pwg-raster", "application/pdf")
+            "PWG" -> listOf("image/pwg-raster", "application/pdf", "image/jpeg")
+            else -> listOf("image/pwg-raster", "application/pdf", "image/jpeg")
         }
         val candidates = if (live.isNotEmpty()) ordered.filter { it in live } else ordered
         if (candidates.isEmpty()) {
@@ -422,7 +423,7 @@ object PrintJobManager {
                                     val f = File(appContext.cacheDir, "job_${job.id}_$i.jpg").also { temps += it }
                                     f.outputStream().use { o -> bmp.compress(Bitmap.CompressFormat.JPEG, 92, o) }
                                     r.clearCache()
-                                    payloads += Payload(f, "image/jpeg", "page ${i + 1}")
+                                    payloads += Payload(f, "image/jpeg", "JPEG page ${i + 1}")
                                 }
                             }
                         }
@@ -441,7 +442,12 @@ object PrintJobManager {
                         )
                     }
                     var lastTick = 0L
-                    val res = ipp.printJob(printer, fingerprint, p.file, p.mime, opts) { frac ->
+                    val sendOpts = when (p.mime) {
+                        "image/jpeg" -> opts.copy(printScaling = "fit")
+                        "image/pwg-raster" -> opts.copy(printScaling = null)
+                        else -> opts
+                    }
+                    val res = ipp.printJob(printer, fingerprint, p.file, p.mime, sendOpts) { frac ->
                         val t = now()
                         if (t - lastTick > 400) {
                             lastTick = t
@@ -770,7 +776,7 @@ object PrintJobManager {
             files.forEachIndexed { idx, (f, mime) ->
                 update(job.id) { it.copy(statusMessage = "Sending to printer…", progress = 0.4f + 0.5f * idx / files.size) }
                 val resp = withContext(Dispatchers.IO) {
-                    IppDecoder.decode(s.ippRequest(ipp.buildPrintJob(uri, mime, opts), f))
+                    IppDecoder.decode(s.ippRequest(ipp.buildPrintJob(uri, mime, when (mime) { "image/jpeg" -> opts.copy(printScaling = "fit"); "image/pwg-raster" -> opts.copy(printScaling = null); else -> opts }), f))
                 }
                 if (!resp.isSuccess) throw PrintFailure(IppPrintClient.statusText(resp.code.toInt()), true)
             }

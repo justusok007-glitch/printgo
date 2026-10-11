@@ -125,7 +125,7 @@ fun SettingsScreen(
 
             SettingsRow(
                 Icons.Filled.Print, "File format for Wi-Fi printers",
-                if (settings.dataFormat == "PDF") "PDF first (sharper text, needs a PDF-capable printer)" else "Automatic (safest: picture pages)"
+                when (settings.dataFormat) { "PDF" -> "PDF first"; "PWG" -> "Raster first"; "JPEG" -> "JPEG pictures first"; else -> "Automatic" }
             ) { showFormatDialog = true }
             SettingsRow(
                 Icons.Filled.Print, "Raw printer language",
@@ -202,9 +202,9 @@ fun SettingsScreen(
             title = { Text("File format for Wi-Fi printers") },
             text = {
                 Column {
-                    Text("Automatic sends picture pages, which every IPP printer understands. Choose PDF only if your printer prints PDFs correctly and you want smaller, sharper files.", fontSize = 13.sp, color = BodyGray)
+                    Text("If prints come out blank or garbled, try another format here. Automatic picks raster first, then PDF, then JPEG.", fontSize = 13.sp, color = BodyGray)
                     Spacer(Modifier.height(8.dp))
-                    listOf("AUTO" to "Automatic (recommended)", "PDF" to "PDF first").forEach { (code, label) ->
+                    listOf("AUTO" to "Automatic (recommended)", "PDF" to "PDF first", "PWG" to "Raster first (PWG)", "JPEG" to "JPEG pictures first").forEach { (code, label) ->
                         Row(
                             Modifier.fillMaxWidth().clickable {
                                 scope.launch { prefs.setDataFormat(code) }

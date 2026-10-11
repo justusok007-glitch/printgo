@@ -31,7 +31,9 @@ data class IppJobOptions(
     val mediaKeyword: String? = null,
     val collate: Boolean = true,
     val supportedSides: List<String> = emptyList(),
-    val supportsColorModes: Boolean = true
+    val supportsColorModes: Boolean = true,
+    /** "none", "fit", "fill", "auto" or null to leave it to the printer. */
+    val printScaling: String? = "none"
 )
 
 data class IppProbe(val formats: List<String>, val path: String, val pwgResolutions: List<Int>)
@@ -165,8 +167,9 @@ class IppPrintClient(private val base: IppClient = IppClient()) {
                 when (o.quality) { PrintQuality.DRAFT -> 3; PrintQuality.NORMAL -> 4; PrintQuality.HIGH -> 5 }
             )
         )
-        // The layout engine already produced pages at the exact paper size.
-        job.add(kw("print-scaling", "none"))
+        // PDF pages are already laid out at paper size. Pictures carry no resolution, so they must be
+        // fitted to the page (with "none" a 300 dpi JPEG would print as a huge image: a blank corner).
+        o.printScaling?.let { job.add(kw("print-scaling", it)) }
         o.mediaKeyword?.let { job.add(kw("media", it)) }
 
         val msg = IppMessage(
