@@ -7,7 +7,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.NavType
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.printgo.app.screens.JobDetailsScreen
+import com.printgo.app.screens.JobsScreen
 import com.printgo.app.screens.DocumentsScreen
 import com.printgo.app.screens.HomeScreen
 import com.printgo.app.screens.PhotosScreen
@@ -27,8 +31,13 @@ fun PrintGoNavHost(
     printerViewModel: PrinterViewModel = viewModel(),
     printSettingsViewModel: PrintSettingsViewModel = viewModel(),
     navController: NavHostController = rememberNavController(),
-    startDestination: String = Screen.Home.route
+    startDestination: String = Screen.Home.route,
+    openJobsTick: Int = 0
 ) {
+    LaunchedEffect(openJobsTick) {
+        if (openJobsTick > 0) navController.navigate(Screen.Jobs.route) { launchSingleTop = true }
+    }
+
     // Whenever an item or multiple items trigger navigateToPreview (e.g. from intent share or Print button)
     LaunchedEffect(selectionViewModel, navController) {
         selectionViewModel.navigateToPreview.collectLatest {
@@ -50,7 +59,8 @@ fun PrintGoNavHost(
                 onNavigateToDocuments = { navController.navigate(Screen.Documents.route) },
                 onNavigateToWebPages = { navController.navigate(Screen.WebPages.route) },
                 onNavigateToSettings = { navController.navigate(Screen.Settings.route) },
-                onNavigateToPrinters = { navController.navigate(Screen.Printers.route) }
+                onNavigateToPrinters = { navController.navigate(Screen.Printers.route) },
+                onNavigateToJobs = { navController.navigate(Screen.Jobs.route) }
             )
         }
 
@@ -88,7 +98,31 @@ fun PrintGoNavHost(
                 printerViewModel = printerViewModel,
                 printSettingsViewModel = printSettingsViewModel,
                 onBackClick = { navController.popBackStack() },
-                onNavigateToPrinters = { navController.navigate(Screen.Printers.route) }
+                onNavigateToPrinters = { navController.navigate(Screen.Printers.route) },
+                onJobQueued = { id ->
+                    selectionViewModel.clearSelection()
+                    navController.navigate(Screen.JobDetails.create(id)) {
+                        popUpTo(Screen.Home.route)
+                    }
+                }
+            )
+        }
+
+        composable(Screen.Jobs.route) {
+            JobsScreen(
+                onBackClick = { navController.popBackStack() },
+                onOpenJob = { navController.navigate(Screen.JobDetails.create(it)) }
+            )
+        }
+
+        composable(
+            Screen.JobDetails.route,
+            arguments = listOf(navArgument("jobId") { type = NavType.StringType })
+        ) { entry ->
+            JobDetailsScreen(
+                jobId = entry.arguments?.getString("jobId").orEmpty(),
+                onBackClick = { navController.popBackStack() },
+                onOpenAllJobs = { navController.navigate(Screen.Jobs.route) }
             )
         }
 

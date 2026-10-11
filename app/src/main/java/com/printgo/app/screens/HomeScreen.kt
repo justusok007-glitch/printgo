@@ -67,7 +67,8 @@ fun HomeScreen(
     onNavigateToWebPages: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToPrinters: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onNavigateToJobs: () -> Unit = {}
 ) {
     val coroutineScope = rememberCoroutineScope()
     val connectionStatus by printerViewModel.connectionStatus.collectAsStateWithLifecycle()
@@ -87,6 +88,7 @@ fun HomeScreen(
         onNavigateToWebPages = onNavigateToWebPages,
         onNavigateToSettings = onNavigateToSettings,
         onNavigateToPrinters = onNavigateToPrinters,
+        onNavigateToJobs = onNavigateToJobs,
         onRetryPrinter = {
             coroutineScope.launch {
                 printerViewModel.checkCurrentPrinterReachability()
@@ -105,7 +107,8 @@ fun HomeScreenContent(
     onNavigateToSettings: () -> Unit,
     onNavigateToPrinters: () -> Unit,
     onRetryPrinter: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onNavigateToJobs: () -> Unit = {}
 ) {
     Column(
         modifier = modifier
@@ -191,8 +194,17 @@ fun HomeScreenContent(
                     )
                 }
 
-                // Centered hint above bottom wave if space allows
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(6.dp))
+                androidx.compose.material3.TextButton(
+                    onClick = onNavigateToJobs,
+                    modifier = Modifier.align(Alignment.CenterHorizontally).testTag("jobs_link")
+                ) {
+                    Text(
+                        text = "Print jobs & history",
+                        color = PrimaryBlue,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
+                    )
+                }
                 Text(
                     text = "Tip: share any file from your phone to PrintGo to print it",
                     fontSize = 12.sp,

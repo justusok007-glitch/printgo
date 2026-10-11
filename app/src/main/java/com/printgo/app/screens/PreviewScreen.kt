@@ -156,10 +156,14 @@ fun PreviewScreen(
     printSettingsViewModel: PrintSettingsViewModel,
     onBackClick: () -> Unit,
     onNavigateToPrinters: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onJobQueued: (String) -> Unit = {}
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    val notificationPermission = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
+    ) { }
 
     val selectedItems by selectionViewModel.selectedItems.collectAsStateWithLifecycle()
     val selectedPrinter by printerViewModel.selectedPrinter.collectAsStateWithLifecycle()
@@ -310,7 +314,25 @@ fun PreviewScreen(
                         modifier = Modifier
                             .clip(RoundedCornerShape(18.dp))
                             .clickable(enabled = canPrint) {
-                                // Print action (printing pipeline hooked in upcoming turn)
+                                val printer = selectedPrinter
+                                if (printer != null) {
+                                    if (android.os.Build.VERSION.SDK_INT >= 33 &&
+                                        androidx.core.content.ContextCompat.checkSelfPermission(
+                                            context, android.Manifest.permission.POST_NOTIFICATIONS
+                                        ) != android.content.pm.PackageManager.PERMISSION_GRANTED
+                                    ) {
+                                        notificationPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                                    }
+                                    val caps = (printerCapabilities as? com.printgo.app.viewmodel.CapabilitiesState.Ready)?.capabilities
+                                    val title = readyDocuments.firstOrNull()?.title.orEmpty().ifBlank { "Document" } +
+                                        if (readyDocuments.size > 1) " +${readyDocuments.size - 1} more" else ""
+                                    coroutineScope.launch {
+                                        val jobId = com.printgo.app.data.print.PrintJobManager.enqueue(
+                                            com.printgo.app.data.print.PrintRequest(readyDocuments, settings, printer, caps, title)
+                                        )
+                                        onJobQueued(jobId)
+                                    }
+                                }
                             }
                             .testTag("preview_print_button"),
                         shape = RoundedCornerShape(18.dp),

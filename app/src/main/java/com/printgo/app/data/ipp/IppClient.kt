@@ -182,7 +182,7 @@ class IppClient {
         return IppResult.NetworkError("Max retries exceeded")
     }
 
-    private fun createOkHttpClient(
+    internal fun createOkHttpClient(
         printer: Printer,
         pinnedFingerprint: String?,
         onFingerprintCaptured: (String) -> Unit

@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.collectLatest
 class MainActivity : ComponentActivity() {
 
     private val selectionViewModel: SelectionViewModel by viewModels()
+    private var openJobsTick by androidx.compose.runtime.mutableIntStateOf(0)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,6 +31,7 @@ class MainActivity : ComponentActivity() {
 
         // Handle shared files if launched via Intent
         selectionViewModel.handleIncomingIntent(this, intent)
+        if (intent?.getBooleanExtra(EXTRA_OPEN_JOBS, false) == true) openJobsTick++
 
         setContent {
             PrintGoTheme {
@@ -47,7 +49,8 @@ class MainActivity : ComponentActivity() {
                 ) { innerPadding ->
                     Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
                         PrintGoNavHost(
-                            selectionViewModel = selectionViewModel
+                            selectionViewModel = selectionViewModel,
+                            openJobsTick = openJobsTick
                         )
                     }
                 }
@@ -58,6 +61,11 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        selectionViewModel.handleIncomingIntent(this, intent)
+        if (intent.getBooleanExtra(EXTRA_OPEN_JOBS, false)) openJobsTick++
+        else selectionViewModel.handleIncomingIntent(this, intent)
+    }
+
+    companion object {
+        const val EXTRA_OPEN_JOBS = "com.printgo.app.OPEN_JOBS"
     }
 }

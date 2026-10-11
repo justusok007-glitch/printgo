@@ -10,9 +10,10 @@ import androidx.room.RoomDatabase
         RecentDocumentEntity::class,
         RecentWebPageEntity::class,
         SavedPrinterEntity::class,
-        PrintPresetEntity::class
+        PrintPresetEntity::class,
+        PrintJobEntity::class
     ],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 abstract class PrintGoDatabase : RoomDatabase() {
@@ -20,6 +21,7 @@ abstract class PrintGoDatabase : RoomDatabase() {
     abstract fun recentWebPageDao(): RecentWebPageDao
     abstract fun savedPrinterDao(): SavedPrinterDao
     abstract fun printPresetDao(): PrintPresetDao
+    abstract fun printJobDao(): PrintJobDao
 
     companion object {
         @Volatile
