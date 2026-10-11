@@ -5,10 +5,10 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.hardware.usb.UsbConstants
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
 import android.os.Build
+import com.printgo.app.data.print.UsbIds
 import com.printgo.app.model.ConnectionType
 import com.printgo.app.model.Printer
 import com.printgo.app.model.PrinterProtocol
@@ -25,19 +25,47 @@ class UsbPrinterManager(private val context: Context) {
 
     private val actionUsbPermission = "com.printgo.app.USB_PERMISSION"
 
+    /** Called when a USB printer is plugged in while the app runs. */
+    var onPrinterAttached: ((UsbDevice) -> Unit)? = null
+    /** Called after the user answers the permission dialog. */
+    var onPermissionResult: ((UsbDevice, Boolean) -> Unit)? = null
+    /** Called when a printer is unplugged. */
+    var onPrinterDetached: (() -> Unit)? = null
+
+    private var keepAlive = false
+
+    private fun deviceExtra(intent: Intent): UsbDevice? =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE, UsbDevice::class.java)
+        else @Suppress("DEPRECATION") intent.getParcelableExtra(UsbManager.EXTRA_DEVICE)
+
     private val usbReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            when (intent?.action) {
-                UsbManager.ACTION_USB_DEVICE_ATTACHED,
-                UsbManager.ACTION_USB_DEVICE_DETACHED,
+            intent ?: return
+            when (intent.action) {
+                UsbManager.ACTION_USB_DEVICE_ATTACHED -> {
+                    refreshUsbDevices()
+                    deviceExtra(intent)?.takeIf { UsbIds.isPrinter(it) }?.let { onPrinterAttached?.invoke(it) }
+                }
+                UsbManager.ACTION_USB_DEVICE_DETACHED -> {
+                    refreshUsbDevices()
+                    onPrinterDetached?.invoke()
+                }
                 actionUsbPermission -> {
                     refreshUsbDevices()
+                    val d = deviceExtra(intent)
+                    if (d != null) onPermissionResult?.invoke(d, intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false))
                 }
             }
         }
     }
 
     private var receiverRegistered = false
+
+    /** Always-on detection for the lifetime of the app (never stopped by screens). */
+    fun startAutoDetect() {
+        keepAlive = true
+        startListening()
+    }
 
     fun startListening() {
         if (!receiverRegistered) {
@@ -57,34 +85,37 @@ class UsbPrinterManager(private val context: Context) {
     }
 
     fun stopListening() {
+        if (keepAlive) return
+        shutdown()
+    }
+
+    fun shutdown() {
         if (receiverRegistered) {
-            try {
-                context.unregisterReceiver(usbReceiver)
-            } catch (_: Exception) {}
+            try { context.unregisterReceiver(usbReceiver) } catch (_: Exception) {}
             receiverRegistered = false
         }
+        keepAlive = false
     }
+
+    fun hasPermission(device: UsbDevice) = usbManager?.hasPermission(device) == true
 
     fun refreshUsbDevices() {
         val manager = usbManager ?: return
-        val deviceList = manager.deviceList.values
-
-        val printerDevices = deviceList.filter { isUsbPrinter(it) }
-
-        val printers = printerDevices.map { device ->
+        val printers = manager.deviceList.values.filter { UsbIds.isPrinter(it) }.map { device ->
             val hasPerm = manager.hasPermission(device)
-            val name = (device.productName ?: device.deviceName).ifBlank { "USB Printer" }
+            val product = UsbIds.safeName(device) { it.productName }
+            val maker = UsbIds.safeName(device) { it.manufacturerName }
             Printer(
-                id = "usb_${device.deviceId}_${device.vendorId}_${device.productId}",
-                name = name,
-                host = "usb://${device.deviceId}",
+                id = UsbIds.idFor(device),
+                name = listOfNotNull(maker, product).joinToString(" ").ifBlank { "USB Printer" },
+                host = UsbIds.hostFor(device),
                 port = 0,
                 connectionType = ConnectionType.USB,
-                protocol = PrinterProtocol.RAW9100,
+                protocol = PrinterProtocol.NONE,
                 resourcePath = "",
-                make = device.manufacturerName,
-                model = device.productName ?: "USB Printer (Class 7)",
-                supportedFormats = listOf("application/pdf", "image/jpeg"),
+                make = maker,
+                model = product ?: "USB Printer",
+                supportedFormats = listOf("application/pdf"),
                 supportsColor = true,
                 supportsDuplex = false,
                 isOnline = hasPerm,
@@ -93,41 +124,22 @@ class UsbPrinterManager(private val context: Context) {
                 isManual = false
             )
         }
-
         _attachedPrinters.value = printers
     }
 
     fun requestUsbPermission(printer: Printer) {
-        val manager = usbManager ?: return
-        val device = manager.deviceList.values.firstOrNull {
-            "usb_${it.deviceId}_${it.vendorId}_${it.productId}" == printer.id
-        } ?: return
+        val device = UsbIds.find(context, printer.host) ?: return
+        requestPermission(device)
+    }
 
-        val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+    fun requestPermission(device: UsbDevice) {
+        val manager = usbManager ?: return
+        val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         } else {
             PendingIntent.FLAG_UPDATE_CURRENT
         }
-        val permissionIntent = PendingIntent.getBroadcast(
-            context,
-            0,
-            Intent(actionUsbPermission),
-            flags
-        )
-        manager.requestPermission(device, permissionIntent)
-    }
-
-    private fun isUsbPrinter(device: UsbDevice): Boolean {
-        // Direct device class 7 (Printer)
-        if (device.deviceClass == UsbConstants.USB_CLASS_PRINTER) return true
-
-        // Or any interface is class 7
-        for (i in 0 until device.interfaceCount) {
-            val iface = device.getInterface(i)
-            if (iface.interfaceClass == UsbConstants.USB_CLASS_PRINTER) {
-                return true
-            }
-        }
-        return false
+        val intent = Intent(actionUsbPermission).setPackage(context.packageName)
+        manager.requestPermission(device, PendingIntent.getBroadcast(context, 0, intent, flags))
     }
 }

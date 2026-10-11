@@ -515,7 +515,7 @@ object PrintJobManager {
         "samsung", "xerox", "ricoh", "kyocera", "lexmark", "oki", "konica", "sharp", "dell", "hp "
     )
 
-    private fun pickLanguage(deviceId: String?, name: String, btPref: String): RawLanguage? {
+    internal fun pickLanguage(deviceId: String?, name: String, btPref: String): RawLanguage? {
         val cmd = PclEncoder.parseCmd(deviceId)
         if (cmd.isNotEmpty()) {
             return when {

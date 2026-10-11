@@ -143,3 +143,14 @@ class RawLanguageTest {
         assertEquals(2, com.printgo.app.data.print.PclEncoder.paperSizeCode(216, 279))
     }
 }
+
+class UsbSetupTest {
+    @Test
+    fun deviceIdFieldsAreParsed() {
+        val f = com.printgo.app.data.print.UsbAutoSetup.parseDeviceId("MFG:Hewlett-Packard;MDL:HP LaserJet M404;CMD:PJL,PCL;SN:ABC123;")
+        assertEquals("Hewlett-Packard", f["MFG"])
+        assertEquals("HP LaserJet M404", f["MDL"])
+        assertEquals("ABC123", f["SN"])
+        assertTrue(com.printgo.app.data.print.UsbAutoSetup.parseDeviceId(null).isEmpty())
+    }
+}

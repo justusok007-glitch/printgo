@@ -22,11 +22,9 @@ class UsbSession private constructor(
 
     companion object {
         fun open(context: Context, hostUri: String, preferIppUsb: Boolean = true): UsbSession {
-            val id = hostUri.removePrefix("usb://").toIntOrNull()
-                ?: throw TransportException("The USB printer is not recognised. Unplug and reconnect it.")
             val usb = context.getSystemService(Context.USB_SERVICE) as UsbManager
-            val device = usb.deviceList.values.firstOrNull { it.deviceId == id }
-                ?: throw TransportException("The USB printer is not connected.")
+            val device = UsbIds.find(context, hostUri)
+                ?: throw TransportException("The USB printer is not plugged in. Connect the cable and try again.")
             if (!usb.hasPermission(device)) throw TransportException("Allow USB access for the printer, then try again.")
 
             val ifaces = (0 until device.interfaceCount).map { device.getInterface(it) }

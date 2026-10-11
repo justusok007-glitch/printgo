@@ -2,6 +2,7 @@ package com.printgo.app.viewmodel
 
 import android.app.Application
 import android.content.Context
+import android.hardware.usb.UsbDevice
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.printgo.app.BuildConfig
@@ -22,6 +23,11 @@ import com.printgo.app.model.PrinterProtocol
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import com.printgo.app.data.print.UsbAutoSetup
+import com.printgo.app.data.print.UsbIds
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -57,6 +63,11 @@ data class ConnectionTestResult(
     val message: String,
     val responseTimeMs: Long = 0L
 )
+
+sealed interface UsbEvent {
+    data class Message(val text: String) : UsbEvent
+    data class NeedsPrintService(val printerName: String, val maker: String?) : UsbEvent
+}
 
 class PrinterViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -175,8 +186,50 @@ class PrinterViewModel(application: Application) : AndroidViewModel(application)
 
     val scanStatus: StateFlow<ScanStatus> = wifiDiscoveryManager.scanStatus
 
+    private val _usbEvents = MutableSharedFlow<UsbEvent>(extraBufferCapacity = 8)
+    val usbEvents: SharedFlow<UsbEvent> = _usbEvents.asSharedFlow()
+
     init {
         restorePersistedPrinter()
+        usbPrinterManager.onPrinterAttached = { handleUsbDevice(it) }
+        usbPrinterManager.onPermissionResult = { device, granted ->
+            if (granted) handleUsbDevice(device)
+            else _usbEvents.tryEmit(UsbEvent.Message("USB access was not allowed, so the printer cannot be used."))
+        }
+        usbPrinterManager.onPrinterDetached = { viewModelScope.launch { checkCurrentPrinterReachability() } }
+        usbPrinterManager.startAutoDetect()
+    }
+
+    /** Plugged-in USB printer: set it up once, save it, and make it the active printer. */
+    fun handleUsbDevice(device: UsbDevice) {
+        if (!UsbIds.isPrinter(device)) return
+        viewModelScope.launch(Dispatchers.IO) {
+            if (!usbPrinterManager.hasPermission(device)) {
+                usbPrinterManager.requestPermission(device)
+                return@launch
+            }
+            val saved = repository.getPrinter(UsbIds.idFor(device))
+            if (saved != null) {
+                val p = saved.toPrinter().copy(isOnline = true)
+                selectPrinter(p)
+                _usbEvents.tryEmit(UsbEvent.Message("${p.name} is connected."))
+                return@launch
+            }
+            _usbEvents.tryEmit(UsbEvent.Message("USB printer found. Setting it up…"))
+            when (val r = UsbAutoSetup.run(getApplication(), device)) {
+                is UsbAutoSetup.Result.Ready -> {
+                    repository.savePrinter(r.printer, r.capabilities)
+                    selectPrinter(r.printer)
+                    _usbEvents.tryEmit(UsbEvent.Message("${r.printer.name} connected and saved (${r.mode}). It will be remembered."))
+                }
+                is UsbAutoSetup.Result.NeedsPrintService -> {
+                    repository.savePrinter(r.printer, r.capabilities)
+                    selectPrinter(r.printer)
+                    _usbEvents.tryEmit(UsbEvent.NeedsPrintService(r.printer.name, r.printer.make))
+                }
+                is UsbAutoSetup.Result.Failed -> _usbEvents.tryEmit(UsbEvent.Message(r.message))
+            }
+        }
     }
 
     private fun restorePersistedPrinter() {
@@ -259,7 +312,9 @@ class PrinterViewModel(application: Application) : AndroidViewModel(application)
             return@withContext
         }
 
-        val address = if (printer.host.isNotBlank()) {
+        val address = if (printer.connectionType == ConnectionType.USB) {
+            "USB"
+        } else if (printer.host.isNotBlank()) {
             "${printer.connectionType.name} • ${printer.host}"
         } else {
             printer.connectionType.name
@@ -288,7 +343,9 @@ class PrinterViewModel(application: Application) : AndroidViewModel(application)
 
         // Bluetooth / USB check
         if (printer.connectionType == ConnectionType.BLUETOOTH || printer.connectionType == ConnectionType.USB) {
-            val isOnline = printer.isOnline
+            val isOnline = if (printer.connectionType == ConnectionType.USB) {
+                UsbIds.isAttached(getApplication(), printer.host)
+            } else printer.isOnline
             _connectionStatus.value = if (isOnline) {
                 PrinterConnectionStatus.Connected(
                     printerName = printer.name,
@@ -498,7 +555,8 @@ class PrinterViewModel(application: Application) : AndroidViewModel(application)
         activeConnectionJob = viewModelScope.launch(Dispatchers.IO) {
             // Non-WiFi printers or Save as PDF
             if (printer.connectionType != ConnectionType.WIFI || printer.protocol == PrinterProtocol.RAW9100) {
-                val defaultCaps = PrinterCapabilities.defaultFor(printer)
+                val usbCached = if (printer.connectionType == ConnectionType.USB) repository.loadCachedCapabilities(printer.id) else null
+                val defaultCaps = usbCached ?: PrinterCapabilities.defaultFor(printer)
                 repository.savePrinter(printer, defaultCaps)
                 repository.updateLastUsed(printer.id)
                 _selectedPrinter.value = printer
@@ -633,6 +691,11 @@ class PrinterViewModel(application: Application) : AndroidViewModel(application)
                 return@withContext cached
             }
 
+            if (printer.connectionType == ConnectionType.USB && cached != null) {
+                _selectedPrinterCapabilities.value = CapabilitiesState.Ready(cached)
+                return@withContext cached
+            }
+
             if (printer.connectionType != ConnectionType.WIFI || printer.protocol == PrinterProtocol.RAW9100) {
                 val defaults = PrinterCapabilities.defaultFor(printer)
                 repository.saveCapabilities(printer.id, defaults)
@@ -716,6 +779,6 @@ class PrinterViewModel(application: Application) : AndroidViewModel(application)
         activeConnectionJob?.cancel()
         wifiDiscoveryManager.stopDiscovery()
         bluetoothPrinterManager.stopDiscovery()
-        usbPrinterManager.stopListening()
+        usbPrinterManager.shutdown()
     }
 }
