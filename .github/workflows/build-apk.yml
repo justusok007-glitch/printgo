@@ -40,6 +40,17 @@ jobs:
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
 
+      - name: Publish APK as a GitHub Release (easy phone download)
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp app/build/outputs/apk/debug/*.apk "$RUNNER_TEMP/PrintGo-debug.apk"
+          gh release delete latest-debug --repo "$GITHUB_REPOSITORY" --yes --cleanup-tag || true
+          gh release create latest-debug "$RUNNER_TEMP/PrintGo-debug.apk" --repo "$GITHUB_REPOSITORY" \
+            --title "PrintGo debug build" --prerelease \
+            --notes "Latest debug APK from commit ${GITHUB_SHA::7}. Open this page on your phone and tap PrintGo-debug.apk."
+
       - name: Publish build log to branch (on failure)
         if: failure()
         run: |
