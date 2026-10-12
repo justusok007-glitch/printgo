@@ -1,0 +1,58 @@
+{
+  "_comment": "Source packages for the printer drivers. fetch_sources.py downloads each one, checks sha256 when it is pinned, and keeps an exact copy in the GitHub release 'driver-sources' (GPL corresponding source). Candidates are tried in order; 'debian' is the fallback source package name in the Debian archive.",
+  "packages": [
+    {
+      "name": "escpr",
+      "debian": "epson-inkjet-printer-escpr",
+      "candidates": [],
+      "sha256": ""
+    },
+    {
+      "name": "gutenprint",
+      "debian": "gutenprint",
+      "candidates": [
+        "https://downloads.sourceforge.net/project/gimp-print/gutenprint-5.3/5.3.5/gutenprint-5.3.5.tar.xz",
+        "https://downloads.sourceforge.net/project/gimp-print/gutenprint-5.3/5.3.4/gutenprint-5.3.4.tar.xz"
+      ],
+      "sha256": ""
+    },
+    {
+      "name": "hplip",
+      "debian": "hplip",
+      "candidates": [
+        "https://downloads.sourceforge.net/project/hplip/hplip/3.25.8/hplip-3.25.8.tar.gz",
+        "https://downloads.sourceforge.net/project/hplip/hplip/3.25.6/hplip-3.25.6.tar.gz",
+        "https://downloads.sourceforge.net/project/hplip/hplip/3.25.2/hplip-3.25.2.tar.gz",
+        "https://downloads.sourceforge.net/project/hplip/hplip/3.24.4/hplip-3.24.4.tar.gz"
+      ],
+      "sha256": ""
+    },
+    {
+      "name": "splix",
+      "debian": "splix",
+      "candidates": [],
+      "sha256": ""
+    },
+    {
+      "name": "cups",
+      "debian": "",
+      "candidates": [
+        "https://github.com/OpenPrinting/cups/releases/download/v2.4.16/cups-2.4.16-source.tar.gz",
+        "https://github.com/OpenPrinting/cups/releases/download/v2.4.15/cups-2.4.15-source.tar.gz",
+        "https://github.com/OpenPrinting/cups/releases/download/v2.4.14/cups-2.4.14-source.tar.gz",
+        "https://github.com/OpenPrinting/cups/releases/download/v2.4.12/cups-2.4.12-source.tar.gz",
+        "https://github.com/OpenPrinting/cups/releases/download/v2.4.10/cups-2.4.10-source.tar.gz"
+      ],
+      "sha256": ""
+    },
+    {
+      "name": "libjpeg-turbo",
+      "debian": "",
+      "candidates": [
+        "https://github.com/libjpeg-turbo/libjpeg-turbo/releases/download/3.1.0/libjpeg-turbo-3.1.0.tar.gz",
+        "https://github.com/libjpeg-turbo/libjpeg-turbo/releases/download/3.0.4/libjpeg-turbo-3.0.4.tar.gz"
+      ],
+      "sha256": ""
+    }
+  ]
+}

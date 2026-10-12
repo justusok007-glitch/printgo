@@ -177,8 +177,32 @@ fun AboutScreen(onBackClick: () -> Unit, onOpenPrivacy: () -> Unit) {
             color = PrimaryBlue, fontWeight = FontWeight.Bold,
             modifier = Modifier.clickable(onClick = onOpenPrivacy).padding(vertical = 8.dp)
         )
+        Text("Free software", fontWeight = FontWeight.Bold, color = HeadingNavy, fontSize = 17.sp)
+        Text(
+            "PrintGo is free software under the GNU General Public License, version 3 or later. You may use, " +
+                "share and change it under that licence. It comes with no warranty. The printer drivers inside " +
+                "(Epson ESC/P-R, Gutenprint, HPLIP, SpliX) keep their own free-software licences.",
+            color = BodyGray, fontSize = 14.sp
+        )
+        Text(
+            "Source code and licences",
+            color = PrimaryBlue, fontWeight = FontWeight.Bold,
+            modifier = Modifier
+                .clickable {
+                    try {
+                        context.startActivity(
+                            android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(SOURCE_CODE_URL))
+                                .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                        )
+                    } catch (_: Exception) { }
+                }
+                .padding(vertical = 8.dp)
+        )
+        Text(SOURCE_CODE_URL, color = BodyGray, fontSize = 12.sp)
     }
 }
+
+const val SOURCE_CODE_URL = "https://github.com/justusok007-glitch/printgo"
 
 @Composable
 fun PrivacyScreen(onBackClick: () -> Unit) {

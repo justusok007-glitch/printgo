@@ -28,3 +28,9 @@ Wi-Fi printers are discovered with mDNS and driven directly over IPP. No account
 - Office conversion is best-effort; export to PDF from the source app for exact layout.
 - Authentication-protected printers are not supported.
 - Pause/Resume of a running job is not implemented (cancel and retry are).
+
+## License
+PrintGo is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+later version. See [LICENSE](LICENSE). Printer drivers and libraries keep their own licences, listed in
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

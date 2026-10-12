@@ -1,0 +1,58 @@
+name: Driver sources
+
+# Downloads the printer-driver source packages listed in native/sources.json, keeps exact copies in the
+# GitHub release "driver-sources" (the GPL "corresponding source" for the drivers in PrintGo), and pushes a
+# trimmed, readable copy to the branch "driver-sources-tree" for development.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - native/sources.json
+      - native/fetch_sources.py
+      - native/make_tree.py
+      - .github/workflows/driver-sources.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download source packages
+        run: python3 native/fetch_sources.py "$RUNNER_TEMP/src" 2>&1 | tee "$RUNNER_TEMP/fetch.log"
+      - name: Keep exact copies in the release "driver-sources"
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view driver-sources --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 || \
+            gh release create driver-sources --repo "$GITHUB_REPOSITORY" --title "Printer driver sources" \
+              --notes "Unmodified source packages of the printer drivers built into PrintGo (see native/sources.json and THIRD_PARTY_NOTICES.md)." --prerelease
+          cd "$RUNNER_TEMP/src"
+          for f in $(python3 -c "import json;[print(v['file']) for v in json.load(open('found.json')).values()]"); do
+            gh release upload driver-sources "$f" --repo "$GITHUB_REPOSITORY" --clobber
+          done
+          gh release upload driver-sources found.json --repo "$GITHUB_REPOSITORY" --clobber
+      - name: Push readable tree
+        run: |
+          python3 native/make_tree.py "$RUNNER_TEMP/src" "$RUNNER_TEMP/tree"
+          cp "$RUNNER_TEMP/fetch.log" "$RUNNER_TEMP/tree/"
+          cd "$RUNNER_TEMP/tree"
+          git init -q -b driver-sources-tree
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Driver sources tree for ${{ github.sha }}"
+          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" driver-sources-tree
+      - name: Publish log (on failure)
+        if: failure()
+        run: |
+          mkdir -p "$RUNNER_TEMP/logs"; cp "$RUNNER_TEMP/fetch.log" "$RUNNER_TEMP/logs/" 2>/dev/null || true
+          cd "$RUNNER_TEMP/logs"; git init -q -b ci-logs-sources
+          git config user.name "github-actions"; git config user.email "github-actions@users.noreply.github.com"
+          git add -A; git commit -q -m "log" --allow-empty
+          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" ci-logs-sources
