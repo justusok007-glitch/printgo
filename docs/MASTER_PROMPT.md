@@ -17,8 +17,9 @@ I am Saqib Khalil. I want you to continue developing my Android printing app **P
 **What the app is**
 - A NokoPrint-style printing app: Kotlin + Jetpack Compose (Material3), MVVM, Room, package
   `com.printgo.app`, minSdk 26, targetSdk 36.
-- It prints photos, documents (PDF, Word, Excel, text) and web pages to Wi-Fi printers (IPP, raw port
-  9100, LPD), USB printers (IPP-over-USB, PCL, PostScript, PDF), Bluetooth printers, and can save as PDF.
+- It prints photos, documents (PDF, Word, Excel, text) and web pages to Wi-Fi printers (IPP with PWG raster,
+  AirPrint raster, PCL, PostScript, PDF or JPEG; raw port 9100; LPD), USB printers (IPP-over-USB, PCL,
+  PostScript, PDF, Epson ESC/P-R), Bluetooth printers, and can save as PDF.
 - Features already built: printer discovery and saving, USB auto-detect, print preview, copies,
   all/odd/even/range pages, reverse order, pages per sheet, 2-sided, paper sizes (A4, A5, Letter, Legal,
   4x6), orientation, fit/fill/actual/custom scale, print position, margins, colour/greyscale, print jobs
@@ -32,7 +33,8 @@ I am Saqib Khalil. I want you to continue developing my Android printing app **P
   make sure the build and unit tests pass (fix any errors from the `ci-logs-*` branches), then tell me.
 - Do not reintroduce fixed printer bugs. Never send raw PDF to an unknown printer, and never send raw
   data to port 515. The full list is in `CLAUDE.md`.
-- Be honest about what you could not test. I test on my own phone and my HP LaserJet P2055dn (Wi-Fi).
+- Be honest about what you could not test. I test on my own phone with an HP LaserJet P2055dn (Wi-Fi),
+  and also Epson L455, HP LaserJet Pro M404/M405 and HP LaserJet P3010 (Wi-Fi and USB).
 
 **How I get the new APK**
 - On my phone: GitHub repo → Releases → "PrintGo debug build" → PrintGo-debug.apk.

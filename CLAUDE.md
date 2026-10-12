@@ -53,47 +53,74 @@ keep rules in `app/proguard-rules.pro`.
 - `data/converter/` — `DocumentConverter` (images/Office/text → PDF), `PdfPageRenderer`
   (`renderRegion`, `renderForPortraitPaper`).
 - `data/print/PrintJobManager.kt` — the print engine: queue, Room-persisted jobs, retry/reprint/cancel,
-  and per-connection sending. Encoders: `PwgRasterEncoder`, `PclEncoder` (+ `PostScriptEncoder`),
-  `EscPosEncoder`; transports in `Transports.kt` (raw 9100, LPD 515, Bluetooth SPP, USB);
+  and per-connection sending (`runIppJob` = shared IPP format loop for Wi-Fi and USB). Encoders:
+  `PwgRasterEncoder`, `UrfEncoder` (Apple/AirPrint raster), `EscprEncoder` (Epson ESC/P-R), `PclEncoder`
+  (+ `PostScriptEncoder`), `EscPosEncoder`; shared row format in `RowSource.kt` (`RasterRows`);
+  `IppFormatPlanner` (which format, dpi, grey/colour for a printer); `LanguagePicker` (+ `RawLanguage`) for
+  raw printers; transports in `Transports.kt` (raw 9100, LPD 515, Bluetooth SPP, USB);
   `UsbSession`/`UsbAutoSetup`/`UsbIds` for USB; `PrintJobService` foreground service; notifications.
 - `data/ipp/` — IPP encoder/decoder, `IppClient` (Get-Printer-Attributes with path fallbacks),
-  `IppPrintClient` (probe, Print-Job, job status, cancel).
-- `data/discovery/` — mDNS Wi-Fi discovery (`_ipp`, `_ipps`, `_pdl-datastream`, `_printer`), USB, Bluetooth.
-- `data/prefs/AppPreferences.kt` — app settings incl. `dataFormat` (AUTO/PDF/PWG/JPEG for IPP) and
-  `bluetoothLanguage` (raw printer language AUTO/ESCPOS/PCL/POSTSCRIPT/PDF for raw 9100/Bluetooth).
-- Tests: `app/src/test/java/com/printgo/app/` (`PrintEngineTest.kt`, `SheetLayoutEngineTest.kt`, …).
+  `IppProbe` (what the printer supports), `IppPrintClient` (probe, Print-Job, job status, cancel).
+- `data/discovery/` — mDNS Wi-Fi discovery (`_ipp`, `_ipps`, `_pdl-datastream`, `_printer`; prefers IPv4),
+  `SnmpDeviceId` (IEEE-1284 device id over SNMP), USB, Bluetooth.
+- `res/xml/network_security_config.xml` — **allows plain HTTP**. Without it Android blocks every IPP request
+  (this was the reason only the P2055dn on raw 9100 worked until v1.1.0). Never remove it.
+- `data/prefs/AppPreferences.kt` — app settings incl. `dataFormat` (AUTO/PDF/PWG/URF/JPEG for IPP) and
+  `bluetoothLanguage` (raw printer language AUTO/ESCPOS/PCL/ESCPR/POSTSCRIPT/PDF for raw 9100/Bluetooth).
+- Tests: `app/src/test/java/com/printgo/app/` (`PrintEngineTest.kt`, `PrinterCompatibilityTest.kt`,
+  `SheetLayoutEngineTest.kt`, …). Pure engine files (encoders, planner, picker, SNMP, IPP model) can be
+  compiled locally with the Kotlin compiler jar inside `/opt/gradle-*/lib` plus a tiny `android.graphics.Bitmap`
+  stub — handy for quick checks before waiting for CI.
 
 ## How a job is printed (keep these rules)
 1. The Preview screen enqueues a job; `SheetLayoutEngine` builds one master PDF per job (kept in
    `filesDir/jobs/<id>.pdf` for retry/reprint).
-2. **Wi-Fi IPP**: probe the printer live, pick a format it lists. AUTO order: PWG raster → PCL →
-   PostScript → PDF → JPEG (PCL/PostScript are rendered here for older office printers). Fall through to
-   the next format on 0x040A/0x040B/0x0400. JPEG is sent with `print-scaling=fit`; raster sends none.
-   PCL/PostScript over IPP send `copies=1` because copies are inside the data.
-3. **Wi-Fi raw (port 9100)**: first try IPP on 631; otherwise send raw in the chosen language (PCL for
-   known office brands, else the Settings choice). **Never guess raw PDF.**
+2. **Wi-Fi IPP**: probe the printer live (`IppProbe`), `IppFormatPlanner` picks formats it lists. AUTO order:
+   PWG raster → AirPrint raster (URF) → PCL → PostScript → PDF → JPEG → ESC/P-R. PWG/URF use the printer's
+   own resolution (closest to 300 dpi; HP lasers often only 600) and its colour type (sgray_8/srgb_8, W8/SRGB24),
+   rendered in bands (`PdfPageRenderer.openRows`) at exactly the paper size. Job options (sides, colour mode,
+   quality, scaling, media) are sent **only if the printer lists them**. On 0x040B/0x0400/HTTP 400/cut-off
+   upload: retry once with `minimal=true` (format + copies only), then the next format; 0x040A → next format.
+   JPEG is sent with `print-scaling=fit`; raster sends none. PCL/PostScript/ESC-P-R send `copies=1`.
+   If IPP does not answer at all but port 9100 is open and the language is known → raw (`sendRaw`).
+3. **Wi-Fi raw (port 9100)**: language from Settings, else SNMP device id, else mDNS `pdl`, else name
+   (`LanguagePicker`). PCL/PostScript printers are sent raw directly (verified route); Epson/unknown are
+   tried over IPP first, then raw. Inkjet brands are never guessed as PCL. **Never guess raw PDF.**
 4. **Port 515 is LPD, not raw.** Printers announce both `_printer._tcp` (515) and `_pdl-datastream._tcp`
    (9100). Use 9100 when open; only speak real LPD (`Transports.sendLpd`, queue "raw") when 9100 is closed.
    Sending raw data to 515 caused "blank page with a few lines of junk" on the owner's HP.
-5. **USB**: IPP-over-USB when the printer has the interface, else raw language from the IEEE-1284 device ID
-   (CMD: PCL/POSTSCRIPT/PDF). Unknown printers are not guessed (strict) → offer the Play Store print service.
+5. **USB**: IPP-over-USB when the printer has the interface (same format loop as Wi-Fi); if it cannot be
+   asked or refuses everything, the classic printer interface with the raw language from the IEEE-1284
+   device ID (CMD order: ESCPR → PCL (PCL/PCL5/PCL3 only, not PCLXL/PCL3GUI/PCLm) → PostScript → PDF).
+   No device id → USB descriptor names (Epson → ESC/P-R, thermal). Otherwise not guessed (strict) → offer
+   the Play Store print service. USB writes advance by the bytes actually sent and wait up to 2 min.
    USB printers are identified by vendor:product id (`usb_vvvv_pppp`), because Android's device id changes
    every time the cable is plugged in.
 6. **PJL** is added only when the device ID lists PJL; otherwise it prints as text.
 7. **PCL details**: send `ESC&l0E` (top margin 0) after orientation, skip the logical-page offset
    (71 dots @300 dpi for A sizes, 75 for US sizes), set raster width `ESC*r#S`.
-8. Raster outputs (PCL, PostScript, PWG, JPEG) use `renderForPortraitPaper`: landscape sheets are turned
-   90° anticlockwise so they fill portrait paper. ESC/POS is not rotated.
+8. Raster outputs turn landscape sheets 90° anticlockwise so they fill portrait paper: PCL, PostScript and
+   JPEG via `renderForPortraitPaper`; PWG, URF and ESC/P-R via the banded `openRows` (same rotation).
+   ESC/POS is not rotated.
 9. Printers that cannot be asked get `PrinterCapabilities.defaultFor()` — it must allow Legal/A5/A3 and
    two-sided, and must **never invent toner levels** (markerLevels empty).
 10. Raw 9100 sockets close gracefully (shutdownOutput + drain) so the end of a job is not cut off.
+11. **ESC/P-R** (Epson inkjets): 360 dpi, 3 mm margins, RGB lines RLE-compressed (0..127 literal n+1,
+    129..255 repeat 257-n — the opposite of PWG). Sequence: exit packet mode, ESC @, REMOTE1 (TI, JS, JH, HD,
+    PP), exit remote, ESC(R ESCPR, setq, setj, per page sttp/setn/dsnd…/endp, endj, ESC @, REMOTE1 LD JE.
+    Based on Epson's open-source library and the MIT python-epson encoder; **not yet tested on a real Epson**.
 
 ## Verified on real hardware
 - 2026-10-11: **HP LaserJet P2055dn over Wi-Fi → port 9100, PCL** prints correctly (owner confirmed).
+- 2026-10-12 (v1.1.0): owner reported Epson L455, HP LaserJet Pro M404/M405 and HP LaserJet P3010 did not
+  print over Wi-Fi or USB. Fixed in code (plain-HTTP block, URF, ESC/P-R, option filtering, USB writes);
+  **waiting for the owner to test** — ask for each printer's Connection line.
 - Not yet verified by the owner: two-sided, Legal, landscape, custom scale/position, USB, Bluetooth,
   other brands. Ask for the job's Connection line + a photo when a print comes out wrong.
 
 ## Known limitations (say so honestly; do not claim otherwise)
+- Two-sided raster (PWG/URF) does not yet turn the back sides for printers that need "flipped"/"rotated" backs.
+- PCL output is black-and-white (1-bit); colour lasers fed raw PCL print in grey.
 - Host-based/GDI printers (e.g. Canon LBP2900/LBP6000, HP LaserJet P1102/1020) need a computer driver and
   cannot be driven directly; use "Print with system dialog" + the maker's print-service plugin.
 - No pause/resume; no printers that require a login; Office conversion is best-effort.

@@ -212,6 +212,7 @@ class IppPrintClient(private val base: IppClient = IppClient()) {
 
         val header = buildPrintJob(ippUri, mime, options)
         val total = header.size + data.length()
+        var uploaded = false
         val body = object : RequestBody() {
             override fun contentType() = ippMedia
             override fun contentLength() = total
@@ -228,6 +229,7 @@ class IppPrintClient(private val base: IppClient = IppClient()) {
                         onProgress(sent.toFloat() / total)
                     }
                 }
+                uploaded = true
             }
         }
         val request = Request.Builder().url(url).post(body).header("Content-Type", "application/ipp").build()
@@ -278,9 +280,14 @@ class IppPrintClient(private val base: IppClient = IppClient()) {
             if (fp != null && pinnedFingerprint == null) IppSendResult.TlsUntrusted(fp)
             else IppSendResult.Failed("Secure connection to the printer failed. Re-add the printer to trust its certificate again.", retryable = false)
         } catch (e: IOException) {
-            // Connected, but the transfer broke off. Many printers simply hang up when they cannot read the
-            // format they are being sent, so the caller may try another format.
-            IppSendResult.Failed("The connection to the printer was cut off while sending.", TRANSFER_BROKEN)
+            if (uploaded) {
+                // Everything arrived; only the answer was lost. Sending again could print the job twice.
+                IppSendResult.Failed("The printer closed the connection after receiving the job. Check whether it printed.", NO_CONNECTION)
+            } else {
+                // Connected, but the upload broke off. Many printers simply hang up when they cannot read the
+                // format they are being sent, so the caller may try another format.
+                IppSendResult.Failed("The connection to the printer was cut off while sending.", TRANSFER_BROKEN)
+            }
         } catch (e: Exception) {
             IppSendResult.Failed(e.message ?: "Unexpected printing error.")
         }
