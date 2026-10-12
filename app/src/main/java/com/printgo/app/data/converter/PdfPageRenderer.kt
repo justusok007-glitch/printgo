@@ -116,6 +116,62 @@ class PdfPageRenderer(val pdfFile: File) : Closeable {
         return rotated
     }
 
+    /**
+     * Opens page [pageIndex] as a [com.printgo.app.data.print.RowSource] for portrait paper
+     * [paperWidthPx] pixels wide, rendered in bands so that even 600 dpi pages use little memory.
+     * Landscape pages are turned 90° anticlockwise, exactly like [renderForPortraitPaper].
+     * Close the returned source before rendering another page.
+     */
+    @Synchronized
+    fun openRows(pageIndex: Int, paperWidthPx: Int, paperHeightPx: Int? = null): PageRows {
+        clearCache()
+        val page = renderer.openPage(pageIndex)
+        return PageRows(page, paperWidthPx, paperHeightPx)
+    }
+
+    /**
+     * [heightPx] fixes the raster height to the paper's (raster formats must match the paper size exactly);
+     * the page is then stretched by the tiny rounding difference between the PDF page and the paper.
+     */
+    class PageRows internal constructor(
+        private val page: PdfRenderer.Page,
+        override val width: Int,
+        heightPx: Int?
+    ) : com.printgo.app.data.print.RowSource, Closeable {
+        private val pw = page.width.toFloat()
+        private val ph = page.height.toFloat()
+        private val landscape = pw > ph
+        private val scale = width / (if (landscape) ph else pw)
+        override val height: Int = (heightPx ?: Math.round((if (landscape) pw else ph) * scale)).coerceAtLeast(1)
+        private val scaleY = height / (if (landscape) pw else ph)
+        private val bandHeight = (12_000_000 / (width.coerceAtLeast(1) * 4)).coerceIn(16, 1024).coerceAtMost(height)
+        private val band: Bitmap = Bitmap.createBitmap(width.coerceAtLeast(1), bandHeight, Bitmap.Config.ARGB_8888)
+        private var bandTop = -1
+
+        private fun renderBand(top: Int) {
+            band.eraseColor(Color.WHITE)
+            val m = Matrix()
+            if (landscape) {
+                m.postRotate(-90f)          // (x, y) -> (y, -x)
+                m.postTranslate(0f, pw)     // -> (y, pw - x)
+            }
+            m.postScale(scale, scaleY)
+            m.postTranslate(0f, -top.toFloat())
+            page.render(band, null, m, PdfRenderer.Page.RENDER_MODE_FOR_PRINT)
+            bandTop = top
+        }
+
+        override fun readRow(y: Int, out: IntArray) {
+            if (bandTop < 0 || y < bandTop || y >= bandTop + bandHeight) renderBand(y)
+            band.getPixels(out, 0, width, 0, y - bandTop, width, 1)
+        }
+
+        override fun close() {
+            try { band.recycle() } catch (_: Exception) { }
+            try { page.close() } catch (_: Exception) { }
+        }
+    }
+
     override fun close() {
         try {
             clearCache()

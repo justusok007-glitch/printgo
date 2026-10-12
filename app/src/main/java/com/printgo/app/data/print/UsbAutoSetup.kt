@@ -42,7 +42,7 @@ object UsbAutoSetup {
             return@withContext Result.Failed(e.message ?: "Could not open the USB printer.")
         }
         session.use { s ->
-            val id = s.deviceId()
+            val id = s.deviceId() ?: s.namesAsDeviceId()
             val f = parseDeviceId(id)
             val maker = f["MFG"] ?: f["MANUFACTURER"] ?: UsbIds.safeName(device) { it.manufacturerName }
             val model = f["MDL"] ?: f["MODEL"] ?: UsbIds.safeName(device) { it.productName }
@@ -57,7 +57,7 @@ object UsbAutoSetup {
             if (s.isIppUsb) {
                 try {
                     val req = IppEncoder.encode(
-                        IppEncoder.createGetPrinterAttributesRequest("ipp://localhost:631/ipp/print", 1, listOf("all", "media-col-database"))
+                        IppEncoder.createGetPrinterAttributesRequest("ipp://localhost/ipp/print", 1, listOf("all", "media-col-database"))
                     )
                     val resp = IppDecoder.decode(s.ippRequest(req))
                     val caps = PrinterCapabilities.fromIppResponse(resp, base)
@@ -72,13 +72,13 @@ object UsbAutoSetup {
                 }
             }
 
-            val lang = PrintJobManager.pickLanguage(id, name, "AUTO", strict = true)
+            val lang = LanguagePicker.pick(id, name, "AUTO", strict = true)
             if (lang == null) {
                 val caps = PrinterCapabilities.defaultFor(base).copy(makeAndModel = name)
                 return@withContext Result.NeedsPrintService(base, caps)
             }
-            val mode = lang ?: PrintJobManager.RawLanguage.ESCPOS
-            val mono = mode == PrintJobManager.RawLanguage.PCL || mode == PrintJobManager.RawLanguage.ESCPOS
+            val mode = lang
+            val mono = mode == RawLanguage.PCL || mode == RawLanguage.ESCPOS
             val printer = base.copy(supportsColor = !mono)
             val caps = PrinterCapabilities.defaultFor(printer).copy(
                 makeAndModel = name,

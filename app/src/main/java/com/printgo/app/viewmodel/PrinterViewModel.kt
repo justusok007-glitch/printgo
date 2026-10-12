@@ -596,6 +596,22 @@ class PrinterViewModel(application: Application) : AndroidViewModel(application)
             val pinnedFingerprint = savedEntity?.tlsFingerprint
             val ippResult = ippClient.getPrinterAttributes(printer, pinnedFingerprint)
 
+            // IPP did not work, but many office printers still take raw data on port 9100: use that
+            // instead of refusing the printer (the print engine finds out which language it reads).
+            suspend fun connectAsRaw(): Boolean {
+                if (printer.host.isBlank()) return false
+                val open = withContext(Dispatchers.IO) { com.printgo.app.data.print.Transports.isPortOpen(printer.host, 9100) }
+                if (!open) return false
+                val raw = printer.copy(protocol = PrinterProtocol.RAW9100, port = 9100, resourcePath = "", isOnline = true)
+                val caps = PrinterCapabilities.defaultFor(raw)
+                repository.savePrinter(raw, caps)
+                repository.updateLastUsed(raw.id)
+                _selectedPrinter.value = raw
+                _selectedPrinterCapabilities.value = CapabilitiesState.Ready(caps)
+                _connectionState.value = ConnectionState.Connected(raw, caps)
+                return true
+            }
+
             when (ippResult) {
                 is IppResult.Success -> {
                     val caps = PrinterCapabilities.fromIppResponse(ippResult.response, printer)
@@ -619,7 +635,7 @@ class PrinterViewModel(application: Application) : AndroidViewModel(application)
                         _selectedPrinter.value = printer
                         _selectedPrinterCapabilities.value = CapabilitiesState.Ready(cachedCaps)
                         _connectionState.value = ConnectionState.Connected(printer, cachedCaps)
-                    } else {
+                    } else if (!connectAsRaw()) {
                         _connectionState.value = ConnectionState.Failed(
                             printer,
                             "Printer returned HTTP error ${ippResult.statusCode}",
@@ -632,7 +648,7 @@ class PrinterViewModel(application: Application) : AndroidViewModel(application)
                         _selectedPrinter.value = printer
                         _selectedPrinterCapabilities.value = CapabilitiesState.Ready(cachedCaps)
                         _connectionState.value = ConnectionState.Connected(printer, cachedCaps)
-                    } else {
+                    } else if (!connectAsRaw()) {
                         _connectionState.value = ConnectionState.Failed(
                             printer,
                             "Printer connection timed out",
@@ -641,18 +657,20 @@ class PrinterViewModel(application: Application) : AndroidViewModel(application)
                     }
                 }
                 is IppResult.IppStatusError -> {
-                    _connectionState.value = ConnectionState.Failed(
-                        printer,
-                        ippResult.message,
-                        "The printer rejected the request. Ensure IPP is enabled in the printer's web admin panel."
-                    )
+                    if (!connectAsRaw()) {
+                        _connectionState.value = ConnectionState.Failed(
+                            printer,
+                            ippResult.message,
+                            "The printer rejected the request. Ensure IPP is enabled in the printer's web admin panel."
+                        )
+                    }
                 }
                 is IppResult.NetworkError -> {
                     if (cachedIsFresh && cachedCaps != null) {
                         _selectedPrinter.value = printer
                         _selectedPrinterCapabilities.value = CapabilitiesState.Ready(cachedCaps)
                         _connectionState.value = ConnectionState.Connected(printer, cachedCaps)
-                    } else {
+                    } else if (!connectAsRaw()) {
                         _connectionState.value = ConnectionState.Failed(
                             printer,
                             ippResult.message,

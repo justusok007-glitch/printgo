@@ -68,6 +68,37 @@ data class PrinterCapabilities(
             }
         }
 
+        /** Size in mm from a PWG self-describing media name, or null (custom ranges, odd names). */
+        fun sizeFromMediaName(keyword: String): Pair<Int, Int>? {
+            val k = keyword.trim().lowercase()
+            if (k.startsWith("custom_")) return null
+            val m = Regex("_(\\d+(?:\\.\\d+)?)x(\\d+(?:\\.\\d+)?)(mm|in)$").find(k) ?: return null
+            val f = if (m.groupValues[3] == "in") 25.4f else 1f
+            val w = Math.round(m.groupValues[1].toFloat() * f)
+            val h = Math.round(m.groupValues[2].toFloat() * f)
+            if (w <= 0 || h <= 0) return null
+            return minOf(w, h) to maxOf(w, h)
+        }
+
+        private fun nameForMedia(keyword: String, w: Int, h: Int): String {
+            val n = nameForSize(w, h)
+            if (!n.endsWith(" mm")) return n
+            val k = keyword.lowercase()
+            return when {
+                k.startsWith("oe_photo-l") -> "Photo L (3.5x5)"
+                k.startsWith("na_executive") -> "Executive"
+                k.startsWith("na_number-10") -> "Envelope #10"
+                k.startsWith("iso_dl") -> "Envelope DL"
+                else -> n
+            }
+        }
+
+        private fun nameForSize(w: Int, h: Int): String {
+            val known = listOf("A4" to (210 to 297), "Letter" to (216 to 279), "Legal" to (216 to 356), "A3" to (297 to 420),
+                "A5" to (148 to 210), "4x6 Photo" to (102 to 152), "5x7 Photo" to (127 to 178), "B5" to (176 to 250))
+            return known.firstOrNull { (_, s) -> kotlin.math.abs(s.first - w) <= 2 && kotlin.math.abs(s.second - h) <= 2 }?.first ?: "${w}x${h} mm"
+        }
+
         fun standardDimensionsFor(name: String): Pair<Int, Int> {
             val lower = name.lowercase()
             return when {
@@ -143,15 +174,21 @@ data class PrinterCapabilities(
             val mediaKeywords = response.getStrings("media-supported")
             val mediaSizeCollections = response.getCollections("media-size-supported")
 
-            val mediaSupported = if (mediaSizeCollections.isNotEmpty()) {
-                mediaSizeCollections.mapIndexed { index, col ->
-                    val x = (col["x-dimension"]?.firstOrNull() as? IppValue.IntValue)?.value ?: 21000
-                    val y = (col["y-dimension"]?.firstOrNull() as? IppValue.IntValue)?.value ?: 29700
-                    val widthMm = x / 100
-                    val heightMm = y / 100
-                    val name = if (index < mediaKeywords.size) friendlyMediaName(mediaKeywords[index]) else "${widthMm}x${heightMm}mm"
-                    PaperSize(name, widthMm, heightMm)
-                }
+            // PWG media names carry their own size ("iso_a4_210x297mm", "na_letter_8.5x11in"). Read the size
+            // from the name itself: media-size-supported is a separate list in a different order, and pairing
+            // the two by position labelled Letter-sized paper "A4".
+            val fromNames = mediaKeywords.mapNotNull { kw -> sizeFromMediaName(kw)?.let { (w, h) -> PaperSize(nameForMedia(kw, w, h), w, h) } }
+                .distinctBy { it.name }
+            val mediaSupported = if (fromNames.isNotEmpty()) {
+                fromNames
+            } else if (mediaSizeCollections.isNotEmpty()) {
+                mediaSizeCollections.mapNotNull { col ->
+                    val x = (col["x-dimension"]?.firstOrNull() as? IppValue.IntValue)?.value ?: return@mapNotNull null
+                    val y = (col["y-dimension"]?.firstOrNull() as? IppValue.IntValue)?.value ?: return@mapNotNull null
+                    val widthMm = Math.round(x / 100f)
+                    val heightMm = Math.round(y / 100f)
+                    PaperSize(nameForSize(widthMm, heightMm), widthMm, heightMm)
+                }.distinctBy { it.name }.ifEmpty { listOf(PaperSize("A4", 210, 297), PaperSize("Letter", 216, 279)) }
             } else if (mediaKeywords.isNotEmpty()) {
                 mediaKeywords.map { keyword ->
                     val friendly = friendlyMediaName(keyword)

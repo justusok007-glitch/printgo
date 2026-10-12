@@ -161,7 +161,10 @@ class WifiDiscoveryManager(
         }
 
         if (result != null) {
-            val hostAddress = result.host?.hostAddress ?: return
+            // Newer Android versions may report an IPv6 link-local address first; IPv4 works everywhere.
+            val addresses = if (Build.VERSION.SDK_INT >= 34) result.hostAddresses else listOfNotNull(result.host)
+            val chosen = addresses.firstOrNull { it is java.net.Inet4Address } ?: result.host ?: addresses.firstOrNull()
+            val hostAddress = chosen?.hostAddress ?: return
             val isLpd = (result.serviceType ?: "").contains("_printer")
             // An LPD (port 515) entry is not a raw-data port: use the printer's raw port 9100 when it has one.
             val port = if (isLpd && checkReachability(hostAddress, 9100, 1500)) 9100 else result.port

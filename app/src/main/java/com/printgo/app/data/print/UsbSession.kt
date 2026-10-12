@@ -12,6 +12,8 @@ import java.io.File
 
 /** One open USB printer: raw bulk writes, IEEE-1284 device id, and IPP-over-USB (HTTP tunnelled over bulk endpoints). */
 class UsbSession private constructor(
+    private val context: Context,
+    private val hostUri: String,
     private val conn: UsbDeviceConnection,
     private val device: UsbDevice,
     private val iface: UsbInterface,
@@ -51,7 +53,7 @@ class UsbSession private constructor(
                 throw TransportException("The USB printer is in use by another app.")
             }
             try { conn.setInterface(chosen) } catch (_: Exception) { }
-            return UsbSession(conn, device, chosen, o!!, n, ippUsb != null)
+            return UsbSession(context.applicationContext, hostUri, conn, device, chosen, o!!, n, ippUsb != null)
         }
     }
 
@@ -69,15 +71,36 @@ class UsbSession private constructor(
         } catch (e: Exception) { null }
     }
 
+    /** Manufacturer/product names from the USB descriptor, shaped like a device id, for printers that send none. */
+    fun namesAsDeviceId(): String? {
+        val mfg = try { device.manufacturerName } catch (_: SecurityException) { null }
+        val mdl = try { device.productName } catch (_: SecurityException) { null }
+        if (mfg.isNullOrBlank() && mdl.isNullOrBlank()) return null
+        return "MFG:${mfg.orEmpty()};MDL:${mdl.orEmpty()};"
+    }
+
+    /**
+     * Writes everything, however slowly the printer takes it. A bulk transfer may move fewer bytes than
+     * asked, or time out while the printer is busy printing earlier pages; neither may lose data.
+     */
     fun write(data: ByteArray, off: Int = 0, len: Int = data.size - off) {
         var p = off
         val end = off + len
+        var stalledSince = 0L
         while (p < end) {
             val n = minOf(16 * 1024, end - p)
-            val chunk = if (p == 0 && n == data.size) data else data.copyOfRange(p, p + n)
-            val r = conn.bulkTransfer(out, chunk, n, 15000)
-            if (r < 0) throw TransportException("The USB printer stopped answering.")
-            p += n
+            val r = conn.bulkTransfer(out, data, p, n, 5000)
+            if (r > 0) {
+                p += r
+                stalledSince = 0L
+            } else {
+                val now = System.currentTimeMillis()
+                if (stalledSince == 0L) stalledSince = now
+                // A laser warming up or an inkjet cleaning its heads can refuse data for a long while.
+                if (now - stalledSince > 120_000) throw TransportException("The USB printer stopped taking data. Check it for paper or errors.")
+                if (UsbIds.find(context, hostUri) == null) throw TransportException("The USB printer was unplugged.")
+                Thread.sleep(200)
+            }
         }
     }
 
@@ -87,7 +110,7 @@ class UsbSession private constructor(
     fun ippRequest(ippHeader: ByteArray, file: File? = null, onProgress: (Float) -> Unit = {}): ByteArray {
         val inEp = inp ?: throw TransportException("The USB printer cannot send answers back.")
         val total = ippHeader.size + (file?.length() ?: 0L)
-        val http = ("POST /ipp/print HTTP/1.1\r\nHost: localhost:631\r\nUser-Agent: PrintGo\r\n" +
+        val http = ("POST /ipp/print HTTP/1.1\r\nHost: localhost\r\nUser-Agent: PrintGo\r\n" +
             "Content-Type: application/ipp\r\nContent-Length: $total\r\nConnection: keep-alive\r\n\r\n").toByteArray()
         write(http)
         write(ippHeader)
@@ -114,14 +137,26 @@ class UsbSession private constructor(
             return r > 0
         }
         val deadline = System.currentTimeMillis() + 120_000
-        var headerEnd = -1
-        while (headerEnd < 0) {
-            if (System.currentTimeMillis() > deadline) throw TransportException("The printer did not answer in time.")
-            more(5000)
-            headerEnd = indexOf(acc.toByteArray(), "\r\n\r\n".toByteArray())
+        var headerEnd: Int
+        var head: String
+        while (true) {
+            headerEnd = -1
+            while (headerEnd < 0) {
+                if (System.currentTimeMillis() > deadline) throw TransportException("The printer did not answer in time.")
+                more(5000)
+                headerEnd = indexOf(acc.toByteArray(), "\r\n\r\n".toByteArray())
+            }
+            val all0 = acc.toByteArray()
+            head = String(all0, 0, headerEnd, Charsets.ISO_8859_1)
+            // "HTTP/1.1 100 Continue" and other interim answers come before the real one: drop them.
+            val code = head.lineSequence().first().split(' ').getOrNull(1)?.toIntOrNull() ?: 0
+            if (code in 100..199) {
+                val rest = all0.copyOfRange(headerEnd + 4, all0.size)
+                acc.reset(); acc.write(rest)
+                continue
+            }
+            break
         }
-        val all0 = acc.toByteArray()
-        val head = String(all0, 0, headerEnd, Charsets.ISO_8859_1)
         val status = head.lineSequence().first().split(' ').getOrNull(1)?.toIntOrNull() ?: 0
         if (status !in 200..299) throw TransportException("The printer answered with HTTP $status over USB.")
         val bodyStart = headerEnd + 4

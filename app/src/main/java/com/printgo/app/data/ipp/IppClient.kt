@@ -71,12 +71,15 @@ class IppClient {
                 }
                 is IppResult.IppStatusError -> {
                     lastError = result
-                    if (result.statusCode != IppMessage.STATUS_CLIENT_ERROR_NOT_FOUND.toInt()) {
+                    if (result.statusCode != IppMessage.STATUS_CLIENT_ERROR_NOT_FOUND.toInt() && result.statusCode != 0x0400) {
                         break
                     }
                 }
                 else -> {
+                    // Network trouble or no answer: another path on the same port will not help, and trying
+                    // all of them would keep the user waiting for minutes.
                     lastError = result
+                    break
                 }
             }
         }
@@ -93,8 +96,9 @@ class IppClient {
         val scheme = if (isHttps) "https" else "http"
         val port = if (printer.port > 0) printer.port else 631
         val cleanPath = path.removePrefix("/")
-        val url = "$scheme://${printer.host}:$port/$cleanPath"
-        val ippUri = "ipp://${printer.host}:$port/$cleanPath"
+        val host = urlHost(printer.host)
+        val url = "$scheme://$host:$port/$cleanPath"
+        val ippUri = "${if (isHttps) "ipps" else "ipp"}://$host:$port/$cleanPath"
 
         val requestMessage = IppEncoder.createGetPrinterAttributesRequest(
             printerUri = ippUri,
@@ -167,6 +171,11 @@ class IppClient {
                     return IppResult.TlsUntrusted(detectedFingerprint!!, printer.host, port)
                 }
                 return IppResult.NetworkError("TLS certificate unverified: ${e.message}", e)
+            } catch (e: java.net.ConnectException) {
+                // Nothing listens on this port: trying again or on other paths will not help.
+                return IppResult.NetworkError(e.message ?: "Could not connect to the printer", e)
+            } catch (e: java.net.UnknownServiceException) {
+                return IppResult.NetworkError(e.message ?: "Connection blocked", e)
             } catch (e: IOException) {
                 if (attempts >= maxAttempts) {
                     return IppResult.NetworkError(e.message ?: "Network error while communicating with printer", e)
@@ -232,6 +241,13 @@ class IppClient {
     }
 
     companion object {
+        /** IPv6 literals must be written in brackets inside a URL ("http://[fe80::1]:631/…"). */
+        fun urlHost(host: String): String {
+            val h = host.trim()
+            if (h.startsWith("[") || !h.contains(':')) return h
+            return "[" + h.replace("%", "%25") + "]"
+        }
+
         fun isPrivateLanAddress(host: String): Boolean {
             val h = host.trim().lowercase()
             if (h == "localhost" || h.endsWith(".local") || h.endsWith(".lan")) return true

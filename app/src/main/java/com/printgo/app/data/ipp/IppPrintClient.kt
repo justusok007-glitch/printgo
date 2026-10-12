@@ -33,10 +33,12 @@ data class IppJobOptions(
     val supportedSides: List<String> = emptyList(),
     val supportsColorModes: Boolean = true,
     /** "none", "fit", "fill", "auto" or null to leave it to the printer. */
-    val printScaling: String? = "none"
+    val printScaling: String? = "none",
+    /** What the printer said it supports. When known, only options it lists are sent. */
+    val probe: IppProbe? = null,
+    /** Retry mode for strict printers: send nothing but the document format (and copies). */
+    val minimal: Boolean = false
 )
-
-data class IppProbe(val formats: List<String>, val path: String, val pwgResolutions: List<Int>)
 
 sealed interface IppSendResult {
     data class Accepted(val jobId: Int, val jobUri: String?, val statusCode: Int) : IppSendResult
@@ -64,8 +66,17 @@ class IppPrintClient(private val base: IppClient = IppClient()) {
         const val JOB_ABORTED = 8
         const val JOB_COMPLETED = 9
 
+        /** [IppSendResult.Failed.statusCode] when no connection could be made at all. */
+        const val NO_CONNECTION = -1
+        /** [IppSendResult.Failed.statusCode] when the connection broke during the upload. */
+        const val TRANSFER_BROKEN = -2
+
+        /** IPP answers that mean "not like this" rather than "not at all": try fewer options or another format. */
+        fun isFormatOrOptionRejection(code: Int) = code == 0x040A || code == 0x040B || code == 0x0400 || code == TRANSFER_BROKEN
+
         fun statusText(code: Int): String = when (code) {
             0x0400 -> "The printer rejected the request."
+            0x0402 -> "The printer refused the job."
             0x0401 -> "The printer needs a password for this job."
             0x0403 -> "The printer refused access."
             0x0404, 0x0406 -> "The printer address looks wrong. Try re-adding the printer."
@@ -74,6 +85,7 @@ class IppPrintClient(private val base: IppClient = IppClient()) {
             0x040C -> "The file is too large for the printer."
             0x0501 -> "The printer is not able to print right now."
             0x0502 -> "The printer is busy. Try again in a moment."
+            0x0503 -> "The printer does not understand this version of the printing protocol."
             0x0505 -> "The printer is not accepting jobs."
             0x0507 -> "The printer's job queue is full."
             else -> "Printer returned status 0x${Integer.toHexString(code)}."
@@ -103,11 +115,7 @@ class IppPrintClient(private val base: IppClient = IppClient()) {
     suspend fun probe(printer: Printer, pinned: String?): IppProbe? {
         val r = base.getPrinterAttributes(printer, pinned)
         if (r !is IppResult.Success) return null
-        val msg = r.response
-        val res = msg.findAttribute("pwg-raster-document-resolution-supported")?.values
-            ?.mapNotNull { (it as? IppValue.ResolutionValue)?.let { v -> if (v.units.toInt() == 4) (v.xRes * 2.54f).toInt() else v.xRes } }
-            ?: emptyList()
-        return IppProbe(msg.getStrings("document-format-supported"), r.effectivePath, res)
+        return IppProbe.from(r.response, r.effectivePath)
     }
 
     private fun opAttrs(printerUri: String, extra: List<IppAttribute> = emptyList()): IppAttributeGroup {
@@ -133,7 +141,8 @@ class IppPrintClient(private val base: IppClient = IppClient()) {
         val https = printer.protocol == PrinterProtocol.IPPS
         val port = if (printer.port > 0) printer.port else 631
         val path = printer.resourcePath.trim().removePrefix("/").ifBlank { "ipp/print" }
-        return "${if (https) "https" else "http"}://${printer.host}:$port/$path" to "ipp://${printer.host}:$port/$path"
+        val host = IppClient.urlHost(printer.host)
+        return "${if (https) "https" else "http"}://$host:$port/$path" to "${if (https) "ipps" else "ipp"}://$host:$port/$path"
     }
 
     internal fun buildPrintJob(printerUri: String, mime: String, o: IppJobOptions): ByteArray {
@@ -146,37 +155,42 @@ class IppPrintClient(private val base: IppClient = IppClient()) {
             )
         )
         val job = mutableListOf<IppAttribute>()
-        if (o.copies > 1) {
-            job.add(int("copies", o.copies))
-            job.add(kw("multiple-document-handling", if (o.collate) "separate-documents-collated-copies" else "separate-documents-uncollated-copies"))
+        val p = o.probe
+        if (o.copies > 1) job.add(int("copies", o.copies))
+        if (!o.minimal) {
+            if (o.copies > 1) {
+                val mdh = if (o.collate) "separate-documents-collated-copies" else "separate-documents-uncollated-copies"
+                if (p == null || p.multipleDocumentHandling.contains(mdh)) job.add(kw("multiple-document-handling", mdh))
+            }
+            val sides = when (o.duplex) {
+                DuplexMode.ONE_SIDED -> "one-sided"
+                DuplexMode.TWO_SIDED_LONG_EDGE -> "two-sided-long-edge"
+                DuplexMode.TWO_SIDED_SHORT_EDGE -> "two-sided-short-edge"
+            }
+            if (p != null) {
+                // Only what the printer listed: strict printers refuse the whole job over one unknown value.
+                if (sides in p.sides) job.add(kw("sides", sides))
+                val color = if (o.colorMode == PrintColorMode.GRAYSCALE) "monochrome" else "color"
+                if (color in p.colorModes) job.add(kw("print-color-mode", color))
+            } else {
+                if (o.duplex == DuplexMode.ONE_SIDED || o.supportedSides.isEmpty() || o.supportedSides.contains(sides)) {
+                    job.add(kw("sides", sides))
+                }
+                if (o.supportsColorModes) {
+                    job.add(kw("print-color-mode", if (o.colorMode == PrintColorMode.GRAYSCALE) "monochrome" else "color"))
+                }
+            }
+            val q = when (o.quality) { PrintQuality.DRAFT -> 3; PrintQuality.NORMAL -> 4; PrintQuality.HIGH -> 5 }
+            if (p == null || q in p.qualities) job.add(enum("print-quality", q))
+            // PDF pages are already laid out at paper size. Pictures carry no resolution, so they must be
+            // fitted to the page (with "none" a 300 dpi JPEG would print as a huge image: a blank corner).
+            o.printScaling?.let { if (p == null || it in p.scalings) job.add(kw("print-scaling", it)) }
+            o.mediaKeyword?.let { m -> if (p == null || p.media.any { it.equals(m, true) }) job.add(kw("media", m)) }
         }
-        val sides = when (o.duplex) {
-            DuplexMode.ONE_SIDED -> "one-sided"
-            DuplexMode.TWO_SIDED_LONG_EDGE -> "two-sided-long-edge"
-            DuplexMode.TWO_SIDED_SHORT_EDGE -> "two-sided-short-edge"
-        }
-        if (o.duplex == DuplexMode.ONE_SIDED || o.supportedSides.isEmpty() || o.supportedSides.contains(sides)) {
-            job.add(kw("sides", sides))
-        }
-        if (o.supportsColorModes) {
-            job.add(kw("print-color-mode", if (o.colorMode == PrintColorMode.GRAYSCALE) "monochrome" else "color"))
-        }
-        job.add(
-            enum(
-                "print-quality",
-                when (o.quality) { PrintQuality.DRAFT -> 3; PrintQuality.NORMAL -> 4; PrintQuality.HIGH -> 5 }
-            )
-        )
-        // PDF pages are already laid out at paper size. Pictures carry no resolution, so they must be
-        // fitted to the page (with "none" a 300 dpi JPEG would print as a huge image: a blank corner).
-        o.printScaling?.let { job.add(kw("print-scaling", it)) }
-        o.mediaKeyword?.let { job.add(kw("media", it)) }
 
-        val msg = IppMessage(
-            code = OP_PRINT_JOB,
-            requestId = 1,
-            attributeGroups = listOf(op, IppAttributeGroup(IppTag.JOB_ATTRIBUTES_TAG, job))
-        )
+        val groups = mutableListOf(op)
+        if (job.isNotEmpty()) groups.add(IppAttributeGroup(IppTag.JOB_ATTRIBUTES_TAG, job))
+        val msg = IppMessage(code = OP_PRINT_JOB, requestId = 1, attributeGroups = groups)
         return IppEncoder.encode(msg)
     }
 
@@ -222,13 +236,17 @@ class IppPrintClient(private val base: IppClient = IppClient()) {
                 if (!resp.isSuccessful) {
                     val retry = resp.code >= 500 || resp.code == 408
                     val text = when (resp.code) {
+                        400 -> "The printer rejected the request."
                         401, 403 -> "The printer requires authentication, which PrintGo does not support yet."
                         404 -> "The printer address looks wrong. Remove the printer and add it again."
                         413 -> "The file is too large for this printer."
                         426 -> "The printer requires a secure (IPPS) connection."
                         else -> "The printer answered with HTTP ${resp.code}."
                     }
-                    return@withContext IppSendResult.Failed(text, resp.code, retry)
+                    // An HTTP 400 is how some printers say "I cannot take this request": let the caller retry
+                    // with fewer options or another format, exactly as for IPP status 0x0400.
+                    val code = when (resp.code) { 400 -> 0x0400; 413 -> 0x040C; else -> resp.code }
+                    return@withContext IppSendResult.Failed(text, code, retry)
                 }
                 val bytes = resp.body?.bytes() ?: return@withContext IppSendResult.Failed("The printer sent an empty answer.")
                 val msg = try { IppDecoder.decode(bytes) } catch (e: Exception) {
@@ -247,12 +265,22 @@ class IppPrintClient(private val base: IppClient = IppClient()) {
             }
         } catch (e: SocketTimeoutException) {
             IppSendResult.Failed("The printer did not answer in time. Check that it is on and on the same Wi-Fi.")
+        } catch (e: java.net.ConnectException) {
+            IppSendResult.Failed("Could not reach the printer. Check that it is on and on the same Wi-Fi.", NO_CONNECTION)
+        } catch (e: java.net.NoRouteToHostException) {
+            IppSendResult.Failed("Could not reach the printer. Check that it is on and on the same Wi-Fi.", NO_CONNECTION)
+        } catch (e: java.net.UnknownHostException) {
+            IppSendResult.Failed("Could not reach the printer. Check that it is on and on the same Wi-Fi.", NO_CONNECTION)
+        } catch (e: java.net.UnknownServiceException) {
+            IppSendResult.Failed("Android blocked the connection to the printer. Update PrintGo.", NO_CONNECTION, retryable = false)
         } catch (e: SSLException) {
             val fp = seen
             if (fp != null && pinnedFingerprint == null) IppSendResult.TlsUntrusted(fp)
             else IppSendResult.Failed("Secure connection to the printer failed. Re-add the printer to trust its certificate again.", retryable = false)
         } catch (e: IOException) {
-            IppSendResult.Failed("Could not reach the printer. Check that it is on and on the same Wi-Fi.")
+            // Connected, but the transfer broke off. Many printers simply hang up when they cannot read the
+            // format they are being sent, so the caller may try another format.
+            IppSendResult.Failed("The connection to the printer was cut off while sending.", TRANSFER_BROKEN)
         } catch (e: Exception) {
             IppSendResult.Failed(e.message ?: "Unexpected printing error.")
         }

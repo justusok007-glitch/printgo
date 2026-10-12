@@ -125,13 +125,14 @@ fun SettingsScreen(
 
             SettingsRow(
                 Icons.Filled.Print, "File format for Wi-Fi printers",
-                when (settings.dataFormat) { "PDF" -> "PDF first"; "PWG" -> "Raster first"; "JPEG" -> "JPEG pictures first"; else -> "Automatic" }
+                when (settings.dataFormat) { "PDF" -> "PDF first"; "PWG" -> "Raster first"; "URF" -> "AirPrint raster first"; "JPEG" -> "JPEG pictures first"; else -> "Automatic" }
             ) { showFormatDialog = true }
             SettingsRow(
                 Icons.Filled.Print, "Raw printer language",
                 when (settings.bluetoothLanguage) {
                     "ESCPOS" -> "Receipt / label (ESC/POS)"
-                    "PCL" -> "Laser / inkjet (PCL)"
+                    "PCL" -> "Laser printer (PCL)"
+                    "ESCPR" -> "Epson inkjet (ESC/P-R)"
                     "POSTSCRIPT" -> "PostScript"
                     "PDF" -> "PDF"
                     else -> "Automatic"
@@ -204,7 +205,7 @@ fun SettingsScreen(
                 Column {
                     Text("If prints come out blank or garbled, try another format here. Automatic picks raster first, then PDF, then JPEG.", fontSize = 13.sp, color = BodyGray)
                     Spacer(Modifier.height(8.dp))
-                    listOf("AUTO" to "Automatic (recommended)", "PDF" to "PDF first", "PWG" to "Raster first (PWG)", "JPEG" to "JPEG pictures first").forEach { (code, label) ->
+                    listOf("AUTO" to "Automatic (recommended)", "PDF" to "PDF first", "PWG" to "Raster first (PWG)", "URF" to "Raster first (AirPrint)", "JPEG" to "JPEG pictures first").forEach { (code, label) ->
                         Row(
                             Modifier.fillMaxWidth().clickable {
                                 scope.launch { prefs.setDataFormat(code) }
@@ -232,9 +233,10 @@ fun SettingsScreen(
                     Text("Used for Bluetooth printers and Wi-Fi printers that only accept raw data (port 9100). Pick the language your printer reads. USB printers are detected automatically.", fontSize = 13.sp, color = BodyGray)
                     Spacer(Modifier.height(8.dp))
                     listOf(
-                        "AUTO" to "Automatic (guess from the name)",
+                        "AUTO" to "Automatic (ask the printer)",
                         "ESCPOS" to "Receipt / label printer (ESC/POS)",
-                        "PCL" to "Laser or inkjet (PCL)",
+                        "PCL" to "Laser printer (PCL)",
+                        "ESCPR" to "Epson inkjet (ESC/P-R)",
                         "POSTSCRIPT" to "PostScript printer",
                         "PDF" to "Printer that reads PDF directly"
                     ).forEach { (code, label) ->
