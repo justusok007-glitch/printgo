@@ -16,3 +16,7 @@
 local.properties
 .env
 debug.keystore
+# Printer drivers built by native/build.sh (CI places them here before the Gradle build)
+/app/src/main/jniLibs/
+/app/src/main/assets/drivers/
+/native-out/

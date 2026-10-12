@@ -58,6 +58,9 @@ android {
     buildConfig = true
   }
   testOptions { unitTests { isIncludeAndroidResources = true } }
+  // The printer drivers are small programs (lib/<abi>/libpg_*.so) that PrintGo starts. Android must unpack
+  // them on install so they can be run.
+  packaging { jniLibs { useLegacyPackaging = true } }
   dependenciesInfo {
     includeInApk = false
     includeInBundle = true

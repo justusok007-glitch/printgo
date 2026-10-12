@@ -33,7 +33,7 @@ target_compile_options(pg_hpcups PRIVATE -w -fcommon $<$<COMPILE_LANGUAGE:CXX>:-
 target_link_libraries(pg_hpcups PRIVATE ${CUPS_LIB} ${JPEG_BUILD}/libjpeg.a z m)
 if(ANDROID)
   set_target_properties(pg_hpcups PROPERTIES OUTPUT_NAME "libpg_hpcups.so" SUFFIX "")
-  target_link_options(pg_hpcups PRIVATE -Wl,-z,max-page-size=16384 -static-libstdc++)
+  target_link_options(pg_hpcups PRIVATE -Wl,-z,max-page-size=16384)
 else()
   find_package(Threads REQUIRED)
   target_link_libraries(pg_hpcups PRIVATE Threads::Threads dl)

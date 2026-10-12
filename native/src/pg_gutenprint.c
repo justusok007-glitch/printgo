@@ -5,7 +5,8 @@
  * Copyright (C) 2026 the PrintGo authors. SPDX-License-Identifier: GPL-3.0-or-later
  * Uses libgutenprint (GPL-2.0-or-later).
  *
- *   pg_gutenprint --list                       one line per printer: driver, make, model, family, device id, colour
+ *   pg_gutenprint --list                       one line per printer: driver, make, model, family, device id,
+ *                                              colour (0/1), two-sided (0/1)
  *   pg_gutenprint --describe DRIVER            the options a driver accepts
  *   pg_gutenprint DRIVER [Key=Value ...]       print; keys are Gutenprint parameters, plus
  *        PaperPt=WIDTHxHEIGHT   paper size in points; the closest named PageSize is chosen
@@ -130,8 +131,9 @@ static int list_printers(void) {
     stp_vars_t *v = stp_vars_create();
     stp_set_printer_defaults(v, p);
     const char *id = stp_printer_get_device_id(p);
-    printf("%s\t%s\t%s\t%s\t%s\t%d\n", stp_printer_get_driver(p), stp_printer_get_manufacturer(p),
-           stp_printer_get_long_name(p), stp_printer_get_family(p), id ? id : "", has_color(v));
+    printf("%s\t%s\t%s\t%s\t%s\t%d\t%d\n", stp_printer_get_driver(p), stp_printer_get_manufacturer(p),
+           stp_printer_get_long_name(p), stp_printer_get_family(p), id ? id : "", has_color(v),
+           offers(v, "Duplex", "DuplexNoTumble"));
     stp_vars_destroy(v);
   }
   return 0;
