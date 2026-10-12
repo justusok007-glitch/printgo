@@ -446,7 +446,8 @@ object PrintJobManager {
             DuplexMode.TWO_SIDED_SHORT_EDGE -> "two-sided-short-edge"
         }
         // Raster duplex flags only when the printer can really print two-sided.
-        val duplexOk = wantSides != null && (probe == null || wantSides in probe.sides)
+        val duplexOk = wantSides != null &&
+            (probe == null || wantSides in probe.sides || probe.sides.none { it.startsWith("two-sided") })
 
         var lastError: String? = null
         val temps = mutableListOf<File>()

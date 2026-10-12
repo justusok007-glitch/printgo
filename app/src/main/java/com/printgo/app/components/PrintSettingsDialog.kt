@@ -994,8 +994,9 @@ private fun DuplexPickerDialog(
 ) {
     var selected by remember { mutableStateOf(currentDuplex) }
 
-    val supportsLong = capabilities == null || capabilities.sidesSupported.any { it.contains("long-edge") }
-    val supportsShort = capabilities == null || capabilities.sidesSupported.any { it.contains("short-edge") }
+    val unreported = capabilities != null && !capabilities.twoSidedReported()
+    val supportsLong = capabilities == null || unreported || capabilities.sidesSupported.any { it.contains("long-edge") }
+    val supportsShort = capabilities == null || unreported || capabilities.sidesSupported.any { it.contains("short-edge") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -1016,6 +1017,15 @@ private fun DuplexPickerDialog(
                         colors = RadioButtonDefaults.colors(selectedColor = ActionBlue)
                     )
                     Text("One side only", color = HeadingNavy)
+                }
+                if (unreported) {
+                    Text(
+                        "Your printer did not say whether it can print on both sides. Choose an option below " +
+                            "and PrintGo will try. If the printer has no two-sided unit, it prints one side.",
+                        fontSize = 12.sp,
+                        color = BodyGray,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
                 }
 
                 // Long Edge

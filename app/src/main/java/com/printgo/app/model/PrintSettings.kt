@@ -280,7 +280,7 @@ data class PrintSettings(
         val clampedCopies = copies.coerceIn(1, capabilities.copiesMax.coerceAtLeast(1))
 
         var validDuplex = duplex
-        if (duplex != DuplexMode.ONE_SIDED) {
+        if (duplex != DuplexMode.ONE_SIDED && capabilities.twoSidedReported()) {
             val supportsLong = capabilities.sidesSupported.any { it.contains("long-edge") }
             val supportsShort = capabilities.sidesSupported.any { it.contains("short-edge") }
             if (duplex == DuplexMode.TWO_SIDED_LONG_EDGE && !supportsLong) {

@@ -40,6 +40,13 @@ data class PrinterCapabilities(
     val infoUrl: String? = null,
     val lastUpdated: Long = System.currentTimeMillis()
 ) {
+    /**
+     * False when the printer named no two-sided mode at all. Many printers (HP LaserJets over Wi-Fi, for
+     * example) leave it out even though they have a duplex unit, so PrintGo then lets the user choose
+     * two-sided and sends it anyway; a printer without the unit just prints one side.
+     */
+    fun twoSidedReported(): Boolean = sidesSupported.any { it.startsWith("two-sided") }
+
     companion object {
         fun friendlyMediaName(keyword: String): String {
             val lower = keyword.lowercase().trim()

@@ -16,6 +16,7 @@ import com.printgo.app.data.print.SendKind
 import com.printgo.app.data.print.UrfEncoder
 import com.printgo.app.model.DuplexMode
 import com.printgo.app.model.PrintColorMode
+import com.printgo.app.model.PrintSettings
 import com.printgo.app.model.PrinterCapabilities
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
@@ -287,5 +288,26 @@ class PrinterCompatibilityTest {
         assertEquals(210 to 297, PrinterCapabilities.sizeFromMediaName("iso_a4_210x297mm"))
         assertEquals(216 to 279, PrinterCapabilities.sizeFromMediaName("na_letter_8.5x11in"))
         assertNull(PrinterCapabilities.sizeFromMediaName("custom_min_76.2x127mm"))
+    }
+
+    @Test
+    fun twoSidedIsStillOfferedWhenThePrinterNamesNoTwoSidedMode() {
+        // HP LaserJets often leave two-sided out of the Wi-Fi answer although they have a duplex unit.
+        val silent = PrinterCapabilities(makeAndModel = "HP LaserJet P3010", state = "Idle", sidesSupported = listOf("one-sided"))
+        assertTrue(!silent.twoSidedReported())
+        val kept = PrintSettings().copy(duplex = DuplexMode.TWO_SIDED_LONG_EDGE).validateAgainst(silent)
+        assertEquals(DuplexMode.TWO_SIDED_LONG_EDGE, kept.duplex)
+
+        // A printer that does list modes is still respected.
+        val longOnly = silent.copy(sidesSupported = listOf("one-sided", "two-sided-long-edge"))
+        assertTrue(longOnly.twoSidedReported())
+        val clamped = PrintSettings().copy(duplex = DuplexMode.TWO_SIDED_SHORT_EDGE).validateAgainst(longOnly)
+        assertEquals(DuplexMode.TWO_SIDED_LONG_EDGE, clamped.duplex)
+
+        // The job still carries the user's choice to such a printer.
+        val jet = IppProbe(listOf("application/vnd.hp-PCL"), "ipp/port1", sides = listOf("one-sided"))
+        val opts = IppJobOptions(jobName = "Doc", duplex = DuplexMode.TWO_SIDED_LONG_EDGE, probe = jet)
+        val msg = IppDecoder.decode(IppPrintClient().buildPrintJob("ipp://p/ipp/print", "application/vnd.hp-PCL", opts))
+        assertEquals("two-sided-long-edge", msg.getString("sides"))
     }
 }

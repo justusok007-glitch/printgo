@@ -115,6 +115,10 @@ keep rules in `app/proguard-rules.pro`.
 - 2026-10-12 (v1.1.0): owner reported Epson L455, HP LaserJet Pro M404/M405 and HP LaserJet P3010 did not
   print over Wi-Fi or USB. Fixed in code (plain-HTTP block, URF, ESC/P-R, option filtering, USB writes);
   **waiting for the owner to test** — ask for each printer's Connection line.
+- 2026-10-12 (v1.1.1): owner confirmed v1.1.0 prints on Epson L455, M404/M405 and P3010; two-sided works over
+  USB (M404). Over Wi-Fi the P3010 showed "Long edge" unselectable because its IPP answer named no two-sided
+  mode. v1.1.1: when a printer lists **no** two-sided mode (`twoSidedReported()` false) the choice is offered
+  with a hint and still sent (IPP `sides`, raster duplex flag); printers that do list modes are still respected.
 - Not yet verified by the owner: two-sided, Legal, landscape, custom scale/position, USB, Bluetooth,
   other brands. Ask for the job's Connection line + a photo when a print comes out wrong.
 

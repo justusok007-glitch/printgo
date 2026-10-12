@@ -169,7 +169,10 @@ class IppPrintClient(private val base: IppClient = IppClient()) {
             }
             if (p != null) {
                 // Only what the printer listed: strict printers refuse the whole job over one unknown value.
-                if (sides in p.sides) job.add(kw("sides", sides))
+                // A printer that names no two-sided mode at all is still sent the user's choice.
+                if (sides in p.sides || (o.duplex != DuplexMode.ONE_SIDED && p.sides.none { it.startsWith("two-sided") })) {
+                    job.add(kw("sides", sides))
+                }
                 val color = if (o.colorMode == PrintColorMode.GRAYSCALE) "monochrome" else "color"
                 if (color in p.colorModes) job.add(kw("print-color-mode", color))
             } else {
