@@ -1,6 +1,7 @@
 # PrintGo's own driver front-ends (GPL-3.0-or-later): pg_gutenprint and pg_cupsraster.
 cmake_minimum_required(VERSION 3.18)
 project(pg_tools C)
+include(${CMAKE_CURRENT_LIST_DIR}/../common.cmake)
 
 set(GUTENPRINT_SRC "" CACHE PATH "Unpacked gutenprint source")
 set(GUTENPRINT_BUILD "" CACHE PATH "Gutenprint build dir (include/, src/main/.libs/libgutenprint.a)")

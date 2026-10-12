@@ -3,6 +3,7 @@
 # JBIG_SRC is given. SpliX is GPL-2.0-only; it runs as its own program, separate from PrintGo.
 cmake_minimum_required(VERSION 3.18)
 project(pg_splix C CXX)
+include(${CMAKE_CURRENT_LIST_DIR}/../common.cmake)
 
 set(SPLIX_SRC "" CACHE PATH "Unpacked splix source")
 set(JBIG_SRC "" CACHE PATH "Unpacked jbigkit source (optional)")

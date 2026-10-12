@@ -3,6 +3,7 @@
 # The program is named libpg_escpr.so so that Android installs it next to the app's native code.
 cmake_minimum_required(VERSION 3.18)
 project(pg_escpr C)
+include(${CMAKE_CURRENT_LIST_DIR}/../common.cmake)
 
 set(ESCPR_SRC "" CACHE PATH "Unpacked epson-inkjet-printer-escpr source")
 set(L ${ESCPR_SRC}/lib)
@@ -18,7 +19,8 @@ target_compile_definitions(escpr PRIVATE
 target_compile_options(escpr PRIVATE -w -fcommon)
 
 add_executable(pg_escpr
-  ${S}/filter.c ${S}/debug.c ${S}/str.c ${S}/err.c ${S}/mem.c ${S}/custompage.c ${S}/linux_cmn.c ${S}/xfifo.c)
+  ${S}/filter.c ${S}/debug.c ${S}/str.c ${S}/err.c ${S}/mem.c ${S}/custompage.c ${S}/linux_cmn.c ${S}/xfifo.c
+  ${CMAKE_CURRENT_LIST_DIR}/../../src/compat/android_compat.c)
 target_include_directories(pg_escpr PRIVATE ${L})
 target_compile_definitions(pg_escpr PRIVATE PACKAGE_STRING="epson-inkjet-printer-escpr 1.8.8")
 target_compile_options(pg_escpr PRIVATE -w -fcommon)

@@ -6,6 +6,7 @@
 # The program is named libpg_hpcups.so so that Android installs it next to the app's native code.
 cmake_minimum_required(VERSION 3.18)
 project(pg_hpcups C CXX)
+include(${CMAKE_CURRENT_LIST_DIR}/../common.cmake)
 
 set(HPLIP_SRC "" CACHE PATH "Unpacked hplip source")
 set(CUPS_INCLUDE "" CACHE PATH "Directory containing cups/*.h")
