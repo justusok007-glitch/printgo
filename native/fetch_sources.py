@@ -79,7 +79,7 @@ def main():
         if not got:
             raise SystemExit(f"could not download {p['name']}")
         digest = sha256(got[1])
-        if p.get("sha256") and p.get("url") == got[0] and p["sha256"] != digest:
+        if p.get("sha256") and p["sha256"] != digest:
             raise SystemExit(f"{p['name']}: sha256 mismatch {digest} != {p['sha256']}")
         found[p["name"]] = {"url": got[0], "file": os.path.basename(got[1]), "sha256": digest,
                             "size": os.path.getsize(got[1])}
