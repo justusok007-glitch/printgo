@@ -1,0 +1,66 @@
+make: Entering directory '/home/runner/work/printgo/printgo/native-out/work/build-host/gutenprint/include'
+Making all in gutenprint
+make[1]: Entering directory '/home/runner/work/printgo/printgo/native-out/work/build-host/gutenprint/include/gutenprint'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/home/runner/work/printgo/printgo/native-out/work/build-host/gutenprint/include/gutenprint'
+Making all in gutenprintui2
+make[1]: Entering directory '/home/runner/work/printgo/printgo/native-out/work/build-host/gutenprint/include/gutenprintui2'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/home/runner/work/printgo/printgo/native-out/work/build-host/gutenprint/include/gutenprintui2'
+make[1]: Entering directory '/home/runner/work/printgo/printgo/native-out/work/build-host/gutenprint/include'
+make[1]: Nothing to be done for 'all-am'.
+make[1]: Leaving directory '/home/runner/work/printgo/printgo/native-out/work/build-host/gutenprint/include'
+make: Leaving directory '/home/runner/work/printgo/printgo/native-out/work/build-host/gutenprint/include'
+make: Entering directory '/home/runner/work/printgo/printgo/native-out/work/build-host/gutenprint/src/main'
+  CC       array.lo
+  CC       bit-ops.lo
+  CC       channel.lo
+  CC       color.lo
+  CC       curve.lo
+  CC       curve-cache.lo
+  CC       dither-ed.lo
+  CC       dither-eventone.lo
+  CC       dither-inks.lo
+  CC       dither-main.lo
+  CC       dither-ordered.lo
+  CC       dither-very-fast.lo
+  CC       dither-predithered.lo
+  CC       generic-options.lo
+  CC       image.lo
+  CC       buffer-image.lo
+  CC       module.lo
+  CC       path.lo
+  CC       print-dither-matrices.lo
+  CC       print-list.lo
+  CC       print-papers.lo
+  CC       print-util.lo
+  CC       print-vars.lo
+  CC       print-version.lo
+  CC       print-weave.lo
+  CC       printers.lo
+  CC       refcache.lo
+  CC       sequence.lo
+  CC       string-list.lo
+  CC       xml.lo
+  CC       mxml-attr.lo
+  CC       mxml-file.lo
+  CC       mxml-node.lo
+  CC       mxml-search.lo
+  CC       print-color.lo
+  CC       color-conversions.lo
+  CC       print-canon.lo
+  CC       print-escp2.lo
+  CC       escp2-driver.lo
+  CC       print-escp2-data.lo
+  CC       escp2-channels.lo
+  CC       escp2-papers.lo
+  CC       escp2-resolutions.lo
+  CC       print-lexmark.lo
+  CC       print-pcl.lo
+  CC       print-dpl.lo
+  CC       print-ps.lo
+  CC       xmlppd.lo
+  CC       print-dyesub.lo
+  CC       print-raw.lo
+  CCLD     libgutenprint.la
+make: Leaving directory '/home/runner/work/printgo/printgo/native-out/work/build-host/gutenprint/src/main'

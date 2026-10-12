@@ -1,0 +1,177 @@
+-- The C compiler identification is GNU 13.3.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- CMAKE_BUILD_TYPE = Release
+-- VERSION = 3.1.0, BUILD = 20261012
+-- 64-bit build (x86_64)
+-- CMAKE_INSTALL_PREFIX = /opt/libjpeg-turbo
+-- CMAKE_INSTALL_BINDIR = bin (/opt/libjpeg-turbo/bin)
+-- CMAKE_INSTALL_DATAROOTDIR =  (/opt/libjpeg-turbo)
+-- CMAKE_INSTALL_DOCDIR = doc (/opt/libjpeg-turbo/doc)
+-- CMAKE_INSTALL_INCLUDEDIR = include (/opt/libjpeg-turbo/include)
+-- CMAKE_INSTALL_LIBDIR = lib64 (/opt/libjpeg-turbo/lib64)
+-- CMAKE_INSTALL_MANDIR = man (/opt/libjpeg-turbo/man)
+-- Shared libraries disabled (ENABLE_SHARED = 0)
+-- Static libraries enabled (ENABLE_STATIC = 1)
+-- Arithmetic decoding support enabled (WITH_ARITH_DEC = 1)
+-- Arithmetic encoding support enabled (WITH_ARITH_ENC = 1)
+-- TurboJPEG API library disabled (WITH_TURBOJPEG = 0)
+-- TurboJPEG Java wrapper disabled (WITH_JAVA = 0)
+-- Emulating libjpeg API/ABI v6.2 (WITH_JPEG7 = 0, WITH_JPEG8 = 0)
+-- libjpeg API shared library version = 62.4.0
+-- Compiler flags =  -O3 -DNDEBUG
+-- Linker flags =  
+-- Looking for sys/types.h
+-- Looking for sys/types.h - found
+-- Looking for stdint.h
+-- Looking for stdint.h - found
+-- Looking for stddef.h
+-- Looking for stddef.h - found
+-- Check size of size_t
+-- Check size of size_t - done
+-- Check size of unsigned long
+-- Check size of unsigned long - done
+-- Performing Test HAVE_BUILTIN_CTZL
+-- Performing Test HAVE_BUILTIN_CTZL - Success
+-- Performing Test RIGHT_SHIFT_IS_UNSIGNED
+-- Performing Test RIGHT_SHIFT_IS_UNSIGNED - Failed
+-- Performing Test HIDDEN_WORKS
+-- Performing Test HIDDEN_WORKS - Success
+-- HIDDEN = __attribute__((visibility("hidden")))
+-- Performing Test INLINE_WORKS
+-- Performing Test INLINE_WORKS - Success
+-- INLINE = __inline__ __attribute__((always_inline)) (FORCE_INLINE = 1)
+-- Performing Test HAVE_THREAD_LOCAL
+-- Performing Test HAVE_THREAD_LOCAL - Success
+-- THREAD_LOCAL = __thread
+-- Performing Test HAVE_VERSION_SCRIPT
+-- Performing Test HAVE_VERSION_SCRIPT - Success
+-- Linker supports GNU-style version scripts
+-- CMAKE_EXECUTABLE_SUFFIX = 
+-- SIMD extensions: None (WITH_SIMD = 0)
+-- FLOATTEST8 = no-fp-contract
+-- FLOATTEST12 = no-fp-contract
+-- RPM architecture = x86_64, DEB architecture = amd64
+-- Configuring done (3.6s)
+-- Generating done (0.1s)
+CMake Warning:
+  Manually-specified variables were not used by the project:
+
+    WITH_TESTS
+    WITH_TOOLS
+
+
+-- Build files have been written to: /home/runner/work/printgo/printgo/native-out/work/build-host/jpeg
+ninja: Entering directory `/home/runner/work/printgo/printgo/native-out/work/build-host/jpeg'
+[1/102] Building C object CMakeFiles/jpeg12-static.dir/src/jcapistd.c.o
+[2/102] Building C object CMakeFiles/jpeg12-static.dir/src/jcdiffct.c.o
+[3/102] Building C object CMakeFiles/jpeg12-static.dir/src/jclossls.c.o
+[4/102] Building C object CMakeFiles/jpeg12-static.dir/src/jcmainct.c.o
+[5/102] Building C object CMakeFiles/jpeg12-static.dir/src/jcprepct.c.o
+[6/102] Building C object CMakeFiles/jpeg12-static.dir/src/jdapistd.c.o
+[7/102] Building C object CMakeFiles/jpeg12-static.dir/src/jcsample.c.o
+[8/102] Building C object CMakeFiles/jpeg12-static.dir/src/jddiffct.c.o
+[9/102] Building C object CMakeFiles/jpeg12-static.dir/src/jccolor.c.o
+[10/102] Building C object CMakeFiles/jpeg12-static.dir/src/jdlossls.c.o
+[11/102] Building C object CMakeFiles/jpeg12-static.dir/src/jdpostct.c.o
+[12/102] Building C object CMakeFiles/jpeg12-static.dir/src/jdmainct.c.o
+[13/102] Building C object CMakeFiles/jpeg12-static.dir/src/jutils.c.o
+[14/102] Building C object CMakeFiles/jpeg12-static.dir/src/jccoefct.c.o
+[15/102] Building C object CMakeFiles/jpeg12-static.dir/src/jdcolor.c.o
+[16/102] Building C object CMakeFiles/jpeg12-static.dir/src/jdsample.c.o
+[17/102] Building C object CMakeFiles/jpeg12-static.dir/src/jcdctmgr.c.o
+[18/102] Building C object CMakeFiles/jpeg12-static.dir/src/jddctmgr.c.o
+[19/102] Building C object CMakeFiles/jpeg12-static.dir/src/jfdctfst.c.o
+[20/102] Building C object CMakeFiles/jpeg12-static.dir/src/jfdctint.c.o
+[21/102] Building C object CMakeFiles/jpeg12-static.dir/src/jdmerge.c.o
+[22/102] Building C object CMakeFiles/jpeg12-static.dir/src/jdcoefct.c.o
+[23/102] Building C object CMakeFiles/jpeg12-static.dir/src/jidctflt.c.o
+[24/102] Building C object CMakeFiles/jpeg12-static.dir/src/jidctfst.c.o
+[25/102] Building C object CMakeFiles/jpeg12-static.dir/src/jidctred.c.o
+[26/102] Building C object CMakeFiles/jpeg12-static.dir/src/jquant1.c.o
+[27/102] Building C object CMakeFiles/jpeg16-static.dir/src/jcapistd.c.o
+[28/102] Building C object CMakeFiles/jpeg12-static.dir/src/jidctint.c.o
+[29/102] Building C object CMakeFiles/jpeg12-static.dir/src/jquant2.c.o
+[30/102] Building C object CMakeFiles/jpeg16-static.dir/src/jcdiffct.c.o
+[31/102] Building C object CMakeFiles/jpeg16-static.dir/src/jccolor.c.o
+[32/102] Building C object CMakeFiles/jpeg16-static.dir/src/jclossls.c.o
+[33/102] Building C object CMakeFiles/jpeg16-static.dir/src/jcmainct.c.o
+[34/102] Building C object CMakeFiles/jpeg16-static.dir/src/jcprepct.c.o
+[35/102] Building C object CMakeFiles/jpeg16-static.dir/src/jdapistd.c.o
+[36/102] Building C object CMakeFiles/jpeg16-static.dir/src/jddiffct.c.o
+[37/102] Building C object CMakeFiles/jpeg16-static.dir/src/jcsample.c.o
+[38/102] Building C object CMakeFiles/jpeg16-static.dir/src/jdcolor.c.o
+[39/102] Building C object CMakeFiles/jpeg16-static.dir/src/jdlossls.c.o
+[40/102] Building C object CMakeFiles/jpeg16-static.dir/src/jdmainct.c.o
+[41/102] Building C object CMakeFiles/jpeg16-static.dir/src/jdpostct.c.o
+[42/102] Building C object CMakeFiles/jpeg16-static.dir/src/jutils.c.o
+[43/102] Building C object CMakeFiles/jpeg-static.dir/src/jcapistd.c.o
+[44/102] Building C object CMakeFiles/jpeg16-static.dir/src/jdsample.c.o
+[45/102] Building C object CMakeFiles/jpeg-static.dir/src/jcdiffct.c.o
+[46/102] Building C object CMakeFiles/jpeg-static.dir/src/jcmainct.c.o
+[47/102] Building C object CMakeFiles/jpeg-static.dir/src/jccolor.c.o
+[48/102] Building C object CMakeFiles/jpeg-static.dir/src/jclossls.c.o
+[49/102] Building C object CMakeFiles/jpeg-static.dir/src/jcprepct.c.o
+[50/102] Building C object CMakeFiles/jpeg-static.dir/src/jdapistd.c.o
+[51/102] Building C object CMakeFiles/jpeg-static.dir/src/jcsample.c.o
+[52/102] Building C object CMakeFiles/jpeg-static.dir/src/jddiffct.c.o
+[53/102] Building C object CMakeFiles/jpeg-static.dir/src/jdlossls.c.o
+[54/102] Building C object CMakeFiles/jpeg-static.dir/src/jdmainct.c.o
+[55/102] Building C object CMakeFiles/jpeg-static.dir/src/jdpostct.c.o
+[56/102] Building C object CMakeFiles/jpeg-static.dir/src/jutils.c.o
+[57/102] Building C object CMakeFiles/jpeg-static.dir/src/jdsample.c.o
+[58/102] Building C object CMakeFiles/jpeg-static.dir/src/jdcolor.c.o
+[59/102] Building C object CMakeFiles/jpeg-static.dir/src/jccoefct.c.o
+[60/102] Building C object CMakeFiles/jpeg-static.dir/src/jcdctmgr.c.o
+[61/102] Building C object CMakeFiles/jpeg-static.dir/src/jdcoefct.c.o
+[62/102] Building C object CMakeFiles/jpeg-static.dir/src/jddctmgr.c.o
+[63/102] Building C object CMakeFiles/jpeg-static.dir/src/jfdctfst.c.o
+[64/102] Building C object CMakeFiles/jpeg-static.dir/src/jfdctint.c.o
+[65/102] Building C object CMakeFiles/jpeg-static.dir/src/jidctflt.c.o
+[66/102] Building C object CMakeFiles/jpeg-static.dir/src/jidctfst.c.o
+[67/102] Building C object CMakeFiles/jpeg-static.dir/src/jidctred.c.o
+[68/102] Building C object CMakeFiles/jpeg-static.dir/src/jdmerge.c.o
+[69/102] Building C object CMakeFiles/jpeg-static.dir/src/jquant1.c.o
+[70/102] Building C object CMakeFiles/jpeg-static.dir/src/jcapimin.c.o
+[71/102] Building C object CMakeFiles/jpeg-static.dir/src/jquant2.c.o
+[72/102] Building C object CMakeFiles/jpeg-static.dir/src/jidctint.c.o
+[73/102] Building C object CMakeFiles/jpeg-static.dir/src/jcicc.c.o
+[74/102] Building C object CMakeFiles/jpeg-static.dir/src/jcinit.c.o
+[75/102] Building C object CMakeFiles/jpeg-static.dir/src/jclhuff.c.o
+[76/102] Building C object CMakeFiles/jpeg-static.dir/src/jcmaster.c.o
+[77/102] Building C object CMakeFiles/jpeg-static.dir/src/jcomapi.c.o
+[78/102] Building C object CMakeFiles/jpeg-static.dir/src/jcmarker.c.o
+[79/102] Building C object CMakeFiles/jpeg-static.dir/src/jcparam.c.o
+[80/102] Building C object CMakeFiles/jpeg-static.dir/src/jcphuff.c.o
+[81/102] Building C object CMakeFiles/jpeg-static.dir/src/jctrans.c.o
+[82/102] Building C object CMakeFiles/jpeg-static.dir/src/jdatadst.c.o
+[83/102] Building C object CMakeFiles/jpeg-static.dir/src/jdapimin.c.o
+[84/102] Building C object CMakeFiles/jpeg-static.dir/src/jdatasrc.c.o
+[85/102] Building C object CMakeFiles/jpeg-static.dir/src/jdicc.c.o
+[86/102] Building C object CMakeFiles/jpeg-static.dir/src/jdinput.c.o
+[87/102] Building C object CMakeFiles/jpeg-static.dir/src/jdlhuff.c.o
+[88/102] Building C object CMakeFiles/jpeg-static.dir/src/jdhuff.c.o
+[89/102] Building C object CMakeFiles/jpeg-static.dir/src/jdmaster.c.o
+[90/102] Building C object CMakeFiles/jpeg-static.dir/src/jdmarker.c.o
+[91/102] Building C object CMakeFiles/jpeg-static.dir/src/jdtrans.c.o
+[92/102] Building C object CMakeFiles/jpeg-static.dir/src/jdphuff.c.o
+[93/102] Building C object CMakeFiles/jpeg-static.dir/src/jerror.c.o
+[94/102] Building C object CMakeFiles/jpeg-static.dir/src/jfdctflt.c.o
+[95/102] Building C object CMakeFiles/jpeg-static.dir/src/jmemnobs.c.o
+[96/102] Building C object CMakeFiles/jpeg-static.dir/src/jpeg_nbits.c.o
+[97/102] Building C object CMakeFiles/jpeg-static.dir/src/jmemmgr.c.o
+[98/102] Building C object CMakeFiles/jpeg-static.dir/src/jaricom.c.o
+[99/102] Building C object CMakeFiles/jpeg-static.dir/src/jdarith.c.o
+[100/102] Building C object CMakeFiles/jpeg-static.dir/src/jcarith.c.o
+[101/102] Building C object CMakeFiles/jpeg-static.dir/src/jchuff.c.o
+/home/runner/work/printgo/printgo/native-out/work/src/libjpeg-turbo/src/jchuff.c: In function ‘jpeg_gen_optimal_table’:
+/home/runner/work/printgo/printgo/native-out/work/src/libjpeg-turbo/src/jchuff.c:1046:22: warning: writing 1 byte into a region of size 0 [-Wstringop-overflow=]
+ 1046 |     bits[codesize[i]]++;
+      |     ~~~~~~~~~~~~~~~~~^~
+/home/runner/work/printgo/printgo/native-out/work/src/libjpeg-turbo/src/jchuff.c:949:9: note: at offset 33 into destination object ‘bits’ of size 33
+  949 |   UINT8 bits[MAX_CLEN + 1];     /* bits[k] = # of symbols with code length k */
+      |         ^~~~
+[102/102] Linking C static library libjpeg.a

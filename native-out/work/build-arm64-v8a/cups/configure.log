@@ -1,0 +1,143 @@
+checking build system type... x86_64-pc-linux-gnu
+checking host system type... aarch64-unknown-linux-android
+checking for codesign... no
+checking for true... /usr/bin/true
+checking for gawk... gawk
+checking for aarch64-linux-android-gcc... /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang
+checking whether the C compiler works... yes
+checking for C compiler default output file name... a.out
+checking for suffix of executables... 
+checking whether we are cross compiling... yes
+checking for suffix of object files... o
+checking whether the compiler supports GNU C... yes
+checking whether /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang accepts -g... yes
+checking for /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang option to enable C11 features... none needed
+checking how to run the C preprocessor... /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang -E
+checking whether the compiler supports GNU C++... yes
+checking whether /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang++ accepts -g... yes
+checking for /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang++ option to enable C++11 features... none needed
+checking for aarch64-linux-android-ranlib... /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ranlib
+checking for ar... /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar
+checking for chmod... /usr/bin/chmod
+checking for gzip... /usr/bin/gzip
+checking for install-sh script... using /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/cups/install-sh
+checking for ld... /usr/bin/ld
+checking for ln... /usr/bin/ln
+checking for mkdir... /usr/bin/mkdir
+checking for mv... /usr/bin/mv
+checking for rm... /usr/bin/rm
+checking for rmdir... /usr/bin/rmdir
+checking for sed... /usr/bin/sed
+checking for xdg-open... /usr/bin/xdg-open
+configure: Installing static libraries...
+checking for aarch64-linux-android-pkg-config... no
+checking for pkg-config... /usr/bin/pkg-config
+configure: WARNING: using cross tools not prefixed with host triplet
+checking for library containing abs... none required
+checking for library containing crypt... no
+checking for library containing fmod... -lm
+checking for library containing getspent... no
+checking for stdio.h... yes
+checking for stdlib.h... yes
+checking for string.h... yes
+checking for inttypes.h... yes
+checking for stdint.h... yes
+checking for strings.h... yes
+checking for sys/stat.h... yes
+checking for sys/types.h... yes
+checking for unistd.h... yes
+checking for crypt.h... no
+checking for langinfo.h... yes
+checking for malloc.h... yes
+checking for shadow.h... no
+checking for stdint.h... (cached) yes
+checking for sys/ioctl.h... yes
+checking for sys/param.h... yes
+checking for sys/ucred.h... no
+checking for iconv.h... (cached) no
+checking for sys/mount.h... yes
+checking for sys/statfs.h... yes
+checking for sys/statvfs.h... yes
+checking for sys/vfs.h... yes
+checking for statfs... yes
+checking for statvfs... yes
+checking for strdup... yes
+checking for snprintf... yes
+checking for vsnprintf... yes
+checking for strlcat... yes
+checking for strlcpy... yes
+checking for random... yes
+checking for lrand48... yes
+checking for arc4random... yes
+checking for geteuid... yes
+checking for setpgid... yes
+checking for vsyslog... yes
+checking for sigaction... yes
+checking for waitpid... yes
+checking for wait3... no
+checking for posix_spawn... no
+checking for getgrouplist... yes
+checking for tm_gmtoff member in tm structure... yes
+checking for timegm... yes
+checking for st_gen member in stat structure... no
+checking for removefile... no
+checking for zlib.h... yes
+checking for gzgets in -lz... yes
+checking for inflateCopy in -lz... yes
+checking whether compiler supports -fstack-protector-strong... yes
+checking whether compiler supports -fPIE... yes
+checking whether compiler supports -Wno-char-subscripts... yes
+checking whether compiler supports -Wno-deprecated-declarations... yes
+checking whether compiler supports -Wno-format-truncation... yes
+checking whether compiler supports -Wno-format-y2k... yes
+checking whether compiler supports -Wno-switch... yes
+checking whether compiler supports -Wno-unused-result... yes
+checking for resolv.h... yes
+checking for library containing socket... none required
+checking for library containing gethostbyaddr... none required
+checking for library containing getifaddrs... none required
+checking for library containing hstrerror... none required
+checking for library containing rresvport_af... no
+checking for library containing __res_init... no
+checking for library containing res_9_init... no
+checking for library containing res_init... none required
+checking for library containing getaddrinfo... none required
+checking for library containing getnameinfo... none required
+checking for struct sockaddr.sa_len... no
+checking for sys/sockio.h... no
+checking for poll... yes
+checking for epoll_create... yes
+checking for kqueue... no
+checking for pthread.h... yes
+checking for pthread_create using -lpthreads... no
+checking for pthread_create using -lpthread... no
+checking for pthread_create using -pthread... yes
+checking for special C compiler options needed for large files... no
+checking for _FILE_OFFSET_BITS value needed for large files... no
+checking for long long int... yes
+checking for strtoll... yes
+checking for libapparmor... checking for default print user... lp
+checking for default print group... lp
+checking for default system groups... "sys root"
+configure: creating ./config.status
+config.status: creating Makedefs
+config.status: creating conf/cups-files.conf
+config.status: creating conf/cupsd.conf
+config.status: creating conf/mime.convs
+config.status: creating conf/pam.std
+config.status: creating conf/snmp.conf
+config.status: creating cups.pc
+config.status: creating cups-config
+config.status: creating desktop/cups.desktop
+config.status: creating doc/index.html
+config.status: creating scheduler/cups-lpd.xinetd
+config.status: creating scheduler/cups.sh
+config.status: creating scheduler/cups.xml
+config.status: creating scheduler/org.cups.cups-lpd.plist
+config.status: creating scheduler/cups-lpdAT.service
+config.status: creating scheduler/cups.path
+config.status: creating scheduler/cups.service
+config.status: creating scheduler/cups.socket
+config.status: creating templates/header.tmpl
+config.status: creating packaging/cups.list
+config.status: creating config.h

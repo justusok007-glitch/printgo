@@ -1,0 +1,51 @@
+-- The C compiler identification is GNU 13.3.0
+-- The CXX compiler identification is GNU 13.3.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Configuring done (0.4s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/runner/work/printgo/printgo/native-out/work/build-host/splix
+ninja: Entering directory `/home/runner/work/printgo/printgo/native-out/work/build-host/splix'
+[1/26] Building C object CMakeFiles/jbig85.dir/home/runner/work/printgo/printgo/native-out/work/src/jbigkit/libjbig/jbig_ar.c.o
+[2/26] Building CXX object CMakeFiles/pg_splix.dir/home/runner/work/printgo/printgo/native-out/work/src/splix/src/rastertoqpdl.cpp.o
+[3/26] Building C object CMakeFiles/jbig85.dir/home/runner/work/printgo/printgo/native-out/work/src/jbigkit/libjbig/jbig85.c.o
+/home/runner/work/printgo/printgo/native-out/work/src/jbigkit/libjbig/jbig85.c:33: warning: "NDEBUG" redefined
+   33 | #define NDEBUG
+      | 
+<command-line>: note: this is the location of the previous definition
+[4/26] Building CXX object CMakeFiles/pg_splix.dir/home/runner/work/printgo/printgo/native-out/work/src/splix/src/request.cpp.o
+[5/26] Building CXX object CMakeFiles/pg_splix.dir/home/runner/work/printgo/printgo/native-out/work/src/splix/src/printer.cpp.o
+[6/26] Building CXX object CMakeFiles/pg_splix.dir/home/runner/work/printgo/printgo/native-out/work/src/splix/src/core.cpp.o
+[7/26] Building CXX object CMakeFiles/pg_splix.dir/home/runner/work/printgo/printgo/native-out/work/src/splix/src/qpdl.cpp.o
+[8/26] Building CXX object CMakeFiles/pg_splix.dir/home/runner/work/printgo/printgo/native-out/work/src/splix/src/algorithm.cpp.o
+[9/26] Building CXX object CMakeFiles/pg_splix.dir/home/runner/work/printgo/printgo/native-out/work/src/splix/src/document.cpp.o
+[10/26] Building CXX object CMakeFiles/pg_splix.dir/home/runner/work/printgo/printgo/native-out/work/src/splix/src/ppdfile.cpp.o
+[11/26] Building CXX object CMakeFiles/pg_splix.dir/home/runner/work/printgo/printgo/native-out/work/src/splix/src/colors.cpp.o
+[12/26] Building CXX object CMakeFiles/pg_splix.dir/home/runner/work/printgo/printgo/native-out/work/src/splix/src/page.cpp.o
+[13/26] Building CXX object CMakeFiles/pg_splix.dir/home/runner/work/printgo/printgo/native-out/work/src/splix/src/compress.cpp.o
+[14/26] Building CXX object CMakeFiles/pg_splix.dir/home/runner/work/printgo/printgo/native-out/work/src/splix/src/band.cpp.o
+[15/26] Building CXX object CMakeFiles/pg_splix.dir/home/runner/work/printgo/printgo/native-out/work/src/splix/src/bandplane.cpp.o
+[16/26] Building CXX object CMakeFiles/pg_splix.dir/home/runner/work/printgo/printgo/native-out/work/src/splix/src/semaphore.cpp.o
+[17/26] Building CXX object CMakeFiles/pg_splix.dir/home/runner/work/printgo/printgo/native-out/work/src/splix/src/rendering.cpp.o
+[18/26] Building CXX object CMakeFiles/pg_splix.dir/home/runner/work/printgo/printgo/native-out/work/src/splix/src/algo0x0e.cpp.o
+[19/26] Building CXX object CMakeFiles/pg_splix.dir/home/runner/work/printgo/printgo/native-out/work/src/splix/src/cache.cpp.o
+[20/26] Building CXX object CMakeFiles/pg_splix.dir/home/runner/work/printgo/printgo/native-out/work/src/splix/src/algo0x0d.cpp.o
+[21/26] Building CXX object CMakeFiles/pg_splix.dir/home/runner/work/printgo/printgo/native-out/work/src/splix/src/algo0x13.cpp.o
+[22/26] Building CXX object CMakeFiles/pg_splix.dir/home/runner/work/printgo/printgo/native-out/work/src/splix/src/algo0x11.cpp.o
+[23/26] Building CXX object CMakeFiles/pg_splix.dir/home/runner/work/printgo/printgo/native-out/work/src/splix/src/algo0x15.cpp.o
+[24/26] Linking C static library libjbig85.a
+[25/26] Linking CXX executable pg_splix
+[25/26] Install the project...
+-- Install configuration: "Release"
+-- Installing: /home/runner/work/printgo/printgo/native-out/host/bin/./pg_splix

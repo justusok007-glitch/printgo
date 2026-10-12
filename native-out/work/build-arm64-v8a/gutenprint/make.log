@@ -1,0 +1,400 @@
+make: Leaving directory '/home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/gutenprint/include'
+make: Entering directory '/home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/gutenprint/src/main'
+  CC       array.lo
+  CC       bit-ops.lo
+  CC       channel.lo
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/channel.c:1139:16: warning: cast from 'unsigned short *' to 'unsigned long long *' increases required alignment from 2 to 8 [-Wcast-align]
+ 1139 |           nzx.nzl |= *(unsigned long long *) output;
+      |                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/channel.c:773:1: warning: unused function 'short_copy' [-Wunused-function]
+  773 | short_copy(unsigned short *out, const unsigned short *in, size_t count)
+      | ^~~~~~~~~~
+  CC       color.lo
+2 warnings generated.
+  CC       curve.lo
+  CC       curve-cache.lo
+  CC       dither-ed.lo
+  CC       dither-eventone.lo
+  CC       dither-inks.lo
+  CC       dither-main.lo
+  CC       dither-ordered.lo
+  CC       dither-very-fast.lo
+  CC       dither-predithered.lo
+  CC       generic-options.lo
+  CC       image.lo
+  CC       buffer-image.lo
+  CC       module.lo
+  CC       path.lo
+  CC       print-dither-matrices.lo
+  CC       print-list.lo
+  CC       print-papers.lo
+  CC       print-util.lo
+  CC       print-vars.lo
+  CC       print-version.lo
+  CC       print-weave.lo
+  CC       printers.lo
+  CC       refcache.lo
+  CC       sequence.lo
+  CC       string-list.lo
+  CC       xml.lo
+  CC       mxml-attr.lo
+  CC       mxml-file.lo
+  CC       mxml-node.lo
+  CC       mxml-search.lo
+  CC       print-color.lo
+  CC       color-conversions.lo
+  CC       print-canon.lo
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:461:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+  461 | COLOR_TO_COLOR_FUNC(unsigned short, 16) // color_16_to_color
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:378:19: note: expanded from macro 'COLOR_TO_COLOR_FUNC'
+  378 |   const T *s_in = (const T *) in;                                       \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:554:1: warning: cast from 'unsigned short *' to 'unsigned long long *' increases required alignment from 2 to 8 [-Wcast-align]
+  554 | COLOR_TO_KCMY_FUNC(unsigned char, 8) // color_8_to_kcmy
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:546:19: note: expanded from macro 'COLOR_TO_KCMY_FUNC'
+  546 |       nzx.nzl |= *(unsigned long long *) out;                           \
+      |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:555:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+  555 | COLOR_TO_KCMY_FUNC(unsigned short, 16) // color_16_to_kcmy
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:483:19: note: expanded from macro 'COLOR_TO_KCMY_FUNC'
+  483 |   const T *s_in = (const T *) in;                                       \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:555:1: warning: cast from 'unsigned short *' to 'unsigned long long *' increases required alignment from 2 to 8 [-Wcast-align]
+  555 | COLOR_TO_KCMY_FUNC(unsigned short, 16) // color_16_to_kcmy
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:546:19: note: expanded from macro 'COLOR_TO_KCMY_FUNC'
+  546 |       nzx.nzl |= *(unsigned long long *) out;                           \
+      |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:647:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+  647 | FAST_COLOR_TO_COLOR_FUNC(unsigned short, 16) // color_16_to_color_fast
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:577:19: note: expanded from macro 'FAST_COLOR_TO_COLOR_FUNC'
+  577 |   const T *s_in = (const T *) in;                                       \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:731:1: warning: cast from 'unsigned short *' to 'unsigned long long *' increases required alignment from 2 to 8 [-Wcast-align]
+  731 | FAST_COLOR_TO_KCMY_FUNC(unsigned char, 8) // color_8_to_kcmy_fast
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:723:19: note: expanded from macro 'FAST_COLOR_TO_KCMY_FUNC'
+  723 |       nzx.nzl |= *(unsigned long long *) out;                           \
+      |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:732:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+  732 | FAST_COLOR_TO_KCMY_FUNC(unsigned short, 16) // color_16_to_color_fast
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:662:19: note: expanded from macro 'FAST_COLOR_TO_KCMY_FUNC'
+  662 |   const T *s_in = (const T *) in;                                       \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:732:1: warning: cast from 'unsigned short *' to 'unsigned long long *' increases required alignment from 2 to 8 [-Wcast-align]
+  732 | FAST_COLOR_TO_KCMY_FUNC(unsigned short, 16) // color_16_to_color_fast
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:723:19: note: expanded from macro 'FAST_COLOR_TO_KCMY_FUNC'
+  723 |       nzx.nzl |= *(unsigned long long *) out;                           \
+      |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:765:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+  765 | RAW_COLOR_TO_COLOR_FUNC(unsigned short, 16) // color_16_to_color_raw
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:743:19: note: expanded from macro 'RAW_COLOR_TO_COLOR_FUNC'
+  743 |   const T *s_in = (const T *) in;                                           \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:804:1: warning: cast from 'unsigned short *' to 'unsigned long long *' increases required alignment from 2 to 8 [-Wcast-align]
+  804 | RAW_COLOR_TO_KCMY_FUNC(unsigned char, 8) // color_8_to_kcmy_raw
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:796:19: note: expanded from macro 'RAW_COLOR_TO_KCMY_FUNC'
+  796 |       nzx.nzl |= *(unsigned long long *) out;                           \
+      |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:805:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+  805 | RAW_COLOR_TO_KCMY_FUNC(unsigned short, 16) // color_16_to_kcmy_raw
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:779:19: note: expanded from macro 'RAW_COLOR_TO_KCMY_FUNC'
+  779 |   const T *s_in = (const T *) in;                                       \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:805:1: warning: cast from 'unsigned short *' to 'unsigned long long *' increases required alignment from 2 to 8 [-Wcast-align]
+  805 | RAW_COLOR_TO_KCMY_FUNC(unsigned short, 16) // color_16_to_kcmy_raw
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:796:19: note: expanded from macro 'RAW_COLOR_TO_KCMY_FUNC'
+  796 |       nzx.nzl |= *(unsigned long long *) out;                           \
+      |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:873:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+  873 | GRAY_TO_COLOR_FUNC(unsigned short, 16) // gray_16_to_color
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:825:19: note: expanded from macro 'GRAY_TO_COLOR_FUNC'
+  825 |   const T *s_in = (const T *) in;                                           \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:924:1: warning: cast from 'unsigned short *' to 'unsigned long long *' increases required alignment from 2 to 8 [-Wcast-align]
+  924 | GRAY_TO_KCMY_FUNC(unsigned char, 8) // gray_8_to_kcmy
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:916:19: note: expanded from macro 'GRAY_TO_KCMY_FUNC'
+  916 |       nzx.nzl |= *(unsigned long long *) out;                           \
+      |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:925:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+  925 | GRAY_TO_KCMY_FUNC(unsigned short, 16) // gray_16_to_kcmy
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:887:19: note: expanded from macro 'GRAY_TO_KCMY_FUNC'
+  887 |   const T *s_in = (const T *) in;                                       \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:925:1: warning: cast from 'unsigned short *' to 'unsigned long long *' increases required alignment from 2 to 8 [-Wcast-align]
+  925 | GRAY_TO_KCMY_FUNC(unsigned short, 16) // gray_16_to_kcmy
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:916:19: note: expanded from macro 'GRAY_TO_KCMY_FUNC'
+  916 |       nzx.nzl |= *(unsigned long long *) out;                           \
+      |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:956:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+  956 | GRAY_TO_COLOR_RAW_FUNC(unsigned short, 16) // gray_16_to_color_raw
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:935:19: note: expanded from macro 'GRAY_TO_COLOR_RAW_FUNC'
+  935 |   const T *s_in = (const T *) in;                                          \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:986:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+  986 | GRAY_TO_KCMY_RAW_FUNC(unsigned short, 16) // gray_16_to_kcmy_raw
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:966:19: note: expanded from macro 'GRAY_TO_KCMY_RAW_FUNC'
+  966 |   const T *s_in = (const T *) in;                                       \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1043:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+ 1043 | COLOR_TO_KCMY_THRESHOLD_FUNC(unsigned short, color_16) // color_16_to_kcmy_threshold
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:997:19: note: expanded from macro 'COLOR_TO_KCMY_THRESHOLD_FUNC'
+  997 |   const T *s_in = (const T *) in;                                       \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1090:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+ 1090 | CMYK_TO_KCMY_THRESHOLD_FUNC(unsigned short, cmyk_16) // cmyk_16_to_kcmy_threshodl
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1054:19: note: expanded from macro 'CMYK_TO_KCMY_THRESHOLD_FUNC'
+ 1054 |   const T *s_in = (const T *) in;                                       \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1130:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+ 1130 | KCMY_TO_KCMY_THRESHOLD_FUNC(unsigned short, kcmy_16) // kcmy_8_to_kcmy_threshold
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1103:19: note: expanded from macro 'KCMY_TO_KCMY_THRESHOLD_FUNC'
+ 1103 |   const T *s_in = (const T *) in;                                       \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1165:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+ 1165 | GRAY_TO_COLOR_THRESHOLD_FUNC(unsigned short, color, 16, 3) // gray_16_to_color_threshold
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1143:19: note: expanded from macro 'GRAY_TO_COLOR_THRESHOLD_FUNC'
+ 1143 |   const T *s_in = (const T *) in;                                       \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1169:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+ 1169 | GRAY_TO_COLOR_THRESHOLD_FUNC(unsigned short, kcmy, 16, 4) // gray_16_to_kcmy_threshold
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1143:19: note: expanded from macro 'GRAY_TO_COLOR_THRESHOLD_FUNC'
+ 1143 |   const T *s_in = (const T *) in;                                       \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1211:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+ 1211 | COLOR_TO_COLOR_THRESHOLD_FUNC(unsigned short, color_16) // color_8_to_color_threshold
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1182:19: note: expanded from macro 'COLOR_TO_COLOR_THRESHOLD_FUNC'
+ 1182 |   const T *s_in = (const T *) in;                                       \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1249:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+ 1249 | COLOR_TO_GRAY_THRESHOLD_FUNC(unsigned short, cmyk_16, 4, 4) // cmyk_16_to_gray_threshold
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1224:19: note: expanded from macro 'COLOR_TO_GRAY_THRESHOLD_FUNC'
+ 1224 |   const T *s_in = (const T *) in;                                       \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1253:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+ 1253 | COLOR_TO_GRAY_THRESHOLD_FUNC(unsigned short, kcmy_16, 4, 4) // kcmy_16_to_gray_threshold
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1224:19: note: expanded from macro 'COLOR_TO_GRAY_THRESHOLD_FUNC'
+ 1224 |   const T *s_in = (const T *) in;                                       \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1257:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+ 1257 | COLOR_TO_GRAY_THRESHOLD_FUNC(unsigned short, color_16, 3, 3) // color_16_to_gray_threshold
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1224:19: note: expanded from macro 'COLOR_TO_GRAY_THRESHOLD_FUNC'
+ 1224 |   const T *s_in = (const T *) in;                                       \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1261:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+ 1261 | COLOR_TO_GRAY_THRESHOLD_FUNC(unsigned short, gray_16, 1, 1) // gray_16_to_gray_threshold
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1224:19: note: expanded from macro 'COLOR_TO_GRAY_THRESHOLD_FUNC'
+ 1224 |   const T *s_in = (const T *) in;                                       \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1308:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+ 1308 | CMYK_TO_COLOR_FUNC(cmyk, color, unsigned short, 16, 0) // cmyk_16_to_color
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1273:19: note: expanded from macro 'CMYK_TO_COLOR_FUNC'
+ 1273 |   const T *s_in = (const T *) in;                                       \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1311:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+ 1311 | CMYK_TO_COLOR_FUNC(kcmy, color, unsigned short, 16, 1) // kcmy_16_to_color
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1273:19: note: expanded from macro 'CMYK_TO_COLOR_FUNC'
+ 1273 |   const T *s_in = (const T *) in;                                       \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1314:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+ 1314 | CMYK_TO_COLOR_FUNC(cmyk, color_threshold, unsigned short, 16, 0) // cmyk_16_to_color_threshold
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1273:19: note: expanded from macro 'CMYK_TO_COLOR_FUNC'
+ 1273 |   const T *s_in = (const T *) in;                                       \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1317:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+ 1317 | CMYK_TO_COLOR_FUNC(kcmy, color_threshold, unsigned short, 16, 1) // kcmy_16_to_color_threshold
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1273:19: note: expanded from macro 'CMYK_TO_COLOR_FUNC'
+ 1273 |   const T *s_in = (const T *) in;                                       \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1320:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+ 1320 | CMYK_TO_COLOR_FUNC(cmyk, color_fast, unsigned short, 16, 0) // cmyk_16_to_color_fast
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1273:19: note: expanded from macro 'CMYK_TO_COLOR_FUNC'
+ 1273 |   const T *s_in = (const T *) in;                                       \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1323:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+ 1323 | CMYK_TO_COLOR_FUNC(kcmy, color_fast, unsigned short, 16, 1) // kcmy_16_to_color_fast
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1273:19: note: expanded from macro 'CMYK_TO_COLOR_FUNC'
+ 1273 |   const T *s_in = (const T *) in;                                       \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1326:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+ 1326 | CMYK_TO_COLOR_FUNC(cmyk, color_raw, unsigned short, 16, 0) // cmyk_16_to_color_raw
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1273:19: note: expanded from macro 'CMYK_TO_COLOR_FUNC'
+ 1273 |   const T *s_in = (const T *) in;                                       \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1329:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+ 1329 | CMYK_TO_COLOR_FUNC(kcmy, color_raw, unsigned short, 16, 1) // kcmy_16_to_color_raw
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1273:19: note: expanded from macro 'CMYK_TO_COLOR_FUNC'
+ 1273 |   const T *s_in = (const T *) in;                                       \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1374:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+ 1374 | CMYK_TO_KCMY_FUNC(unsigned short, 16) // cmyk_16_to_kcmy
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1342:19: note: expanded from macro 'CMYK_TO_KCMY_FUNC'
+ 1342 |   const T *s_in = (const T *) in;                                           \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1418:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+ 1418 | KCMY_TO_KCMY_FUNC(unsigned short, 16) // kcmy_16_to_kcmy
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1387:19: note: expanded from macro 'KCMY_TO_KCMY_FUNC'
+ 1387 |   const T *s_in = (const T *) in;                                           \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1463:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+ 1463 | GRAY_TO_GRAY_FUNC(unsigned short, 16) // gray_16_to_gray
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1432:19: note: expanded from macro 'GRAY_TO_GRAY_FUNC'
+ 1432 |   const T *s_in = (const T *) in;                                          \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1519:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+ 1519 | COLOR_TO_GRAY_FUNC(unsigned short, 16) // color_16_to_gray
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1478:19: note: expanded from macro 'COLOR_TO_GRAY_FUNC'
+ 1478 |   const T *s_in = (const T *) in;                                             \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1580:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+ 1580 | CMYK_TO_GRAY_FUNC(unsigned short, 16) // cmyk_16_to_gray
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1536:19: note: expanded from macro 'CMYK_TO_GRAY_FUNC'
+ 1536 |   const T *s_in = (const T *) in;                                           \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1640:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+ 1640 | KCMY_TO_GRAY_FUNC(unsigned short, 16) // kcmy_16_to_gray
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1596:19: note: expanded from macro 'KCMY_TO_GRAY_FUNC'
+ 1596 |   const T *s_in = (const T *) in;                                           \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1671:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+ 1671 | GRAY_TO_GRAY_RAW_FUNC(unsigned short, 16) // gray_16_to_gray_raw
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1651:19: note: expanded from macro 'GRAY_TO_GRAY_RAW_FUNC'
+ 1651 |   const T *s_in = (const T *) in;                                       \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1723:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+ 1723 | COLOR_TO_GRAY_RAW_FUNC(unsigned short, 16, 1, raw) // color_16_to_gray_raw
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1686:19: note: expanded from macro 'COLOR_TO_GRAY_RAW_FUNC'
+ 1686 |   const T *s_in = (const T *) in;                                       \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1726:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+ 1726 | COLOR_TO_GRAY_RAW_FUNC(unsigned short, 16, 0, noninvert) // color_16_to_gray_noninvert
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1686:19: note: expanded from macro 'COLOR_TO_GRAY_RAW_FUNC'
+ 1686 |   const T *s_in = (const T *) in;                                       \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1784:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+ 1784 | CMYK_TO_GRAY_RAW_FUNC(unsigned short, 16, 1, raw) // cmyk_16_to_gray_raw
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1743:19: note: expanded from macro 'CMYK_TO_GRAY_RAW_FUNC'
+ 1743 |   const T *s_in = (const T *) in;                                           \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1787:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+ 1787 | CMYK_TO_GRAY_RAW_FUNC(unsigned short, 16, 0, noninvert) // cmyk_16_to_gray_noninvert
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1743:19: note: expanded from macro 'CMYK_TO_GRAY_RAW_FUNC'
+ 1743 |   const T *s_in = (const T *) in;                                           \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1844:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+ 1844 | KCMY_TO_GRAY_RAW_FUNC(unsigned short, 16, 1, raw) // kcmy_16_to_gray_raw
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1803:19: note: expanded from macro 'KCMY_TO_GRAY_RAW_FUNC'
+ 1803 |   const T *s_in = (const T *) in;                                           \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1847:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+ 1847 | KCMY_TO_GRAY_RAW_FUNC(unsigned short, 16, 0, noninvert) // kcmy_16_to_gray_noninvert
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1803:19: note: expanded from macro 'KCMY_TO_GRAY_RAW_FUNC'
+ 1803 |   const T *s_in = (const T *) in;                                           \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1882:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+ 1882 | CMYK_TO_KCMY_RAW_FUNC(unsigned short, 16) // cmyk_16_to_kcmy_raw
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1860:19: note: expanded from macro 'CMYK_TO_KCMY_RAW_FUNC'
+ 1860 |   const T *s_in = (const T *) in;                                       \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1916:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+ 1916 | KCMY_TO_KCMY_RAW_FUNC(unsigned short, 16) // kcmy_16_to_kcmy_raw
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:1895:19: note: expanded from macro 'KCMY_TO_KCMY_RAW_FUNC'
+ 1895 |   const T *s_in = (const T *) in;                                       \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:2026:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+ 2026 | RAW_TO_RAW_THRESHOLD_FUNC(unsigned short, raw_16) // raw_16_to_raw_threshold
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:2000:19: note: expanded from macro 'RAW_TO_RAW_THRESHOLD_FUNC'
+ 2000 |   const T *s_in = (const T *) in;                                       \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:2070:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+ 2070 | RAW_TO_RAW_FUNC(unsigned short, 16) // raw_8_to_raw
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:2039:19: note: expanded from macro 'RAW_TO_RAW_FUNC'
+ 2039 |   const T *s_in = (const T *) in;                                           \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:2106:1: warning: cast from 'const unsigned char *' to 'const unsigned short *' increases required alignment from 1 to 2 [-Wcast-align]
+ 2106 | RAW_TO_RAW_RAW_FUNC(unsigned short, 16) // raw_16_to_raw_raw
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/color-conversions.c:2084:19: note: expanded from macro 'RAW_TO_RAW_RAW_FUNC'
+ 2084 |   const T *s_in = (const T *) in;                                       \
+      |                   ^~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/print-canon.c:5181:6: warning: misleading indentation; statement is not part of the previous 'else' [-Wmisleading-indentation]
+ 5181 |             buf[3+i*3+2]= init->mode->inks[i].ink->numsizes+1;/*level*/
+      |             ^
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/print-canon.c:5170:11: note: previous statement is here
+ 5170 |           else
+      |           ^
+54 warnings generated.
+  CC       print-escp2.lo
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/print-escp2.c:1330:1: warning: unused function 'escp2_density_by_res' [-Wunused-function]
+ 1330 | escp2_density_by_res(const stp_vars_t *v, const res_t *res)
+      | ^~~~~~~~~~~~~~~~~~~~
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/src/main/print-escp2.c:1343:1: warning: unused function 'escp2_bits_by_res' [-Wunused-function]
+ 1343 | escp2_bits_by_res(const stp_vars_t *v, const res_t *res)
+      | ^~~~~~~~~~~~~~~~~
+1 warning generated.
+  CC       escp2-driver.lo
+  CC       print-escp2-data.lo
+  CC       escp2-channels.lo
+2 warnings generated.
+  CC       escp2-papers.lo
+  CC       escp2-resolutions.lo
+  CC       print-lexmark.lo
+  CC       print-pcl.lo
+  CC       print-dpl.lo
+  CC       print-ps.lo
+  CC       xmlppd.lo
+  CC       print-dyesub.lo
+  CC       print-raw.lo
+  CCLD     libgutenprint.la
+make: Leaving directory '/home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/gutenprint/src/main'

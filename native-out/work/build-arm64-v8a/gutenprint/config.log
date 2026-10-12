@@ -1,0 +1,400 @@
+ac_cv_prog_lex_root=lex.yy
+ac_cv_prog_lex_yytext_pointer=yes
+ac_cv_prog_make_make_set=yes
+ac_cv_search_finite=-lm
+ac_cv_search_strerror='none required'
+ac_cv_search_yywrap=no
+ac_cv_type_off_t=yes
+ac_cv_type_size_t=yes
+acl_cv_hardcode_direct=no
+acl_cv_hardcode_libdir_flag_spec='${wl}-rpath ${wl}$libdir'
+acl_cv_hardcode_libdir_separator=
+acl_cv_hardcode_minus_L=no
+acl_cv_libext=a
+acl_cv_path_LD=/usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/ld
+acl_cv_prog_gnu_ld=yes
+acl_cv_rpath=done
+acl_cv_shlibext=so
+acl_cv_wl=-Wl,
+am_cv_CC_dependencies_compiler_type=gcc3
+am_cv_func_iconv='no, consider installing GNU libiconv'
+am_cv_lib_iconv=no
+am_cv_make_support_nested_variables=yes
+am_cv_prog_cc_c_o=yes
+am_cv_prog_cc_stdc=
+am_cv_prog_tar_ustar=gnutar
+gt_cv_func_CFLocaleCopyCurrent=no
+gt_cv_func_CFPreferencesCopyAppValue=no
+lt_cv_ar_at_file=@
+lt_cv_deplibs_check_method=pass_all
+lt_cv_file_magic_cmd='$MAGIC_CMD'
+lt_cv_file_magic_test_file=
+lt_cv_ld_reload_flag=-r
+lt_cv_nm_interface='BSD nm'
+lt_cv_objdir=.libs
+lt_cv_path_LD=/usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/ld
+lt_cv_path_NM=/usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-nm
+lt_cv_path_mainfest_tool=no
+lt_cv_prog_compiler_c_o=yes
+lt_cv_prog_compiler_pic='-fPIC -DPIC'
+lt_cv_prog_compiler_pic_works=yes
+lt_cv_prog_compiler_rtti_exceptions=yes
+lt_cv_prog_compiler_static_works=yes
+lt_cv_prog_gnu_ld=yes
+lt_cv_sharedlib_from_linklib_cmd='printf %s\n'
+lt_cv_sys_global_symbol_pipe='/usr/bin/sed -n -e '\''s/^.*[	 ]\([ABCDGIRSTW][ABCDGIRSTW]*\)[	 ][	 ]*\([_A-Za-z][_A-Za-z0-9]*\)$/\1 \2 \2/p'\'' | /usr/bin/sed '\''/ __gnu_lto/d'\'''
+lt_cv_sys_global_symbol_to_c_name_address='/usr/bin/sed -n -e '\''s/^: \(.*\) .*$/  {"\1", (void *) 0},/p'\'' -e '\''s/^[ABCDGIRSTW][ABCDGIRSTW]* .* \(.*\)$/  {"\1", (void *) \&\1},/p'\'''
+lt_cv_sys_global_symbol_to_c_name_address_lib_prefix='/usr/bin/sed -n -e '\''s/^: \(.*\) .*$/  {"\1", (void *) 0},/p'\'' -e '\''s/^[ABCDGIRSTW][ABCDGIRSTW]* .* \(lib.*\)$/  {"\1", (void *) \&\1},/p'\'' -e '\''s/^[ABCDGIRSTW][ABCDGIRSTW]* .* \(.*\)$/  {"lib\1", (void *) \&\1},/p'\'''
+lt_cv_sys_global_symbol_to_cdecl='/usr/bin/sed -n -e '\''s/^T .* \(.*\)$/extern int \1();/p'\'' -e '\''s/^[ABCDGIRSTW][ABCDGIRSTW]* .* \(.*\)$/extern char \1;/p'\'''
+lt_cv_sys_global_symbol_to_import=
+lt_cv_sys_max_cmd_len=3145728
+lt_cv_to_host_file_cmd=func_convert_file_noop
+lt_cv_to_tool_file_cmd=func_convert_file_noop
+lt_cv_truncate_bin='/usr/bin/dd bs=4096 count=1'
+
+## ----------------- ##
+## Output variables. ##
+## ----------------- ##
+
+ACLOCAL='${SHELL} '\''/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/scripts/missing'\'' aclocal-1.16'
+ALL_LINGUAS='ca cs da de el en_GB es fi fr gl hr hu is it ja ka nb nl pl pt ro ru sk sl sv tr uk vi zh_CN zh_TW'
+AMDEPBACKSLASH='\'
+AMDEP_FALSE='#'
+AMDEP_TRUE=''
+AMTAR='$${TAR-tar}'
+AM_BACKSLASH='\'
+AM_DEFAULT_V='$(AM_DEFAULT_VERBOSITY)'
+AM_DEFAULT_VERBOSITY='0'
+AM_V='$(V)'
+AR='/usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar'
+AUTOCONF='${SHELL} '\''/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/scripts/missing'\'' autoconf'
+AUTOHEADER='${SHELL} '\''/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/scripts/missing'\'' autoheader'
+AUTOMAKE='${SHELL} '\''/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/scripts/missing'\'' automake-1.16'
+AWK='gawk'
+BASH='/bin/bash'
+BASHREAL='/usr/bin/bash'
+BUILD_CUPS_1_2_FALSE=''
+BUILD_CUPS_1_2_TRUE='#'
+BUILD_CUPS_FALSE=''
+BUILD_CUPS_PPDS='no'
+BUILD_CUPS_PPDS_FALSE=''
+BUILD_CUPS_PPDS_TRUE='#'
+BUILD_CUPS_TRUE='#'
+BUILD_DOC_FALSE=''
+BUILD_DOC_TRUE='#'
+BUILD_ESCPUTIL_FALSE=''
+BUILD_ESCPUTIL_TRUE='#'
+BUILD_GENPPD_STATIC_FALSE='#'
+BUILD_GENPPD_STATIC_TRUE=''
+BUILD_GIMP2_AS_GUTENPRINT_FALSE=''
+BUILD_GIMP2_AS_GUTENPRINT_TRUE='#'
+BUILD_GIMP2_FALSE=''
+BUILD_GIMP2_TRUE='#'
+BUILD_GLOBALIZED_CUPS_PPDS_FALSE=''
+BUILD_GLOBALIZED_CUPS_PPDS_TRUE='#'
+BUILD_LIBGUTENPRINTUI2_FALSE=''
+BUILD_LIBGUTENPRINTUI2_TRUE='#'
+BUILD_LIBUSB_BACKENDS_FALSE=''
+BUILD_LIBUSB_BACKENDS_TRUE='#'
+BUILD_MODULES_FALSE=''
+BUILD_MODULES_TRUE='#'
+BUILD_SIMPLIFIED_CUPS_PPDS_FALSE=''
+BUILD_SIMPLIFIED_CUPS_PPDS_TRUE='#'
+BUILD_TESTPATTERN_FALSE=''
+BUILD_TESTPATTERN_TRUE='#'
+BUILD_TEST_FALSE=''
+BUILD_TEST_TRUE='#'
+BUILD_TRANSLATED_CUPS_PPDS_FALSE=''
+BUILD_TRANSLATED_CUPS_PPDS_TRUE='#'
+BZIP2='/usr/bin/bzip2'
+CC='/usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang'
+CCDEPMODE='depmode=gcc3'
+CFLAGS='-Disfinite=finite -O2 -fPIC -O3'
+COMPRESS='/usr/bin/xz -e -9'
+CONVERT=''
+CPPFLAGS=''
+CSCOPE='cscope'
+CSUF='.xz'
+CTAGS='ctags'
+CUPS_CFLAGS=''
+CUPS_CONFIG=''
+CUPS_LIBS=' -lm'
+CUPS_PPDS_AT_TOP_LEVEL_FALSE=''
+CUPS_PPDS_AT_TOP_LEVEL_TRUE='#'
+CUPS_PPD_PS_LEVEL='2'
+CYGPATH_W='echo'
+DB2HTML=''
+DB2PDF=''
+DB2PS=''
+DEFS='-DHAVE_CONFIG_H'
+DEPDIR='.deps'
+DLLTOOL='false'
+DOXYGEN=''
+DSYMUTIL=''
+DUMPBIN=''
+DVIPDF=''
+DVIPS=''
+ECHO_C=''
+ECHO_N='-n'
+ECHO_T=''
+EGREP='/usr/bin/grep -E'
+ENABLE_SHARED='no'
+ENABLE_STATIC='yes'
+ETAGS='etags'
+EXEEXT=''
+FGREP='/usr/bin/grep -F'
+FILECMD='file'
+FIND='/usr/bin/find'
+GENPPD_LIBS=''
+GIMP2_CFLAGS=''
+GIMP2_LIBS=''
+GIMPTOOL2_CHECK=''
+GLIB_MKENUMS=''
+GMSGFMT=':'
+GMSGFMT_015=':'
+GNUCFLAGS=' -Wall -Wextra -Wcast-align -Wmissing-prototypes -Wmissing-declarations -Wwrite-strings -Werror-implicit-function-declaration -Wformat=2 -Werror=format-security -Wno-deprecated-declarations -Wno-missing-field-initializers -Wno-sign-compare -Wno-unused-parameter -D_POSIX_C_SOURCE=200809L -std=c99'
+GREP='/usr/bin/grep'
+GTK2_CFLAGS=''
+GTK2_LIBS=''
+GUTENPRINTUI2_BINARY_AGE='6'
+GUTENPRINTUI2_CFLAGS=''
+GUTENPRINTUI2_CURRENT_INTERFACE='8'
+GUTENPRINTUI2_INTERFACE_AGE='0'
+GUTENPRINTUI2_LIBDEPS=' $(GUTENPRINT_LIBS) -lm'
+GUTENPRINTUI2_LIBS='-lgutenprintui2'
+GUTENPRINTUI2_VERSION=''
+GUTENPRINT_BASE_VERSION='5.3.5'
+GUTENPRINT_BINARY_AGE='6'
+GUTENPRINT_CFLAGS=''
+GUTENPRINT_CURRENT_INTERFACE='15'
+GUTENPRINT_INTERFACE_AGE='0'
+GUTENPRINT_LIBDEPS=' -lm'
+GUTENPRINT_LIBS='-lgutenprint'
+GUTENPRINT_MAJOR_VERSION='5'
+GUTENPRINT_MICRO_VERSION='5'
+GUTENPRINT_MINOR_VERSION='3'
+GUTENPRINT_RELEASE_VERSION='5.3'
+GUTENPRINT_VERSION='5.3.5'
+GZIP='/usr/bin/gzip'
+INSTALL_DATA='${INSTALL} -m 644'
+INSTALL_PROGRAM='${INSTALL}'
+INSTALL_SAMPLES_FALSE=''
+INSTALL_SAMPLES_TRUE='#'
+INSTALL_SCRIPT='${INSTALL}'
+INSTALL_STRIP_PROGRAM='$(install_sh) -c -s'
+INSTALL_USER_GUIDE_FALSE=''
+INSTALL_USER_GUIDE_TRUE='#'
+INTLLIBS=''
+INTL_MACOSX_LIBS=''
+LD='/usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/ld'
+LDFLAGS='-Wl,-z,max-page-size=16384'
+LEX='flex'
+LEXLIB=''
+LEX_OUTPUT_ROOT='lex.yy'
+LIBICONV=''
+LIBINTL=''
+LIBM='-lm'
+LIBOBJS=''
+LIBREADLINE_DEPS=''
+LIBS='-lm '
+LIBTOOL='$(SHELL) $(top_builddir)/libtool'
+LIBTOOL_DEPS='/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/scripts//ltmain.sh'
+LIBUSB_BACKEND_LIBDEPS=''
+LIBUSB_CFLAGS=''
+LIBUSB_LIBS=''
+LIPO=''
+LN_S='ln -s'
+LRZIP=''
+LTALLOCA=''
+LTLIBICONV=''
+LTLIBINTL=''
+LTLIBOBJS=''
+LT_SYS_LIBRARY_PATH=''
+MAINT='#'
+MAINTAINER_CFLAGS=''
+MAINTAINER_MODE_FALSE=''
+MAINTAINER_MODE_TRUE='#'
+MAKEINFO='${SHELL} '\''/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/scripts/missing'\'' makeinfo'
+MANIFEST_TOOL=':'
+MINIMAL_PRINTERS_TO_TEST='escp2-r1800 escp2-3880 	pcl-g_4 pcl-g_5c pcl-500 	mitsubishi-p95d shinko-chcs2145 kodak-1400 canon-cp910 mitsubishi-9800d 	bjc-s200 bjc-PIXMA-Pro9000mk2 	datamax_oneil_I4212e 	lexmark-z43'
+MKDIR_P='/usr/bin/mkdir -p'
+MSGFMT=':'
+MSGFMT_015=':'
+MSGMERGE=':'
+NM='/usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-nm'
+NMEDIT=''
+OBJDUMP='objdump'
+OBJEXT='o'
+OTOOL64=''
+OTOOL=''
+PACKAGE='gutenprint'
+PACKAGE_BIN_DIR='${exec_prefix}/bin'
+PACKAGE_BUGREPORT='gimp-print-devel@lists.sourceforge.net'
+PACKAGE_DATA_DIR='${datarootdir}/gutenprint'
+PACKAGE_LIB_DIR='${exec_prefix}/lib/gutenprint'
+PACKAGE_LOCALE_DIR='${prefix}/share/locale'
+PACKAGE_NAME='gutenprint'
+PACKAGE_STRING='gutenprint 5.3.5'
+PACKAGE_TARNAME='gutenprint'
+PACKAGE_URL='https://gimp-print.sourceforge.net'
+PACKAGE_VERSION='5.3.5'
+PATH_SEPARATOR=':'
+PERL='/usr/bin/perl'
+PKGMODULEDIR='${exec_prefix}/lib/gutenprint/5.3/modules'
+PKGROOT='/home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/gutenprint'
+PKGXMLDATADIR='${datarootdir}/gutenprint/5.3/xml'
+PKG_CONFIG='/usr/bin/pkg-config'
+PKG_CONFIG_LIBDIR=''
+PKG_CONFIG_PATH=''
+POSUB=''
+RANLIB='/usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ranlib'
+RELEASE_DATE='12 Mar 2025'
+RM='rm'
+RZIP=''
+SED='/usr/bin/sed'
+SET_MAKE=''
+SHELL='/bin/bash'
+STRIP='/usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip'
+TEST='/usr/bin/test'
+TEXI2HTML=''
+TRUE='/usr/bin/true'
+USE_LEVEL3_PS_FALSE=''
+USE_LEVEL3_PS_TRUE='#'
+USE_NLS='no'
+USE_NLS_FALSE=''
+USE_NLS_TRUE='#'
+VERSION='5.3.5'
+WHICH_PPDS=''
+XGETTEXT=':'
+XGETTEXT_015=':'
+XZ='/usr/bin/xz'
+YACC='bison -y'
+YFLAGS=''
+ZPAQ=''
+ac_ct_AR=''
+ac_ct_CC=''
+ac_ct_DUMPBIN=''
+am__EXEEXT_FALSE=''
+am__EXEEXT_TRUE='#'
+am__fastdepCC_FALSE='#'
+am__fastdepCC_TRUE=''
+am__include='include'
+am__isrc=' -I$(srcdir)'
+am__leading_dot='.'
+am__nodep='_no'
+am__quote=''
+am__tar='tar --format=ustar -chf - "$$tardir"'
+am__untar='tar -xf -'
+bindir='${exec_prefix}/bin'
+build='x86_64-pc-linux-android'
+build_alias=''
+build_cpu='x86_64'
+build_os='linux-android'
+build_vendor='pc'
+cups_bindir='/usr/bin'
+cups_conf_datadir='/usr/share/cups'
+cups_conf_serverbin='/usr/lib/cups'
+cups_conf_serverroot='/usr/etc/cups'
+cups_exec_prefix='/usr'
+cups_prefix='/usr'
+cups_sbindir='/usr/sbin'
+datadir='${datarootdir}'
+datarootdir='${prefix}/share'
+docdir='${datarootdir}/doc/${PACKAGE_TARNAME}'
+dvidir='${docdir}'
+exec_prefix='${prefix}'
+gimp2_plug_indir=''
+gutenprint_cflags=''
+gutenprint_libdeps=' -lm'
+gutenprint_libs='-lgutenprint  -lm'
+gutenprintui2_cflags=''
+gutenprintui2_libdeps=' -lm'
+gutenprintui2_libs='-lgutenprintui2  -lm'
+host='aarch64-unknown-linux-android'
+host_alias='aarch64-linux-android'
+host_cpu='aarch64'
+host_os='linux-android'
+host_vendor='unknown'
+htmldir='${docdir}'
+includedir='${prefix}/include'
+infodir='${datarootdir}/info'
+install_sh='${SHELL} /home/runner/work/printgo/printgo/native-out/work/src/gutenprint/scripts/install-sh'
+libdir='${exec_prefix}/lib'
+libexecdir='${exec_prefix}/libexec'
+localedir='${datarootdir}/locale'
+localstatedir='${prefix}/var'
+mandir='${datarootdir}/man'
+mkdir_p='/usr/bin/mkdir -p'
+oldincludedir='/usr/include'
+pdfdir='${docdir}'
+prefix='/printgo'
+program_transform_name='s,x,x,'
+psdir='${docdir}'
+runstatedir='${localstatedir}/run'
+sbindir='${exec_prefix}/sbin'
+sharedstatedir='${prefix}/com'
+sysconfdir='${prefix}/etc'
+target_alias=''
+
+## ----------- ##
+## confdefs.h. ##
+## ----------- ##
+
+/* confdefs.h */
+#define PACKAGE_NAME "gutenprint"
+#define PACKAGE_TARNAME "gutenprint"
+#define PACKAGE_VERSION "5.3.5"
+#define PACKAGE_STRING "gutenprint 5.3.5"
+#define PACKAGE_BUGREPORT "gimp-print-devel@lists.sourceforge.net"
+#define PACKAGE_URL "https://gimp-print.sourceforge.net"
+#define PACKAGE "gutenprint"
+#define VERSION "5.3.5"
+#define HAVE_STDIO_H 1
+#define HAVE_STDLIB_H 1
+#define HAVE_STRING_H 1
+#define HAVE_INTTYPES_H 1
+#define HAVE_STDINT_H 1
+#define HAVE_STRINGS_H 1
+#define HAVE_SYS_STAT_H 1
+#define HAVE_SYS_TYPES_H 1
+#define HAVE_UNISTD_H 1
+#define STDC_HEADERS 1
+#define HAVE_DLFCN_H 1
+#define LT_OBJDIR ".libs/"
+#define OSTYPE "linux"
+#define ENABLE_STATIC "yes"
+#define ENABLE_SHARED "no"
+#define YYTEXT_POINTER 1
+#define GUTENPRINT_RELEASE_VERSION "5.3"
+#define GUTENPRINT_BASE_VERSION "5.3.5"
+#define HAVE_GCC_ATTRIBUTES 1
+#define HAVE_LIBREADLINE 0
+#define HAVE_GETOPT_H 1
+#define HAVE_DLFCN_H 1
+#define HAVE_FCNTL_H 1
+#define HAVE_LIMITS_H 1
+#define HAVE_LOCALE_H 1
+#define HAVE_STDARG_H 1
+#define HAVE_STDLIB_H 1
+#define HAVE_STRING_H 1
+#define HAVE_SYS_TIME_H 1
+#define HAVE_SYS_TYPES_H 1
+#define HAVE_TIME_H 1
+#define HAVE_UNISTD_H 1
+#define HAVE_NANOSLEEP 1
+#define HAVE_POLL 1
+#define HAVE_USLEEP 1
+#define HAVE_GETOPT_LONG 1
+#define HAVE_SETENV 1
+#define HAVE_GETUID 1
+#define HAVE_WAITPID 1
+#define HAVE_DECL_STRDUP 1
+#define HAVE_DECL_STRNDUP 1
+#define CUPS_DATADIR "/usr/share/cups"
+#define CUPS_MODELDIR "/usr/share/cups/model/gutenprint/5.3/"
+#define CUPS_PPD_NICKNAME_STRING " - CUPS+Gutenprint v"
+#define CUPS_PPD_PS_LEVEL 2
+#define RELEASE_DATE "12 Mar 2025"
+#define MINIMAL_PRINTERS_TO_TEST escp2-r1800 escp2-3880 	pcl-g_4 pcl-g_5c pcl-500 	mitsubishi-p95d shinko-chcs2145 kodak-1400 canon-cp910 mitsubishi-9800d 	bjc-s200 bjc-PIXMA-Pro9000mk2 	datamax_oneil_I4212e 	lexmark-z43
+
+configure: exit 0

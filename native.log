@@ -1,0 +1,61 @@
+NDK: /usr/local/lib/android/sdk/ndk/30.0.16248370 /usr/local/lib/android/sdk/ndk/27.3.13750724
+escpr: release driver-sources sha256=8a0430d9d596fd8efa5dda6467ffa0ac06fd88be16544e486ac68eeb3d74defb
+gutenprint: release driver-sources sha256=f5a9f47de28530b1ae2069cfbc647a9a641baeeabe809bb0ef2b3ec5b9668d70
+hplip: release driver-sources sha256=1cf6d6c28735435c8eb6646e83bcfb721e51c4b1f0e8cf9105a6faf96dc9ad25
+splix: release driver-sources sha256=b672501f16f07f3c43543708248b789d15467eacfe18f25ab8f83f0209da1f8a
+cups: release driver-sources sha256=0339587204b4f9428dd0592eb301dec0bf9ea6ea8dce5d9690d56be585aba92d
+libjpeg-turbo: release driver-sources sha256=9564c72b1dfd1d6fe6274c5f95a8d989b59854575d4bbee44ade7bc17aa9bc93
+jbigkit: release driver-sources sha256=de7106b6bfaf495d6865c7dd7ac6ca1381bd12e0d81405ea81e7f2167263d932
+patching file cups/thread.c
+==> [host] libcups
+==> [host] libgutenprint
+==> [host] libjpeg-turbo
+==> [host] escpr
+==> [host] hpcups
+==> [host] splix
+==> [host] tools
+==> [host] gutenprint data
+total 7488
+drwxr-xr-x 2 runner runner    4096 Oct 12 13:12 .
+drwxr-xr-x 4 runner runner    4096 Oct 12 13:12 ..
+-rwxr-xr-x 1 runner runner 1349520 Oct 12 13:12 pg_cupsraster
+-rwxr-xr-x 1 runner runner  206080 Oct 12 13:12 pg_escpr
+-rwxr-xr-x 1 runner runner 2591440 Oct 12 13:12 pg_gutenprint
+-rwxr-xr-x 1 runner runner 2150336 Oct 12 13:12 pg_hpcups
+-rwxr-xr-x 1 runner runner 1355576 Oct 12 13:12 pg_splix
+==> [host] done
+escpr: cache sha256=8a0430d9d596fd8efa5dda6467ffa0ac06fd88be16544e486ac68eeb3d74defb
+gutenprint: cache sha256=f5a9f47de28530b1ae2069cfbc647a9a641baeeabe809bb0ef2b3ec5b9668d70
+hplip: cache sha256=1cf6d6c28735435c8eb6646e83bcfb721e51c4b1f0e8cf9105a6faf96dc9ad25
+splix: cache sha256=b672501f16f07f3c43543708248b789d15467eacfe18f25ab8f83f0209da1f8a
+cups: cache sha256=0339587204b4f9428dd0592eb301dec0bf9ea6ea8dce5d9690d56be585aba92d
+libjpeg-turbo: cache sha256=9564c72b1dfd1d6fe6274c5f95a8d989b59854575d4bbee44ade7bc17aa9bc93
+jbigkit: cache sha256=de7106b6bfaf495d6865c7dd7ac6ca1381bd12e0d81405ea81e7f2167263d932
+==> [arm64-v8a] libcups
+==> [arm64-v8a] libgutenprint
+==> [arm64-v8a] libjpeg-turbo
+==> [arm64-v8a] escpr
+/usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=aarch64-none-linux-android26 --sysroot=/usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DPACKAGE_STRING="\"epson-inkjet-printer-escpr 1.8.8\"" -I/home/runner/work/printgo/printgo/native-out/work/src/escpr/lib -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -O3 -DNDEBUG  -fPIE -Wno-error=implicit-function-declaration -Wno-error=int-conversion -Wno-error=incompatible-pointer-types -Wno-error=implicit-int -w -fcommon -MD -MT CMakeFiles/pg_escpr.dir/home/runner/work/printgo/printgo/native/src/compat/android_compat.c.o -MF CMakeFiles/pg_escpr.dir/home/runner/work/printgo/printgo/native/src/compat/android_compat.c.o.d -o CMakeFiles/pg_escpr.dir/home/runner/work/printgo/printgo/native/src/compat/android_compat.c.o -c /home/runner/work/printgo/printgo/native/src/compat/android_compat.c
+/home/runner/work/printgo/printgo/native/src/compat/android_compat.c:8:10: fatal error: 'sys/timeb.h' file not found
+1 error generated.
+ninja: build stopped: cannot make progress due to previous errors.
+[10/24] Building C object CMakeFiles/escpr.dir/home/runner/work/printgo/printgo/native-out/work/src/escpr/lib/epson-protocol.c.o
+[11/24] Building C object CMakeFiles/pg_escpr.dir/home/runner/work/printgo/printgo/native-out/work/src/escpr/src/filter.c.o
+[12/24] Building C object CMakeFiles/pg_escpr.dir/home/runner/work/printgo/printgo/native-out/work/src/escpr/src/debug.c.o
+[13/24] Building C object CMakeFiles/pg_escpr.dir/home/runner/work/printgo/printgo/native-out/work/src/escpr/src/str.c.o
+[14/24] Building C object CMakeFiles/escpr.dir/home/runner/work/printgo/printgo/native-out/work/src/escpr/lib/epson-usb.c.o
+[15/24] Building C object CMakeFiles/pg_escpr.dir/home/runner/work/printgo/printgo/native-out/work/src/escpr/src/err.c.o
+[16/24] Building C object CMakeFiles/escpr.dir/home/runner/work/printgo/printgo/native-out/work/src/escpr/lib/epson-net-snmp.c.o
+[17/24] Building C object CMakeFiles/pg_escpr.dir/home/runner/work/printgo/printgo/native-out/work/src/escpr/src/mem.c.o
+[18/24] Linking C static library libescpr.a
+[19/24] Building C object CMakeFiles/pg_escpr.dir/home/runner/work/printgo/printgo/native-out/work/src/escpr/src/custompage.c.o
+[20/24] Building C object CMakeFiles/pg_escpr.dir/home/runner/work/printgo/printgo/native/src/compat/android_compat.c.o
+FAILED: [code=1] CMakeFiles/pg_escpr.dir/home/runner/work/printgo/printgo/native/src/compat/android_compat.c.o 
+/usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=aarch64-none-linux-android26 --sysroot=/usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DPACKAGE_STRING="\"epson-inkjet-printer-escpr 1.8.8\"" -I/home/runner/work/printgo/printgo/native-out/work/src/escpr/lib -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -O3 -DNDEBUG  -fPIE -Wno-error=implicit-function-declaration -Wno-error=int-conversion -Wno-error=incompatible-pointer-types -Wno-error=implicit-int -w -fcommon -MD -MT CMakeFiles/pg_escpr.dir/home/runner/work/printgo/printgo/native/src/compat/android_compat.c.o -MF CMakeFiles/pg_escpr.dir/home/runner/work/printgo/printgo/native/src/compat/android_compat.c.o.d -o CMakeFiles/pg_escpr.dir/home/runner/work/printgo/printgo/native/src/compat/android_compat.c.o -c /home/runner/work/printgo/printgo/native/src/compat/android_compat.c
+/home/runner/work/printgo/printgo/native/src/compat/android_compat.c:8:10: fatal error: 'sys/timeb.h' file not found
+    8 | #include <sys/timeb.h>
+      |          ^~~~~~~~~~~~~
+1 error generated.
+[21/24] Building C object CMakeFiles/pg_escpr.dir/home/runner/work/printgo/printgo/native-out/work/src/escpr/src/linux_cmn.c.o
+[22/24] Building C object CMakeFiles/pg_escpr.dir/home/runner/work/printgo/printgo/native-out/work/src/escpr/src/xfifo.c.o
+ninja: build stopped: cannot make progress due to previous errors.

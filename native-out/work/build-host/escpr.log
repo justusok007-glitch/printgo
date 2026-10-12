@@ -1,0 +1,39 @@
+-- The C compiler identification is GNU 13.3.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Configuring done (0.2s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/runner/work/printgo/printgo/native-out/work/build-host/escpr
+ninja: Entering directory `/home/runner/work/printgo/printgo/native-out/work/build-host/escpr'
+[1/24] Building C object CMakeFiles/escpr.dir/home/runner/work/printgo/printgo/native-out/work/src/escpr/lib/epson-escpr-dbg.c.o
+[2/24] Building C object CMakeFiles/escpr.dir/home/runner/work/printgo/printgo/native-out/work/src/escpr/lib/epson-escpr-mem.c.o
+[3/24] Building C object CMakeFiles/escpr.dir/home/runner/work/printgo/printgo/native-out/work/src/escpr/lib/epson-cbt.c.o
+[4/24] Building C object CMakeFiles/escpr.dir/home/runner/work/printgo/printgo/native-out/work/src/escpr/lib/epson-escpr-services.c.o
+[5/24] Building C object CMakeFiles/escpr.dir/home/runner/work/printgo/printgo/native-out/work/src/escpr/lib/epson-escpr-api.c.o
+[6/24] Building C object CMakeFiles/escpr.dir/home/runner/work/printgo/printgo/native-out/work/src/escpr/lib/epson-layout.c.o
+[7/24] Building C object CMakeFiles/escpr.dir/home/runner/work/printgo/printgo/native-out/work/src/escpr/lib/epson-escpr-pm.c.o
+[8/24] Building C object CMakeFiles/escpr.dir/home/runner/work/printgo/printgo/native-out/work/src/escpr/lib/epson-net-raw.c.o
+[9/24] Building C object CMakeFiles/escpr.dir/home/runner/work/printgo/printgo/native-out/work/src/escpr/lib/epson-net-lpr.c.o
+[10/24] Building C object CMakeFiles/escpr.dir/home/runner/work/printgo/printgo/native-out/work/src/escpr/lib/epson-protocol.c.o
+[11/24] Building C object CMakeFiles/pg_escpr.dir/home/runner/work/printgo/printgo/native-out/work/src/escpr/src/filter.c.o
+[12/24] Building C object CMakeFiles/pg_escpr.dir/home/runner/work/printgo/printgo/native-out/work/src/escpr/src/debug.c.o
+[13/24] Building C object CMakeFiles/pg_escpr.dir/home/runner/work/printgo/printgo/native-out/work/src/escpr/src/str.c.o
+[14/24] Building C object CMakeFiles/escpr.dir/home/runner/work/printgo/printgo/native-out/work/src/escpr/lib/epson-usb.c.o
+[15/24] Building C object CMakeFiles/escpr.dir/home/runner/work/printgo/printgo/native-out/work/src/escpr/lib/epson-net-snmp.c.o
+[16/24] Building C object CMakeFiles/pg_escpr.dir/home/runner/work/printgo/printgo/native-out/work/src/escpr/src/mem.c.o
+[17/24] Building C object CMakeFiles/pg_escpr.dir/home/runner/work/printgo/printgo/native-out/work/src/escpr/src/err.c.o
+[18/24] Linking C static library libescpr.a
+[19/24] Building C object CMakeFiles/pg_escpr.dir/home/runner/work/printgo/printgo/native-out/work/src/escpr/src/linux_cmn.c.o
+[20/24] Building C object CMakeFiles/pg_escpr.dir/home/runner/work/printgo/printgo/native/src/compat/android_compat.c.o
+[21/24] Building C object CMakeFiles/pg_escpr.dir/home/runner/work/printgo/printgo/native-out/work/src/escpr/src/custompage.c.o
+[22/24] Building C object CMakeFiles/pg_escpr.dir/home/runner/work/printgo/printgo/native-out/work/src/escpr/src/xfifo.c.o
+[23/24] Linking C executable pg_escpr
+[23/24] Install the project...
+-- Install configuration: "Release"
+-- Installing: /home/runner/work/printgo/printgo/native-out/host/bin/./pg_escpr

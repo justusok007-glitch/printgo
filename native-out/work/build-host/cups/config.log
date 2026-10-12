@@ -1,0 +1,400 @@
+ac_cv_func_statfs=yes
+ac_cv_func_statvfs=yes
+ac_cv_func_strdup=yes
+ac_cv_func_strlcat=yes
+ac_cv_func_strlcpy=yes
+ac_cv_func_strtoll=yes
+ac_cv_func_timegm=yes
+ac_cv_func_vsnprintf=yes
+ac_cv_func_vsyslog=yes
+ac_cv_func_wait3=yes
+ac_cv_func_waitpid=yes
+ac_cv_header_crypt_h=yes
+ac_cv_header_iconv_h=no
+ac_cv_header_inttypes_h=yes
+ac_cv_header_langinfo_h=yes
+ac_cv_header_malloc_h=yes
+ac_cv_header_pthread_h=yes
+ac_cv_header_resolv_h=yes
+ac_cv_header_shadow_h=yes
+ac_cv_header_stdint_h=yes
+ac_cv_header_stdio_h=yes
+ac_cv_header_stdlib_h=yes
+ac_cv_header_string_h=yes
+ac_cv_header_strings_h=yes
+ac_cv_header_sys_ioctl_h=yes
+ac_cv_header_sys_mount_h=yes
+ac_cv_header_sys_param_h=yes
+ac_cv_header_sys_sockio_h=no
+ac_cv_header_sys_stat_h=yes
+ac_cv_header_sys_statfs_h=yes
+ac_cv_header_sys_statvfs_h=yes
+ac_cv_header_sys_types_h=yes
+ac_cv_header_sys_ucred_h=no
+ac_cv_header_sys_vfs_h=yes
+ac_cv_header_unistd_h=yes
+ac_cv_header_zlib_h=yes
+ac_cv_host=x86_64-pc-linux-gnu
+ac_cv_lib_z_gzgets=yes
+ac_cv_lib_z_inflateCopy=yes
+ac_cv_member_struct_sockaddr_sa_len=no
+ac_cv_objext=o
+ac_cv_path_AR=/usr/bin/ar
+ac_cv_path_CHMOD=/usr/bin/chmod
+ac_cv_path_CODE_SIGN=/usr/bin/true
+ac_cv_path_GZIPPROG=/usr/bin/gzip
+ac_cv_path_LD=/usr/bin/ld
+ac_cv_path_LN=/usr/bin/ln
+ac_cv_path_MKDIR=/usr/bin/mkdir
+ac_cv_path_MV=/usr/bin/mv
+ac_cv_path_RM=/usr/bin/rm
+ac_cv_path_RMDIR=/usr/bin/rmdir
+ac_cv_path_SED=/usr/bin/sed
+ac_cv_path_XDGOPEN=/usr/bin/xdg-open
+ac_cv_path_ac_pt_PKGCONFIG=/usr/bin/pkg-config
+ac_cv_prog_AWK=gawk
+ac_cv_prog_CPP='cc -E'
+ac_cv_prog_ac_ct_CC=cc
+ac_cv_prog_ac_ct_RANLIB=ranlib
+ac_cv_prog_cc_c11=
+ac_cv_prog_cc_g=yes
+ac_cv_prog_cc_stdc=
+ac_cv_prog_cxx_11=no
+ac_cv_prog_cxx_cxx11=
+ac_cv_prog_cxx_g=yes
+ac_cv_prog_cxx_stdcxx=
+ac_cv_search___res_init='none required'
+ac_cv_search_abs='none required'
+ac_cv_search_crypt=-lcrypt
+ac_cv_search_fmod=-lm
+ac_cv_search_getaddrinfo='none required'
+ac_cv_search_gethostbyaddr='none required'
+ac_cv_search_getifaddrs='none required'
+ac_cv_search_getnameinfo='none required'
+ac_cv_search_getspent='none required'
+ac_cv_search_hstrerror='none required'
+ac_cv_search_rresvport_af='none required'
+ac_cv_search_socket='none required'
+ac_cv_sys_file_offset_bits=no
+ac_cv_sys_largefile_CC=no
+
+## ----------------- ##
+## Output variables. ##
+## ----------------- ##
+
+APPARMORLIBS=''
+AR='/usr/bin/ar'
+ARCHFLAGS=''
+ARFLAGS='crvs'
+AWK='gawk'
+BACKLIBS=''
+BUILDDIRS='locale'
+CC='cc'
+CFLAGS=' -D_FORTIFY_SOURCE=3'
+CHMOD='/usr/bin/chmod'
+CODE_SIGN='/usr/bin/true'
+CPP='cc -E'
+CPPFLAGS=''
+CUPS_ACCESS_LOG_LEVEL='none'
+CUPS_API_VERSION='2.4'
+CUPS_BROWSE_LOCAL_PROTOCOLS=''
+CUPS_BROWSING='Yes'
+CUPS_BUILD='cups-2.4.16'
+CUPS_CACHEDIR='/var/cache/cups'
+CUPS_CONFIG_FILE_PERM='640'
+CUPS_CUPSD_FILE_PERM='700'
+CUPS_DATADIR='/usr/share/cups'
+CUPS_DEFAULT_DOMAINSOCKET='/var/run/cups/cups.sock'
+CUPS_DEFAULT_GSSSERVICENAME='host'
+CUPS_DEFAULT_PRINTCAP='/etc/printcap'
+CUPS_DEFAULT_PRINTOPERATOR_AUTH='@SYSTEM'
+CUPS_DEFAULT_SHARED='Yes'
+CUPS_DOCROOT='/usr/share/doc/cups'
+CUPS_ERROR_POLICY='stop-printer'
+CUPS_EXE_FILE_PERM='755'
+CUPS_FATAL_ERRORS='config'
+CUPS_GROUP='lp'
+CUPS_HTMLVIEW='/usr/bin/xdg-open'
+CUPS_LISTEN_DOMAINSOCKET='Listen /var/run/cups/cups.sock'
+CUPS_LOCALEDIR='/usr/share/locale'
+CUPS_LOGDIR='/var/log/cups'
+CUPS_LOG_FILE_PERM='644'
+CUPS_LOG_LEVEL='warn'
+CUPS_MAX_COPIES='9999'
+CUPS_MAX_LOG_SIZE='1m'
+CUPS_PAGE_LOG_FORMAT='PageLogFormat'
+CUPS_PEER_CRED='on'
+CUPS_PKGCONFPATH='/usr/lib/pkgconfig'
+CUPS_PRIMARY_SYSTEM_GROUP='sys'
+CUPS_REQUESTS='/var/spool/cups'
+CUPS_SERVERBIN='/usr/lib/cups'
+CUPS_SERVERKEYCHAIN=''
+CUPS_SERVERROOT='/etc/cups'
+CUPS_SNMP_ADDRESS='Address @LOCAL'
+CUPS_SNMP_COMMUNITY='Community public'
+CUPS_STATEDIR='/var/run/cups'
+CUPS_SYNC_ON_CLOSE='No'
+CUPS_SYSTEM_AUTHKEY=''
+CUPS_SYSTEM_GROUPS='sys root'
+CUPS_USER='lp'
+CUPS_VERSION='2.4.16'
+CUPS_WEBIF='Yes'
+CXX='c++'
+CXXFLAGS=' -D_FORTIFY_SOURCE=3'
+CXXLIBS=''
+DBUSDIR=''
+DBUS_NOTIFIER=''
+DBUS_NOTIFIERLIBS=''
+DEFAULT_IPP_PORT='631'
+DEFAULT_RAW_PRINTING=''
+DEFS='-DHAVE_CONFIG_H'
+DNSSDLIBS=''
+DNSSD_BACKEND=''
+DSO=':'
+DSOFLAGS=''
+DSOXX=':'
+ECHO_C=''
+ECHO_N='-n'
+ECHO_T=''
+EXEEXT=''
+EXIT_TIMEOUT='60'
+EXPORT_LDFLAGS=''
+EXPORT_TLSLIBS=''
+EXTLINKCUPS='-lcups $LIBS'
+GZIPPROG='/usr/bin/gzip'
+ICONDIR='/usr/share/icons'
+INITDDIR=''
+INITDIR='/etc'
+INSTALL='/home/runner/work/printgo/printgo/native-out/work/build-host/cups/install-sh'
+INSTALLSTATIC='installstatic'
+INSTALLXPC=''
+INSTALL_GZIP='-z'
+INSTALL_STRIP='-s'
+INSTALL_SYSV='install-sysv'
+IPPALIASES='http'
+IPPEVECOMMANDS='ippevepcl ippeveps'
+IPPFIND_BIN=''
+IPPFIND_MAN=''
+KRB5CONFIG=''
+LANGUAGES=''
+LARGEFILE='-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE'
+LAUNCHD_DIR=''
+LD='/usr/bin/ld'
+LDARCHFLAGS=''
+LDFLAGS=''
+LD_CC='$(CC)'
+LD_CXX='$(CXX)'
+LIBCUPS='libcups.a'
+LIBCUPSBASE='libcups'
+LIBCUPSIMAGE=''
+LIBCUPSOBJS='$(COREOBJS) $(DRIVEROBJS)'
+LIBCUPSSTATIC='libcups.a'
+LIBGNUTLSCONFIG=''
+LIBGSSAPI=''
+LIBHEADERS='$(COREHEADERS) $(DRIVERHEADERS)'
+LIBHEADERSPRIV='$(COREHEADERSPRIV) $(DRIVERHEADERSPRIV)'
+LIBMALLOC=''
+LIBOBJS=''
+LIBPAPER=''
+LIBS='-lpthread -lm -lcrypt  -lz'
+LIBTOOL=''
+LIBTOOL_CC=''
+LIBTOOL_CXX=''
+LIBTOOL_INSTALL=''
+LIBUSB=''
+LIBWRAP=''
+LIBZ='-lz'
+LINKCUPS='../cups/libcups.a $(LIBS)'
+LN='/usr/bin/ln'
+LOCALTARGET='local'
+LTLIBOBJS=''
+MENUDIR='/usr/share/applications'
+MKDIR='/usr/bin/mkdir'
+MV='/usr/bin/mv'
+OBJEXT='o'
+ONDEMANDFLAGS=''
+ONDEMANDLIBS=''
+OPTIM='-Os -g -fstack-protector-strong -D_GNU_SOURCE'
+PACKAGE_BUGREPORT='https://github.com/openprinting/cups/issues'
+PACKAGE_NAME='CUPS'
+PACKAGE_STRING='CUPS 2.4.16'
+PACKAGE_TARNAME='cups'
+PACKAGE_URL='https://openprinting.github.io/cups'
+PACKAGE_VERSION='2.4.16'
+PAMDIR=''
+PAMFILE='pam.std'
+PAMLIBS=''
+PAMMOD='pam_unknown.so'
+PAMMODAUTH='pam_unknown.so'
+PATH_SEPARATOR=':'
+PIEFLAGS='-fPIE -pie'
+PKGCONFIG='/usr/bin/pkg-config'
+PKGCONFIG_CFLAGS=''
+PKGCONFIG_LIBS='-L/usr/lib64 -lcups'
+PKGCONFIG_LIBS_STATIC=' -lz'
+PKGCONFIG_REQUIRES=''
+PTHREAD_FLAGS='-D_THREAD_SAFE -D_REENTRANT'
+RANLIB='ranlib'
+RCLEVELS='2 3 5'
+RCSTART='81'
+RCSTOP='36'
+RELROFLAGS=''
+RM='/usr/bin/rm'
+RMDIR='/usr/bin/rmdir'
+SED='/usr/bin/sed'
+SERVERLIBS=''
+SHELL='/bin/bash'
+SMFMANIFESTDIR=''
+SNAPDGLIBLIBS=''
+SYSTEMD_DIR=''
+SYSTEMD_WANTED_BY='printer.target multi-user.target'
+TIMEOUTSTARTSEC=''
+TLSFLAGS=''
+TLSLIBS=''
+UNITTESTS=''
+USBQUIRKS=''
+WARNING_OPTIONS='-Wall -Wunused -Wno-char-subscripts -Wno-deprecated-declarations -Wno-format-truncation -Wno-format-y2k -Wno-switch -Wno-unused-result'
+XDGOPEN='/usr/bin/xdg-open'
+XINETD=''
+ac_ct_CC='cc'
+ac_ct_CXX=''
+bindir='/usr/bin'
+build='x86_64-pc-linux-gnu'
+build_alias=''
+build_cpu='x86_64'
+build_os='linux-gnu'
+build_vendor='pc'
+datadir='/usr/share'
+datarootdir='/usr/share'
+docdir='/usr/share/doc/cups'
+dvidir='${docdir}'
+exec_prefix='/usr'
+host='x86_64-pc-linux-gnu'
+host_alias=''
+host_cpu='x86_64'
+host_os='linux-gnu'
+host_vendor='pc'
+htmldir='${docdir}'
+includedir='/usr/include'
+infodir='${datarootdir}/info'
+libdir='/usr/lib64'
+libexecdir='${exec_prefix}/libexec'
+localedir='${datarootdir}/locale'
+localstatedir='/var'
+mandir='/usr/share/man'
+oldincludedir='/usr/include'
+pdfdir='${docdir}'
+prefix='/'
+program_transform_name='s,x,x,'
+psdir='${docdir}'
+runstatedir='${localstatedir}/run'
+sbindir='/usr/sbin'
+sharedstatedir='${prefix}/com'
+sysconfdir='/etc'
+target_alias=''
+
+## ----------- ##
+## confdefs.h. ##
+## ----------- ##
+
+/* confdefs.h */
+#define PACKAGE_NAME "CUPS"
+#define PACKAGE_TARNAME "cups"
+#define PACKAGE_VERSION "2.4.16"
+#define PACKAGE_STRING "CUPS 2.4.16"
+#define PACKAGE_BUGREPORT "https://github.com/openprinting/cups/issues"
+#define PACKAGE_URL "https://openprinting.github.io/cups"
+#define CUPS_SVERSION "CUPS v2.4.16"
+#define CUPS_MINIMAL "CUPS/2.4.16"
+#define HAVE_ABS 1
+#define HAVE_STDIO_H 1
+#define HAVE_STDLIB_H 1
+#define HAVE_STRING_H 1
+#define HAVE_INTTYPES_H 1
+#define HAVE_STDINT_H 1
+#define HAVE_STRINGS_H 1
+#define HAVE_SYS_STAT_H 1
+#define HAVE_SYS_TYPES_H 1
+#define HAVE_UNISTD_H 1
+#define STDC_HEADERS 1
+#define HAVE_CRYPT_H 1
+#define HAVE_LANGINFO_H 1
+#define HAVE_MALLOC_H 1
+#define HAVE_SHADOW_H 1
+#define HAVE_STDINT_H 1
+#define HAVE_SYS_IOCTL_H 1
+#define HAVE_SYS_PARAM_H 1
+#define HAVE_SYS_MOUNT_H 1
+#define HAVE_SYS_STATFS_H 1
+#define HAVE_SYS_STATVFS_H 1
+#define HAVE_SYS_VFS_H 1
+#define HAVE_STATFS 1
+#define HAVE_STATVFS 1
+#define HAVE_STRDUP 1
+#define HAVE_SNPRINTF 1
+#define HAVE_VSNPRINTF 1
+#define HAVE_STRLCAT 1
+#define HAVE_STRLCPY 1
+#define HAVE_RANDOM 1
+#define HAVE_LRAND48 1
+#define HAVE_ARC4RANDOM 1
+#define HAVE_GETEUID 1
+#define HAVE_SETPGID 1
+#define HAVE_VSYSLOG 1
+#define HAVE_SIGACTION 1
+#define HAVE_WAITPID 1
+#define HAVE_WAIT3 1
+#define HAVE_POSIX_SPAWN 1
+#define HAVE_GETGROUPLIST 1
+#define HAVE_TM_GMTOFF 1
+#define HAVE_TIMEGM 1
+#define HAVE_LIBZ 1
+#define HAVE_INFLATECOPY 1
+#define CUPS_DEFAULT_PRINTOPERATOR_AUTH "@SYSTEM"
+#define CUPS_DEFAULT_SYSTEM_AUTHKEY ""
+#define CUPS_BINDIR "/usr/bin"
+#define CUPS_SBINDIR "/usr/sbin"
+#define CUPS_CACHEDIR "/var/cache/cups"
+#define CUPS_DATADIR "/usr/share/cups"
+#define CUPS_DOCROOT "/usr/share/doc/cups"
+#define CUPS_LOCALEDIR "/usr/share/locale"
+#define CUPS_PKGCONFPATH "/usr/lib/pkgconfig"
+#define CUPS_LOGDIR "/var/log/cups"
+#define CUPS_REQUESTS "/var/spool/cups"
+#define CUPS_SERVERBIN "/usr/lib/cups"
+#define CUPS_SERVERROOT "/etc/cups"
+#define CUPS_STATEDIR "/var/run/cups"
+#define HAVE_RESOLV_H 1
+#define HAVE_GETIFADDRS 1
+#define HAVE_HSTRERROR 1
+#define HAVE_RRESVPORT_AF 1
+#define HAVE_RES_INIT 1
+#define HAVE_GETADDRINFO 1
+#define HAVE_GETNAMEINFO 1
+#define CUPS_DEFAULT_DOMAINSOCKET "/var/run/cups/cups.sock"
+#define HAVE_POLL 1
+#define HAVE_EPOLL 1
+#define CUPS_DEFAULT_GSSSERVICENAME "host"
+#define HAVE_PTHREAD_H 1
+#define HAVE_LONG_LONG 1
+#define HAVE_STRTOLL 1
+#define CUPS_DEFAULT_CONFIG_FILE_PERM 0640
+#define CUPS_DEFAULT_LOG_FILE_PERM 0644
+#define CUPS_DEFAULT_MAX_LOG_SIZE "1m"
+#define CUPS_DEFAULT_ERROR_POLICY "stop-printer"
+#define CUPS_DEFAULT_FATAL_ERRORS "config"
+#define CUPS_DEFAULT_LOG_LEVEL "warn"
+#define CUPS_DEFAULT_PEER_CRED "on"
+#define CUPS_DEFAULT_ACCESS_LOG_LEVEL "none"
+#define CUPS_DEFAULT_BROWSING 1
+#define CUPS_DEFAULT_BROWSE_LOCAL_PROTOCOLS ""
+#define CUPS_DEFAULT_DEFAULT_SHARED 1
+#define CUPS_DEFAULT_USER "lp"
+#define CUPS_DEFAULT_GROUP "lp"
+#define CUPS_DEFAULT_SYSTEM_GROUPS "sys root"
+#define CUPS_DEFAULT_PRINTCAP "/etc/printcap"
+#define CUPS_DEFAULT_MAX_COPIES 9999
+#define CUPS_DEFAULT_IPP_PORT 631
+#define CUPS_DEFAULT_WEBIF 1
+
+configure: exit 0

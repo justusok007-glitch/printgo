@@ -1,0 +1,400 @@
+Call Stack (most recent call first):
+  /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg/CMakeFiles/3.31.6/CMakeSystem.cmake:6 (include)
+  /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg/CMakeFiles/CMakeScratch/TryCompile-3FYu2m/CMakeLists.txt:2 (project)
+
+
+CMake Deprecation Warning at /usr/local/lib/android/sdk/ndk/27.3.13750724/build/cmake/android-legacy.toolchain.cmake:35 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+Call Stack (most recent call first):
+  /usr/local/lib/android/sdk/ndk/27.3.13750724/build/cmake/android.toolchain.cmake:55 (include)
+  /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg/CMakeFiles/3.31.6/CMakeSystem.cmake:6 (include)
+  /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg/CMakeFiles/CMakeScratch/TryCompile-3FYu2m/CMakeLists.txt:2 (project)
+
+
+CMake Deprecation Warning at /usr/local/lib/android/sdk/ndk/27.3.13750724/build/cmake/flags.cmake:18 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.31/Modules/Platform/Android-Clang.cmake:23 (include)
+  /usr/local/share/cmake-3.31/Modules/Platform/Android-Clang-C.cmake:1 (include)
+  /usr/local/share/cmake-3.31/Modules/CMakeCInformation.cmake:48 (include)
+  /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg/CMakeFiles/CMakeScratch/TryCompile-3FYu2m/CMakeLists.txt:2 (project)
+
+
+-- Check size of size_t - done
+-- Check size of unsigned long
+CMake Deprecation Warning at /usr/local/lib/android/sdk/ndk/27.3.13750724/build/cmake/android.toolchain.cmake:35 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+Call Stack (most recent call first):
+  /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg/CMakeFiles/3.31.6/CMakeSystem.cmake:6 (include)
+  /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg/CMakeFiles/CMakeScratch/TryCompile-jkMrgf/CMakeLists.txt:2 (project)
+
+
+CMake Deprecation Warning at /usr/local/lib/android/sdk/ndk/27.3.13750724/build/cmake/android-legacy.toolchain.cmake:35 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+Call Stack (most recent call first):
+  /usr/local/lib/android/sdk/ndk/27.3.13750724/build/cmake/android.toolchain.cmake:55 (include)
+  /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg/CMakeFiles/3.31.6/CMakeSystem.cmake:6 (include)
+  /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg/CMakeFiles/CMakeScratch/TryCompile-jkMrgf/CMakeLists.txt:2 (project)
+
+
+CMake Deprecation Warning at /usr/local/lib/android/sdk/ndk/27.3.13750724/build/cmake/flags.cmake:18 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.31/Modules/Platform/Android-Clang.cmake:23 (include)
+  /usr/local/share/cmake-3.31/Modules/Platform/Android-Clang-C.cmake:1 (include)
+  /usr/local/share/cmake-3.31/Modules/CMakeCInformation.cmake:48 (include)
+  /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg/CMakeFiles/CMakeScratch/TryCompile-jkMrgf/CMakeLists.txt:2 (project)
+
+
+-- Check size of unsigned long - done
+-- Performing Test HAVE_BUILTIN_CTZL
+CMake Deprecation Warning at /usr/local/lib/android/sdk/ndk/27.3.13750724/build/cmake/android.toolchain.cmake:35 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+Call Stack (most recent call first):
+  /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg/CMakeFiles/3.31.6/CMakeSystem.cmake:6 (include)
+  /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg/CMakeFiles/CMakeScratch/TryCompile-KsehLa/CMakeLists.txt:2 (project)
+
+
+CMake Deprecation Warning at /usr/local/lib/android/sdk/ndk/27.3.13750724/build/cmake/android-legacy.toolchain.cmake:35 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+Call Stack (most recent call first):
+  /usr/local/lib/android/sdk/ndk/27.3.13750724/build/cmake/android.toolchain.cmake:55 (include)
+  /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg/CMakeFiles/3.31.6/CMakeSystem.cmake:6 (include)
+  /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg/CMakeFiles/CMakeScratch/TryCompile-KsehLa/CMakeLists.txt:2 (project)
+
+
+CMake Deprecation Warning at /usr/local/lib/android/sdk/ndk/27.3.13750724/build/cmake/flags.cmake:18 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.31/Modules/Platform/Android-Clang.cmake:23 (include)
+  /usr/local/share/cmake-3.31/Modules/Platform/Android-Clang-C.cmake:1 (include)
+  /usr/local/share/cmake-3.31/Modules/CMakeCInformation.cmake:48 (include)
+  /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg/CMakeFiles/CMakeScratch/TryCompile-KsehLa/CMakeLists.txt:2 (project)
+
+
+-- Performing Test HAVE_BUILTIN_CTZL - Success
+-- Performing Test HIDDEN_WORKS
+CMake Deprecation Warning at /usr/local/lib/android/sdk/ndk/27.3.13750724/build/cmake/android.toolchain.cmake:35 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+Call Stack (most recent call first):
+  /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg/CMakeFiles/3.31.6/CMakeSystem.cmake:6 (include)
+  /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg/CMakeFiles/CMakeScratch/TryCompile-Y9J07A/CMakeLists.txt:2 (project)
+
+
+CMake Deprecation Warning at /usr/local/lib/android/sdk/ndk/27.3.13750724/build/cmake/android-legacy.toolchain.cmake:35 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+Call Stack (most recent call first):
+  /usr/local/lib/android/sdk/ndk/27.3.13750724/build/cmake/android.toolchain.cmake:55 (include)
+  /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg/CMakeFiles/3.31.6/CMakeSystem.cmake:6 (include)
+  /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg/CMakeFiles/CMakeScratch/TryCompile-Y9J07A/CMakeLists.txt:2 (project)
+
+
+CMake Deprecation Warning at /usr/local/lib/android/sdk/ndk/27.3.13750724/build/cmake/flags.cmake:18 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.31/Modules/Platform/Android-Clang.cmake:23 (include)
+  /usr/local/share/cmake-3.31/Modules/Platform/Android-Clang-C.cmake:1 (include)
+  /usr/local/share/cmake-3.31/Modules/CMakeCInformation.cmake:48 (include)
+  /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg/CMakeFiles/CMakeScratch/TryCompile-Y9J07A/CMakeLists.txt:2 (project)
+
+
+-- Performing Test HIDDEN_WORKS - Success
+-- HIDDEN = __attribute__((visibility("hidden")))
+-- Performing Test INLINE_WORKS
+CMake Deprecation Warning at /usr/local/lib/android/sdk/ndk/27.3.13750724/build/cmake/android.toolchain.cmake:35 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+Call Stack (most recent call first):
+  /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg/CMakeFiles/3.31.6/CMakeSystem.cmake:6 (include)
+  /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg/CMakeFiles/CMakeScratch/TryCompile-V3lWnG/CMakeLists.txt:2 (project)
+
+
+CMake Deprecation Warning at /usr/local/lib/android/sdk/ndk/27.3.13750724/build/cmake/android-legacy.toolchain.cmake:35 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+Call Stack (most recent call first):
+  /usr/local/lib/android/sdk/ndk/27.3.13750724/build/cmake/android.toolchain.cmake:55 (include)
+  /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg/CMakeFiles/3.31.6/CMakeSystem.cmake:6 (include)
+  /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg/CMakeFiles/CMakeScratch/TryCompile-V3lWnG/CMakeLists.txt:2 (project)
+
+
+CMake Deprecation Warning at /usr/local/lib/android/sdk/ndk/27.3.13750724/build/cmake/flags.cmake:18 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.31/Modules/Platform/Android-Clang.cmake:23 (include)
+  /usr/local/share/cmake-3.31/Modules/Platform/Android-Clang-C.cmake:1 (include)
+  /usr/local/share/cmake-3.31/Modules/CMakeCInformation.cmake:48 (include)
+  /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg/CMakeFiles/CMakeScratch/TryCompile-V3lWnG/CMakeLists.txt:2 (project)
+
+
+-- Performing Test INLINE_WORKS - Success
+-- INLINE = __inline__ __attribute__((always_inline)) (FORCE_INLINE = 1)
+-- Performing Test HAVE_THREAD_LOCAL
+CMake Deprecation Warning at /usr/local/lib/android/sdk/ndk/27.3.13750724/build/cmake/android.toolchain.cmake:35 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+Call Stack (most recent call first):
+  /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg/CMakeFiles/3.31.6/CMakeSystem.cmake:6 (include)
+  /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg/CMakeFiles/CMakeScratch/TryCompile-og9CQ9/CMakeLists.txt:2 (project)
+
+
+CMake Deprecation Warning at /usr/local/lib/android/sdk/ndk/27.3.13750724/build/cmake/android-legacy.toolchain.cmake:35 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+Call Stack (most recent call first):
+  /usr/local/lib/android/sdk/ndk/27.3.13750724/build/cmake/android.toolchain.cmake:55 (include)
+  /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg/CMakeFiles/3.31.6/CMakeSystem.cmake:6 (include)
+  /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg/CMakeFiles/CMakeScratch/TryCompile-og9CQ9/CMakeLists.txt:2 (project)
+
+
+CMake Deprecation Warning at /usr/local/lib/android/sdk/ndk/27.3.13750724/build/cmake/flags.cmake:18 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.31/Modules/Platform/Android-Clang.cmake:23 (include)
+  /usr/local/share/cmake-3.31/Modules/Platform/Android-Clang-C.cmake:1 (include)
+  /usr/local/share/cmake-3.31/Modules/CMakeCInformation.cmake:48 (include)
+  /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg/CMakeFiles/CMakeScratch/TryCompile-og9CQ9/CMakeLists.txt:2 (project)
+
+
+-- Performing Test HAVE_THREAD_LOCAL - Success
+-- THREAD_LOCAL = __thread
+-- Performing Test HAVE_VERSION_SCRIPT
+CMake Deprecation Warning at /usr/local/lib/android/sdk/ndk/27.3.13750724/build/cmake/android.toolchain.cmake:35 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+Call Stack (most recent call first):
+  /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg/CMakeFiles/3.31.6/CMakeSystem.cmake:6 (include)
+  /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg/CMakeFiles/CMakeScratch/TryCompile-txfcsh/CMakeLists.txt:2 (project)
+
+
+CMake Deprecation Warning at /usr/local/lib/android/sdk/ndk/27.3.13750724/build/cmake/android-legacy.toolchain.cmake:35 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+Call Stack (most recent call first):
+  /usr/local/lib/android/sdk/ndk/27.3.13750724/build/cmake/android.toolchain.cmake:55 (include)
+  /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg/CMakeFiles/3.31.6/CMakeSystem.cmake:6 (include)
+  /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg/CMakeFiles/CMakeScratch/TryCompile-txfcsh/CMakeLists.txt:2 (project)
+
+
+CMake Deprecation Warning at /usr/local/lib/android/sdk/ndk/27.3.13750724/build/cmake/flags.cmake:18 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+Call Stack (most recent call first):
+  /usr/local/share/cmake-3.31/Modules/Platform/Android-Clang.cmake:23 (include)
+  /usr/local/share/cmake-3.31/Modules/Platform/Android-Clang-C.cmake:1 (include)
+  /usr/local/share/cmake-3.31/Modules/CMakeCInformation.cmake:48 (include)
+  /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg/CMakeFiles/CMakeScratch/TryCompile-txfcsh/CMakeLists.txt:2 (project)
+
+
+-- Performing Test HAVE_VERSION_SCRIPT - Success
+-- Linker supports GNU-style version scripts
+-- CMAKE_EXECUTABLE_SUFFIX = 
+-- SIMD extensions: None (WITH_SIMD = 0)
+-- FLOATTEST8 = fp-contract
+-- FLOATTEST12 = fp-contract
+-- Configuring done (1.6s)
+-- Generating done (0.0s)
+CMake Warning:
+  Manually-specified variables were not used by the project:
+
+    WITH_TESTS
+    WITH_TOOLS
+
+
+-- Build files have been written to: /home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg
+ninja: Entering directory `/home/runner/work/printgo/printgo/native-out/work/build-arm64-v8a/jpeg'
+[1/102] Building C object CMakeFiles/jpeg12-static.dir/src/jcapistd.c.o
+[2/102] Building C object CMakeFiles/jpeg12-static.dir/src/jclossls.c.o
+[3/102] Building C object CMakeFiles/jpeg12-static.dir/src/jcdiffct.c.o
+[4/102] Building C object CMakeFiles/jpeg12-static.dir/src/jcmainct.c.o
+[5/102] Building C object CMakeFiles/jpeg12-static.dir/src/jcprepct.c.o
+[6/102] Building C object CMakeFiles/jpeg12-static.dir/src/jccolor.c.o
+[7/102] Building C object CMakeFiles/jpeg12-static.dir/src/jcsample.c.o
+[8/102] Building C object CMakeFiles/jpeg12-static.dir/src/jdapistd.c.o
+[9/102] Building C object CMakeFiles/jpeg12-static.dir/src/jddiffct.c.o
+[10/102] Building C object CMakeFiles/jpeg12-static.dir/src/jdlossls.c.o
+[11/102] Building C object CMakeFiles/jpeg12-static.dir/src/jdpostct.c.o
+[12/102] Building C object CMakeFiles/jpeg12-static.dir/src/jdmainct.c.o
+[13/102] Building C object CMakeFiles/jpeg12-static.dir/src/jdcolor.c.o
+[14/102] Building C object CMakeFiles/jpeg12-static.dir/src/jutils.c.o
+[15/102] Building C object CMakeFiles/jpeg12-static.dir/src/jdsample.c.o
+[16/102] Building C object CMakeFiles/jpeg12-static.dir/src/jcdctmgr.c.o
+[17/102] Building C object CMakeFiles/jpeg12-static.dir/src/jccoefct.c.o
+[18/102] Building C object CMakeFiles/jpeg12-static.dir/src/jddctmgr.c.o
+[19/102] Building C object CMakeFiles/jpeg12-static.dir/src/jfdctfst.c.o
+[20/102] Building C object CMakeFiles/jpeg12-static.dir/src/jdcoefct.c.o
+[21/102] Building C object CMakeFiles/jpeg12-static.dir/src/jfdctint.c.o
+[22/102] Building C object CMakeFiles/jpeg12-static.dir/src/jidctfst.c.o
+[23/102] Building C object CMakeFiles/jpeg12-static.dir/src/jidctflt.c.o
+[24/102] Building C object CMakeFiles/jpeg12-static.dir/src/jidctred.c.o
+[25/102] Building C object CMakeFiles/jpeg12-static.dir/src/jdmerge.c.o
+[26/102] Building C object CMakeFiles/jpeg12-static.dir/src/jquant1.c.o
+[27/102] Building C object CMakeFiles/jpeg16-static.dir/src/jcapistd.c.o
+[28/102] Building C object CMakeFiles/jpeg16-static.dir/src/jccolor.c.o
+[29/102] Building C object CMakeFiles/jpeg12-static.dir/src/jidctint.c.o
+[30/102] Building C object CMakeFiles/jpeg16-static.dir/src/jcdiffct.c.o
+[31/102] Building C object CMakeFiles/jpeg12-static.dir/src/jquant2.c.o
+[32/102] Building C object CMakeFiles/jpeg16-static.dir/src/jcmainct.c.o
+[33/102] Building C object CMakeFiles/jpeg16-static.dir/src/jclossls.c.o
+[34/102] Building C object CMakeFiles/jpeg16-static.dir/src/jcprepct.c.o
+[35/102] Building C object CMakeFiles/jpeg16-static.dir/src/jdapistd.c.o
+[36/102] Building C object CMakeFiles/jpeg16-static.dir/src/jcsample.c.o
+[37/102] Building C object CMakeFiles/jpeg16-static.dir/src/jdlossls.c.o
+[38/102] Building C object CMakeFiles/jpeg16-static.dir/src/jddiffct.c.o
+[39/102] Building C object CMakeFiles/jpeg16-static.dir/src/jdpostct.c.o
+[40/102] Building C object CMakeFiles/jpeg16-static.dir/src/jdmainct.c.o
+[41/102] Building C object CMakeFiles/jpeg16-static.dir/src/jdcolor.c.o
+[42/102] Building C object CMakeFiles/jpeg-static.dir/src/jcapistd.c.o
+[43/102] Building C object CMakeFiles/jpeg16-static.dir/src/jutils.c.o
+[44/102] Building C object CMakeFiles/jpeg16-static.dir/src/jdsample.c.o
+[45/102] Building C object CMakeFiles/jpeg-static.dir/src/jcdiffct.c.o
+[46/102] Building C object CMakeFiles/jpeg-static.dir/src/jcmainct.c.o
+[47/102] Building C object CMakeFiles/jpeg-static.dir/src/jccolor.c.o
+[48/102] Building C object CMakeFiles/jpeg-static.dir/src/jclossls.c.o
+[49/102] Building C object CMakeFiles/jpeg-static.dir/src/jcprepct.c.o
+[50/102] Building C object CMakeFiles/jpeg-static.dir/src/jdapistd.c.o
+[51/102] Building C object CMakeFiles/jpeg-static.dir/src/jcsample.c.o
+[52/102] Building C object CMakeFiles/jpeg-static.dir/src/jddiffct.c.o
+[53/102] Building C object CMakeFiles/jpeg-static.dir/src/jdlossls.c.o
+[54/102] Building C object CMakeFiles/jpeg-static.dir/src/jdpostct.c.o
+[55/102] Building C object CMakeFiles/jpeg-static.dir/src/jdcolor.c.o
+[56/102] Building C object CMakeFiles/jpeg-static.dir/src/jdmainct.c.o
+[57/102] Building C object CMakeFiles/jpeg-static.dir/src/jutils.c.o
+[58/102] Building C object CMakeFiles/jpeg-static.dir/src/jdsample.c.o
+[59/102] Building C object CMakeFiles/jpeg-static.dir/src/jccoefct.c.o
+[60/102] Building C object CMakeFiles/jpeg-static.dir/src/jcdctmgr.c.o
+[61/102] Building C object CMakeFiles/jpeg-static.dir/src/jddctmgr.c.o
+[62/102] Building C object CMakeFiles/jpeg-static.dir/src/jdcoefct.c.o
+[63/102] Building C object CMakeFiles/jpeg-static.dir/src/jfdctint.c.o
+[64/102] Building C object CMakeFiles/jpeg-static.dir/src/jfdctfst.c.o
+[65/102] Building C object CMakeFiles/jpeg-static.dir/src/jidctflt.c.o
+[66/102] Building C object CMakeFiles/jpeg-static.dir/src/jidctfst.c.o
+[67/102] Building C object CMakeFiles/jpeg-static.dir/src/jdmerge.c.o
+[68/102] Building C object CMakeFiles/jpeg-static.dir/src/jidctred.c.o
+[69/102] Building C object CMakeFiles/jpeg-static.dir/src/jquant1.c.o
+[70/102] Building C object CMakeFiles/jpeg-static.dir/src/jcapimin.c.o
+[71/102] Building C object CMakeFiles/jpeg-static.dir/src/jidctint.c.o
+[72/102] Building C object CMakeFiles/jpeg-static.dir/src/jcicc.c.o
+[73/102] Building C object CMakeFiles/jpeg-static.dir/src/jcinit.c.o
+[74/102] Building C object CMakeFiles/jpeg-static.dir/src/jclhuff.c.o
+[75/102] Building C object CMakeFiles/jpeg-static.dir/src/jquant2.c.o
+[76/102] Building C object CMakeFiles/jpeg-static.dir/src/jcmaster.c.o
+[77/102] Building C object CMakeFiles/jpeg-static.dir/src/jcomapi.c.o
+[78/102] Building C object CMakeFiles/jpeg-static.dir/src/jcparam.c.o
+[79/102] Building C object CMakeFiles/jpeg-static.dir/src/jcmarker.c.o
+[80/102] Building C object CMakeFiles/jpeg-static.dir/src/jcphuff.c.o
+[81/102] Building C object CMakeFiles/jpeg-static.dir/src/jctrans.c.o
+[82/102] Building C object CMakeFiles/jpeg-static.dir/src/jdapimin.c.o
+[83/102] Building C object CMakeFiles/jpeg-static.dir/src/jdatasrc.c.o
+[84/102] Building C object CMakeFiles/jpeg-static.dir/src/jdatadst.c.o
+[85/102] Building C object CMakeFiles/jpeg-static.dir/src/jdicc.c.o
+[86/102] Building C object CMakeFiles/jpeg-static.dir/src/jdinput.c.o
+[87/102] Building C object CMakeFiles/jpeg-static.dir/src/jdhuff.c.o
+[88/102] Building C object CMakeFiles/jpeg-static.dir/src/jdlhuff.c.o
+[89/102] Building C object CMakeFiles/jpeg-static.dir/src/jdmaster.c.o
+[90/102] Building C object CMakeFiles/jpeg-static.dir/src/jdphuff.c.o
+[91/102] Building C object CMakeFiles/jpeg-static.dir/src/jdtrans.c.o
+[92/102] Building C object CMakeFiles/jpeg-static.dir/src/jerror.c.o
+[93/102] Building C object CMakeFiles/jpeg-static.dir/src/jfdctflt.c.o
+[94/102] Building C object CMakeFiles/jpeg-static.dir/src/jmemmgr.c.o
+[95/102] Building C object CMakeFiles/jpeg-static.dir/src/jdmarker.c.o
+[96/102] Building C object CMakeFiles/jpeg-static.dir/src/jpeg_nbits.c.o
+[97/102] Building C object CMakeFiles/jpeg-static.dir/src/jmemnobs.c.o
+[98/102] Building C object CMakeFiles/jpeg-static.dir/src/jaricom.c.o
+[99/102] Building C object CMakeFiles/jpeg-static.dir/src/jdarith.c.o
+[100/102] Building C object CMakeFiles/jpeg-static.dir/src/jcarith.c.o
+[101/102] Building C object CMakeFiles/jpeg-static.dir/src/jchuff.c.o
+[102/102] Linking C static library libjpeg.a

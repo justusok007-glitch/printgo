@@ -1,0 +1,73 @@
+-- The C compiler identification is GNU 13.3.0
+-- The CXX compiler identification is GNU 13.3.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Configuring done (0.7s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/runner/work/printgo/printgo/native-out/work/build-host/hpcups
+ninja: Entering directory `/home/runner/work/printgo/printgo/native-out/work/build-host/hpcups'
+[1/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/Compressor.cpp.o
+[2/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/Mode2.cpp.o
+[3/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/dbuscomm.cpp.o
+[4/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/Mode3.cpp.o
+[5/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/Mode9.cpp.o
+[6/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/Mode10.cpp.o
+[7/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/ModeJbig.cpp.o
+[8/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/HPCupsFilter.cpp.o
+[9/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/ModeDeltaPlus.cpp.o
+[10/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/EncapsulatorFactory.cpp.o
+[11/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/Encapsulator.cpp.o
+[12/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/Pcl3.cpp.o
+[13/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/Pcl3Gui.cpp.o
+[14/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/Pcl3Gui2.cpp.o
+[15/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/LJMono.cpp.o
+[16/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/LJColor.cpp.o
+[17/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/LJFastRaster.cpp.o
+[18/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/LJJetReady.cpp.o
+[19/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/LJZxStream.cpp.o
+[20/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/LJZjStream.cpp.o
+[21/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/Pipeline.cpp.o
+[22/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/Job.cpp.o
+[23/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/Processor.cpp.o
+[24/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/ErnieFilter.cpp.o
+[25/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/RasterSender.cpp.o
+[26/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/Scaler.cpp.o
+[27/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/dj400ColorMaps.cpp.o
+[28/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/dj600ColorMaps.cpp.o
+[29/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/dj970ColorMaps.cpp.o
+[30/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/ColorMatcher.cpp.o
+[31/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/Halftoner.cpp.o
+[32/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/BreakTables.cpp.o
+[33/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/dj8xxColorMaps.cpp.o
+[34/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/Utils.cpp.o
+[35/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/dj4100ColorMaps.cpp.o
+[36/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/SystemServices.cpp.o
+[37/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/QuickConnect.cpp.o
+[38/52] Building C object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/jccolor.c.o
+[39/52] Building C object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/jdatadbf.c.o
+[40/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/LidilCompress.cpp.o
+[41/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/ModeJpeg.cpp.o
+[42/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/dj3320ColorMaps.cpp.o
+[43/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/dj3600ColorMaps.cpp.o
+[44/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/Hbpl1.cpp.o
+[45/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/Hbpl1_Wrapper.cpp.o
+[46/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/genJPEGStrips.cpp.o
+[47/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/RunLenEncoding.cpp.o
+[48/52] Building C object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/common/utils.c.o
+[49/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/Lidil.cpp.o
+[50/52] Building CXX object CMakeFiles/pg_hpcups.dir/home/runner/work/printgo/printgo/native-out/work/src/hplip/prnt/hpcups/genPCLm.cpp.o
+[51/52] Linking CXX executable pg_hpcups
+[51/52] Install the project...
+-- Install configuration: "Release"
+-- Installing: /home/runner/work/printgo/printgo/native-out/host/bin/./pg_hpcups

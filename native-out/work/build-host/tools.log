@@ -1,0 +1,21 @@
+-- The C compiler identification is GNU 13.3.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Configuring done (0.2s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/runner/work/printgo/printgo/native-out/work/build-host/tools
+ninja: Entering directory `/home/runner/work/printgo/printgo/native-out/work/build-host/tools'
+[1/5] Building C object CMakeFiles/pg_gutenprint.dir/home/runner/work/printgo/printgo/native/src/pg_gutenprint.c.o
+[2/5] Linking C executable pg_gutenprint
+[3/5] Building C object CMakeFiles/pg_cupsraster.dir/home/runner/work/printgo/printgo/native/src/pg_cupsraster.c.o
+[4/5] Linking C executable pg_cupsraster
+[4/5] Install the project...
+-- Install configuration: "Release"
+-- Installing: /home/runner/work/printgo/printgo/native-out/host/bin/./pg_gutenprint
+-- Installing: /home/runner/work/printgo/printgo/native-out/host/bin/./pg_cupsraster

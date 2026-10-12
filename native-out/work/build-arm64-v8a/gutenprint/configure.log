@@ -1,0 +1,359 @@
+checking for a BSD-compatible install... /usr/bin/install -c
+checking whether build environment is sane... yes
+checking for aarch64-linux-android-strip... /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip
+checking for a race-free mkdir -p... /usr/bin/mkdir -p
+checking for gawk... gawk
+checking whether make sets $(MAKE)... yes
+checking whether make supports nested variables... yes
+checking whether UID '1001' is supported by ustar format... yes
+checking whether GID '1001' is supported by ustar format... yes
+checking how to create a ustar tar archive... gnutar
+checking whether make supports nested variables... (cached) yes
+checking build system type... x86_64-pc-linux-android
+checking host system type... aarch64-unknown-linux-android
+checking how to print strings... printf
+checking whether make supports the include directive... yes (GNU style)
+checking for aarch64-linux-android-gcc... /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang
+checking whether the C compiler works... yes
+checking for C compiler default output file name... a.out
+checking for suffix of executables... 
+checking whether we are cross compiling... yes
+checking for suffix of object files... o
+checking whether the compiler supports GNU C... yes
+checking whether /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang accepts -g... yes
+checking for /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang option to enable C11 features... none needed
+checking whether /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang understands -c and -o together... yes
+checking dependency style of /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang... gcc3
+checking for a sed that does not truncate output... /usr/bin/sed
+checking for grep that handles long lines and -e... /usr/bin/grep
+checking for egrep... /usr/bin/grep -E
+checking for fgrep... /usr/bin/grep -F
+checking for ld used by /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang... /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/ld
+checking if the linker (/usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/ld) is GNU ld... yes
+checking for BSD- or MS-compatible name lister (nm)... /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-nm
+checking the name lister (/usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-nm) interface... BSD nm
+checking whether ln -s works... yes
+checking the maximum length of command line arguments... 3145728
+checking how to convert x86_64-pc-linux-android file names to aarch64-unknown-linux-android format... func_convert_file_noop
+checking how to convert x86_64-pc-linux-android file names to toolchain format... func_convert_file_noop
+checking for /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/ld option to reload object files... -r
+checking for aarch64-linux-android-file... no
+checking for file... file
+configure: WARNING: using cross tools not prefixed with host triplet
+checking for aarch64-linux-android-objdump... no
+checking for objdump... objdump
+checking how to recognize dependent libraries... pass_all
+checking for aarch64-linux-android-dlltool... no
+checking for dlltool... no
+checking how to associate runtime and link libraries... printf %s\n
+checking for aarch64-linux-android-ar... /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar
+checking for archiver @FILE support... @
+checking for aarch64-linux-android-strip... (cached) /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip
+checking for aarch64-linux-android-ranlib... /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ranlib
+checking command to parse /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-nm output from /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang object... ok
+checking for sysroot... no
+checking for a working dd... /usr/bin/dd
+checking how to truncate binary pipes... /usr/bin/dd bs=4096 count=1
+checking for aarch64-linux-android-mt... no
+checking for mt... mt
+checking if mt is a manifest tool... no
+checking for stdio.h... yes
+checking for stdlib.h... yes
+checking for string.h... yes
+checking for inttypes.h... yes
+checking for stdint.h... yes
+checking for strings.h... yes
+checking for sys/stat.h... yes
+checking for sys/types.h... yes
+checking for unistd.h... yes
+checking for dlfcn.h... yes
+checking for objdir... .libs
+checking if /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang supports -fno-rtti -fno-exceptions... yes
+checking for /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang option to produce PIC... -fPIC -DPIC
+checking if /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang PIC flag -fPIC -DPIC works... yes
+checking if /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang static flag -static works... yes
+checking if /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang supports -c -o file.o... yes
+checking if /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang supports -c -o file.o... (cached) yes
+checking whether the /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang linker (/usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/ld) supports shared libraries... yes
+checking dynamic linker characteristics... Android linker
+checking how to hardcode library paths into programs... immediate
+checking whether stripping libraries is possible... yes
+checking if libtool supports shared libraries... yes
+checking whether to build shared libraries... no
+checking whether to build static libraries... yes
+/home/runner/work/printgo/printgo/native-out/work/src/gutenprint/configure: line 13384: dlopen: command not found
+checking whether to enable maintainer-specific portions of Makefiles... no
+checking for aarch64-linux-android-cups-config... no
+checking for cups-config... no
+checking whether to whether to build CUPS driver... no
+checking whether NLS is requested... no
+checking for msgfmt... no
+checking for gmsgfmt... :
+checking for xgettext... no
+checking for msgmerge... no
+checking for ld used by GCC... /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/ld
+checking if the linker (/usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/ld) is GNU ld... yes
+checking for shared library run path origin... done
+checking for CFPreferencesCopyAppValue... no
+checking for CFLocaleCopyCurrent... no
+checking whether to use NLS... no
+checking whether to build CUPS PPD files... (automatic)
+checking whether to build CUPS PPD files... no
+checking whether to build CUPS 1.2 enhancements... no
+checking whether to build translated CUPS PPD files... no
+checking whether to build globalized CUPS PPD files... no
+checking whether to build simplified CUPS PPD files... no
+checking whether to place CUPS PPD files at top level... no
+checking whether to generate PostScript level 3 PPD files... no
+checking whether to build a statically-linked cups-genppd and rastertogutenprint.  WARNING: Please read the README and NEWS (release notes) CAREFULLY before using --disable-static-genppd!... yes
+checking whether to enable loadable modules... no
+checking whether to turn on debugging in build... no
+checking whether to turn on profiling in build... no
+checking whether to use readline... no
+checking for aarch64-linux-android-pkg-config... no
+checking for pkg-config... /usr/bin/pkg-config
+checking pkg-config is at least version 0.9.0... yes
+checking whether to install GIMP plugin in home directory... no
+checking for aarch64-linux-android-gimptool-2.0... no
+checking for gimptool-2.0... no
+checking for gtk+-2.0... no
+checking whether to build GIMP 2.x Print plugin... no
+checking whether to name GIMP 2.x Print plugin gutenprint (requires GIMP 2.2; normally used with GIMP 2.4 or above)... (automatic)
+checking whether to build Gutenprint GTK+-2.0 user interface library... no
+checking whether to install sample images... no
+checking whether to build escputil... no
+checking whether to build test programs... no
+checking whether to build Gutenprint documentation... no
+checking whether to build testpattern generator... no
+checking for iconv... no, consider installing GNU libiconv
+checking for library containing strerror... none required
+checking for gawk... (cached) gawk
+checking for aarch64-linux-android-gcc... (cached) /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang
+checking whether the compiler supports GNU C... (cached) yes
+checking whether /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang accepts -g... (cached) yes
+checking for /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang option to enable C11 features... (cached) none needed
+checking whether /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang understands -c and -o together... (cached) yes
+checking dependency style of /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang... (cached) gcc3
+checking for aarch64-linux-android-gcc... (cached) /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang
+checking whether the compiler supports GNU C... (cached) yes
+checking whether /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang accepts -g... (cached) yes
+checking for /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang option to enable C11 features... (cached) none needed
+checking whether /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang understands -c and -o together... (cached) yes
+checking dependency style of /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang... (cached) gcc3
+checking whether ln -s works... yes
+checking for flex... flex
+checking for lex output file root... lex.yy
+checking for lex library... none needed
+checking for library containing yywrap... no
+checking whether yytext is a pointer... yes
+checking for bison... bison -y
+checking for test... /usr/bin/test
+checking for true... /usr/bin/true
+checking for find... /usr/bin/find
+checking for perl... /usr/bin/perl
+checking for glib-mkenums... no
+checking for convert... no
+checking for bash... /usr/bin/bash
+checking for texi2html... no
+checking for dvips... no
+checking for db2pdf... no
+checking for dvipdf... no
+checking for dvipdfm... no
+checking for db2ps... no
+checking for db2html... no
+checking for doxygen... no
+checking for xz... /usr/bin/xz
+checking for gzip... /usr/bin/gzip
+checking for bzip2... /usr/bin/bzip2
+checking for lrzip... no
+checking for rzip... no
+checking for zpaq... no
+checking for bash... /bin/bash
+checking if /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang supports -Wall... yes
+checking if /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang supports -Wextra... yes
+checking if /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang supports -Wcast-align... yes
+checking if /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang supports -Wmissing-prototypes... yes
+checking if /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang supports -Wmissing-declarations... yes
+checking if /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang supports -Wwrite-strings... yes
+checking if /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang supports -Werror-implicit-function-declaration... yes
+checking if /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang supports -Wformat=2... yes
+checking if /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang supports -Werror=format-security... yes
+checking if /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang supports -Wno-deprecated-declarations... yes
+checking if /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang supports -Wno-missing-field-initializers... yes
+checking if /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang supports -Wno-sign-compare... yes
+checking if /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang supports -Wno-unused-parameter... yes
+checking if /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang supports -O3... yes
+checking if /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang supports -D_POSIX_C_SOURCE=200809L... yes
+checking if /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang supports -std=c99... yes
+checking if /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang supports __attribute__ syntax... yes
+checking for lt_dlopen in -lltdl... no
+checking for dlopen in -ldl... yes
+checking for pow in -lm... yes
+checking for pow in -lm... (cached) yes
+checking for egrep... (cached) /usr/bin/grep -E
+checking for getopt.h... yes
+checking for readline/readline.h... no
+checking for dlfcn.h... (cached) yes
+checking for fcntl.h... yes
+checking for limits.h... yes
+checking for locale.h... yes
+checking for ltdl.h... no
+checking for stdarg.h... yes
+checking for stdlib.h... (cached) yes
+checking for string.h... (cached) yes
+checking for sys/time.h... yes
+checking for sys/types.h... (cached) yes
+checking for time.h... yes
+checking for unistd.h... (cached) yes
+checking for an ANSI C-conforming const... yes
+checking for inline... inline
+checking for off_t... yes
+checking for size_t... yes
+checking for nanosleep... yes
+checking for poll... yes
+checking for usleep... yes
+checking for getopt_long... yes
+checking for setenv... yes
+checking for getuid... yes
+checking for waitpid... yes
+checking for /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang options needed to detect all undeclared functions... none needed
+checking whether strdup is declared... yes
+checking whether strndup is declared... yes
+checking for library containing finite... -lm
+checking which module system will be used... static
+checking that generated files are newer than configure... done
+configure: creating ./config.status
+config.status: creating Makefile
+config.status: creating doc/Makefile
+config.status: creating doc/gutenprint.dox
+config.status: creating doc/gutenprintui2.dox
+config.status: creating doc/developer/Makefile
+config.status: creating include/Makefile
+config.status: creating include/gutenprint/Makefile
+config.status: creating include/gutenprintui2/Makefile
+config.status: creating include/gutenprint/gutenprint-version.h
+config.status: creating man/Makefile
+config.status: creating man/cups-calibrate.8
+config.status: creating man/cups-genppd.8
+config.status: creating man/cups-genppdupdate.8
+config.status: creating man/escputil.1
+config.status: creating po/Makefile.in
+config.status: creating samples/Makefile
+config.status: creating src/Makefile
+config.status: creating src/cups/Makefile
+config.status: creating src/cups/Info.plist
+config.status: creating src/cups/cups-genppdupdate
+config.status: creating src/cups/test-ppds.test
+config.status: creating src/cups/min-pagesize
+config.status: creating src/escputil/Makefile
+config.status: creating src/testpattern/compare-image-files
+config.status: creating src/testpattern/run-testpattern
+config.status: creating src/testpattern/run-testpattern-1.test
+config.status: creating src/testpattern/run-testpattern-2
+config.status: creating src/testpattern/run-testpattern-2.test
+config.status: creating src/testpattern/compare-checksums
+config.status: creating src/testpattern/compress-checksums
+config.status: creating src/cups/test-rastertogutenprint
+config.status: creating src/cups/test-rastertogutenprint.test
+config.status: creating src/testpattern/Makefile
+config.status: creating src/gimp2/Makefile
+config.status: creating src/main/Makefile
+config.status: creating src/main/gutenprint.pc
+config.status: creating src/xml/Makefile
+config.status: creating src/xml/dither/Makefile
+config.status: creating src/xml/papers/Makefile
+config.status: creating src/xml/printers/Makefile
+config.status: creating src/xml/escp2/Makefile
+config.status: creating src/xml/escp2/media/Makefile
+config.status: creating src/xml/escp2/mediasizes/Makefile
+config.status: creating src/xml/escp2/model/Makefile
+config.status: creating src/xml/escp2/model/base/Makefile
+config.status: creating src/xml/escp2/inputslots/Makefile
+config.status: creating src/xml/escp2/inks/Makefile
+config.status: creating src/xml/escp2/weaves/Makefile
+config.status: creating src/xml/escp2/qualitypresets/Makefile
+config.status: creating src/xml/escp2/resolutions/Makefile
+config.status: creating src/gutenprintui2/Makefile
+config.status: creating src/gutenprintui2/gutenprintui2.pc
+config.status: creating test/Makefile
+config.status: creating test/compress-5level.sh
+config.status: creating test/compress-6level.sh
+config.status: creating test/uncompress-5level.sh
+config.status: creating test/uncompress-6level.sh
+config.status: creating test/parse-bjc
+config.status: creating test/parse-escp2
+config.status: creating test/run-testdither.test
+config.status: creating test/run-weavetest.test
+config.status: creating test/test-curve.test
+config.status: creating scripts/Makefile
+config.status: creating scripts/mkgitlog
+config.status: creating scripts/gversion
+config.status: creating scripts/test-gversion
+config.status: creating scripts/wzpaq
+config.status: creating config.h
+config.status: executing depfiles commands
+config.status: executing libtool commands
+rm: cannot remove 'libtoolT': No such file or directory
+config.status: executing po-directories commands
+config.status: creating po/POTFILES
+config.status: creating po/Makefile
+config.status: executing default commands
+
+
+Gutenprint Configuration Summary:
+---------- ------------- --------
+
+If you have any problems, please report the information below to
+gimp-print-devel@lists.sourceforge.net
+
+================================================================
+  Release: gutenprint 5.3.5 generated on 12 Mar 2025
+  Generated at 2026-10-12T13:13:10+0000 by runner
+
+  Features:
+    Build CUPS:                                 no
+    Build EPSON inkjet utility:                 no
+    Build enhanced Print plugin for GIMP:       no
+    Build test programs:                        no
+    Build testpattern generator:                no
+
+  Installation summary:
+    Installation prefix:                        /printgo
+    Exec prefix:                                /printgo (${prefix})
+    Data directory:                             /printgo/share/gutenprint (${datarootdir}/gutenprint)
+    Library directory:                          /printgo/lib/gutenprint (${exec_prefix}/lib/gutenprint)
+    Executable directory:                       /printgo/bin (${exec_prefix}/bin)
+    XML data directory:                         /printgo/share/gutenprint/5.3/xml (${datarootdir}/gutenprint/5.3/xml)
+    Module directory:                           /printgo/lib/gutenprint/5.3/modules (${exec_prefix}/lib/gutenprint/5.3/modules)
+    Install sample images:                      no
+
+  General configuration:
+    Configure arguments:                        --host=aarch64-linux-android --disable-shared --enable-static --with-modules=no --without-cups --without-gimp2 --disable-libgutenprintui2 --disable-nls --without-doc --disable-samples --disable-escputil --disable-test --disable-testpattern --without-readline --prefix=/printgo
+    Compiler:                                   /usr/local/lib/android/sdk/ndk/27.3.13750724/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang
+    Compiler Version:                           Android (13691557, +pgo, +bolt, +lto, +mlgo, based on r522817d) clang version 18.0.4 (https://android.googlesource.com/toolchain/llvm-project d8003a456d14a3deb8054cdaa529ffbf02d9b262)
+    Compiler options:                           -Disfinite=finite -O2 -fPIC -O3  -Wall -Wextra -Wcast-align -Wmissing-prototypes -Wmissing-declarations -Wwrite-strings -Werror-implicit-function-declaration -Wformat=2 -Werror=format-security -Wno-deprecated-declarations -Wno-missing-field-initializers -Wno-sign-compare -Wno-unused-parameter -D_POSIX_C_SOURCE=200809L -std=c99
+    Build static libraries:                     yes
+    Build shared libraries:                     no
+    Maintainer mode:                            no
+    Use i18n:                                   no
+    Generate profiling information:             no
+    Generate debugging symbols:                 no
+    Use modules:                                no
+    Use readline libraries:                     no
+    uname -a output:                            Linux runnervmmprz5 6.17.0-1022-azure #22-Ubuntu SMP Mon Jul 27 17:24:03 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux
+================================================================
+
+VERY IMPORTANT:
+If you expect to build the CUPS driver or the enhanced Print plugin for
+GIMP, but the output above indicates that that component will not be built,
+it almost certainly indicates that development packages required to build
+that component are not installed on your system.  Please read the README
+file and install the necessary development packages before reporting any
+error to the development team.  Depending upon your operating system version,
+you may have to install packages from the installation medium or over
+the network.
+
+Finished configuring.  Please review CAREFULLY the configuration summary above.
+This summary is also stored in config.summary
+Type 'make clean' followed by 'make' to build the package
+then 'make install' to install it.
