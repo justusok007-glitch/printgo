@@ -75,7 +75,7 @@ if [ ! -f "$BLD/cups/cups/libcups.a" ]; then
     ac_cv_header_iconv_h=no ./configure "${CONF_HOST[@]}" --with-components=libcups --enable-static --disable-shared \
       --with-tls=no --with-dnssd=no --disable-dbus --disable-gssapi --disable-pam --disable-libusb --disable-acl \
       --with-ondemand=no --with-container=none --with-languages=none > configure.log 2>&1 || { tail -60 configure.log; exit 1; }
-    make -C cups -j"$JOBS" libcups.a > make.log 2>&1 || { tail -80 make.log; exit 1; } )
+    make -k -C cups -j"$JOBS" libcups.a > make.log 2>&1 || { grep -E "error|Error" make.log | head -60; tail -30 make.log; exit 1; } )
 fi
 CUPS_ARGS=(-DCUPS_INCLUDE="$BLD/cups" -DCUPS_LIB="$BLD/cups/cups/libcups.a")
 
@@ -87,7 +87,7 @@ if [ ! -f "$BLD/gutenprint/src/main/.libs/libgutenprint.a" ]; then
     "$SRC/gutenprint/configure" "${CONF_HOST[@]}" --disable-shared --enable-static --with-modules=no --without-cups \
       --without-gimp2 --disable-libgutenprintui2 --disable-nls --without-doc --disable-samples --disable-escputil \
       --disable-test --disable-testpattern --without-readline --prefix=/printgo > configure.log 2>&1 || { tail -60 configure.log; exit 1; }
-    make -C include -j"$JOBS" > make.log 2>&1 && make -C src/main -j"$JOBS" >> make.log 2>&1 || { tail -80 make.log; exit 1; } )
+    make -C include -j"$JOBS" > make.log 2>&1 && make -k -C src/main -j"$JOBS" >> make.log 2>&1 || { grep -E "error|Error" make.log | head -60; tail -30 make.log; exit 1; } )
 fi
 
 # ---- libjpeg-turbo (static, for hpcups) --------------------------------------------------------------
@@ -105,7 +105,7 @@ build_cmake() { # dir name args...
   log "$name"
   cmake -S "$HERE/cmake/$dir" -B "$BLD/$name" "${CMAKE_ARGS[@]}" "$@" -DCMAKE_INSTALL_PREFIX="$BIN_OUT" > "$BLD/$name.log" 2>&1 \
     || { tail -40 "$BLD/$name.log"; exit 1; }
-  ninja -C "$BLD/$name" install >> "$BLD/$name.log" 2>&1 || { grep -E "error|undefined" "$BLD/$name.log" | head -40; tail -20 "$BLD/$name.log"; exit 1; }
+  ninja -k 0 -C "$BLD/$name" install >> "$BLD/$name.log" 2>&1 || { grep -E "error|undefined" "$BLD/$name.log" | head -60; tail -20 "$BLD/$name.log"; exit 1; }
 }
 build_cmake escpr escpr -DESCPR_SRC="$SRC/escpr"
 build_cmake hpcups hpcups -DHPLIP_SRC="$SRC/hplip" "${CUPS_ARGS[@]}" -DJPEG_SRC="$SRC/libjpeg-turbo" -DJPEG_BUILD="$BLD/jpeg"

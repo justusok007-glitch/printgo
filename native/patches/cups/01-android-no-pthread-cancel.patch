@@ -1,0 +1,14 @@
+--- a/cups/thread.c	2026-10-12 12:48:27.653731557 +0500
++++ b/cups/thread.c	2026-10-12 12:48:27.673755336 +0500
+@@ -165,7 +165,11 @@
+ void
+ _cupsThreadCancel(_cups_thread_t thread)/* I - Thread ID */
+ {
++#ifndef __ANDROID__ /* Android has no pthread_cancel; PrintGo never cancels CUPS threads. */
+   pthread_cancel(thread);
++#else
++  (void)thread;
++#endif
+ }
+ 
+ 
