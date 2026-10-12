@@ -20,6 +20,9 @@ I am Saqib Khalil. I want you to continue developing my Android printing app **P
 - It prints photos, documents (PDF, Word, Excel, text) and web pages to Wi-Fi printers (IPP with PWG raster,
   AirPrint raster, PCL, PostScript, PDF or JPEG; raw port 9100; LPD), USB printers (IPP-over-USB, PCL,
   PostScript, PDF, Epson ESC/P-R), Bluetooth printers, and can save as PDF.
+- Built-in printer drivers (since v1.2.0): Epson ESC/P-R, Gutenprint, HPLIP (hpcups) and SpliX, compiled
+  from source on GitHub Actions (`native/`), with a "Printer driver" picker (Printers → ⓘ) and downloadable
+  data packs (release "driver-packs"). PrintGo is free software under GPL-3.0-or-later.
 - Features already built: printer discovery and saving, USB auto-detect, print preview, copies,
   all/odd/even/range pages, reverse order, pages per sheet, 2-sided, paper sizes (A4, A5, Letter, Legal,
   4x6), orientation, fit/fill/actual/custom scale, print position, margins, colour/greyscale, print jobs
@@ -29,8 +32,11 @@ I am Saqib Khalil. I want you to continue developing my Android printing app **P
 - Bright light theme only, PrintGo blue/green design. No dark mode. No ads. No bottom slogan. No "Tip" line.
 - The home screen footer must stay: **"Created by : Muhammad Saad Awan"** with an envelope icon and
   **saadawanok@gmail.com**.
-- Builds run on **GitHub Actions** ("Build PrintGo APK" workflow). After your changes, push to `main`,
-  make sure the build and unit tests pass (fix any errors from the `ci-logs-*` branches), then tell me.
+- Builds run on **GitHub Actions** ("Build PrintGo APK" workflow: native drivers → APK, unit tests).
+  After your changes, push to `main`, make sure the build, the driver smoke test and the unit tests pass
+  (fix any errors from the `ci-logs-*` branches, e.g. `ci-logs-native`), then tell me.
+- Keep the licence: PrintGo is GPL-3.0-or-later; keep `LICENSE`, `THIRD_PARTY_NOTICES.md` and the source link
+  in About. The repository must be public for the GPL source offer and for the driver-pack downloads.
 - Do not reintroduce fixed printer bugs. Never send raw PDF to an unknown printer, and never send raw
   data to port 515. The full list is in `CLAUDE.md`.
 - Be honest about what you could not test. I test on my own phone with an HP LaserJet P2055dn (Wi-Fi),

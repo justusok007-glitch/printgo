@@ -16,11 +16,18 @@ requirements, and the printer bugs already found and fixed (so they are not rein
 
 ## How to build (there is no local Android SDK and no Gradle wrapper)
 - All builds run on **GitHub Actions**. Push to `main`, then check the run.
-- `.github/workflows/build-apk.yml` ("Build PrintGo APK") has three jobs:
-  - `build` (JDK 17, Gradle 9.3.1 via `gradle/actions/setup-gradle`): `assembleDebug`, uploads artifact
+- `.github/workflows/build-apk.yml` ("Build PrintGo APK") has four jobs:
+  - `native` (cached on `hashFiles('native/**')`): `native/build.sh` for host, arm64-v8a, armeabi-v7a, x86_64
+    (NDK r27 on the runner), then `native/tools/make_packs.py` (catalog + data packs, published to the release
+    **driver-packs**) and `native/tools/smoke_test.py` (every driver must turn a test page into printer data).
+    Artifact `native-drivers` = `jniLibs/<abi>/libpg_*.so` + `assets/drivers/{catalog,packs}.json`. A full
+    build takes about 5–10 minutes. Failure logs → branch `ci-logs-native`.
+  - `build` (needs `native`; copies the drivers into `app/src/main/jniLibs` and `assets/drivers`, both
+    git-ignored; JDK 17, Gradle 9.3.1 via `gradle/actions/setup-gradle`): `assembleDebug`, uploads artifact
     **PrintGo-debug-apk**, and replaces the GitHub Release **latest-debug** with `PrintGo-debug.apk`
     (easiest download on the phone: Releases → "PrintGo debug build").
-  - `unit-tests` (**JDK 21** — Robolectric tests pin SDK 36, which needs Java 21).
+  - `unit-tests` (**JDK 21** — Robolectric tests pin SDK 36, which needs Java 21). It is `continue-on-error`,
+    so check its result yourself (job conclusion / `ci-logs-tests`).
   - `release-check` (R8 `assembleRelease`, `continue-on-error`).
 - On failure the logs are pushed to branches: `ci-logs-build` (build.log), `ci-logs-tests` (log + test XML),
   `ci-logs-release`. Read them with:
@@ -28,6 +35,13 @@ requirements, and the printer bugs already found and fixed (so they are not rein
 - Check run status without auth:
   `curl -s "https://api.github.com/repos/justusok007-glitch/printgo/actions/runs?head_sha=<sha>"`
   then `.../actions/runs/<id>/jobs`. A build takes about 4–6 minutes.
+- `driver-sources.yml` keeps exact copies of the pinned driver source packages (`native/sources.json`) in the
+  release **driver-sources** (the GPL corresponding source) and pushes a readable trimmed tree to the branch
+  `driver-sources-tree`.
+- Local checks without the NDK: `PG_DL=<dir with the tarballs> native/build.sh host OUT` (gcc, or
+  `CC=clang CXX=clang++` — clang 18 is as strict as the NDK's), then `native/tools/make_packs.py OUT` and
+  `native/tools/smoke_test.py OUT`. Downloads from Debian/SourceForge may be blocked in the sandbox; the release
+  driver-sources (via `gh`) has every tarball.
 - `build-release.yml` builds a signed APK + AAB only when repo secrets `KEYSTORE_BASE64`, `STORE_PASSWORD`,
   `KEY_PASSWORD`, `KEY_ALIAS` exist (see `docs/RELEASE.md`).
 - Commit only to `main` unless asked otherwise; keep CI green before telling the owner the APK is ready.
@@ -40,10 +54,12 @@ keep rules in `app/proguard-rules.pro`.
 
 ## Code map (`app/src/main/java/com/printgo/app`)
 - `screens/` — Home, Photos, Documents, WebPages, Preview (print settings sheet lives here), Printers,
-  PrinterDetails, Jobs, JobDetails (shows Connection line + "First page as sent to the printer"),
+  PrinterDetails (route `printer/{id}`, opened by the ⓘ button; has the "Printer driver" card), DriverScreens
+  (`DriverPickerScreen` route `printer/{id}/driver`, `DriverPacksScreen` route `drivers` from Settings), Jobs, JobDetails (shows Connection line + "First page as sent to the printer"),
   Settings, Onboarding, Help/About/Privacy (`InfoScreens.kt`).
 - `navigation/` — `Routes.kt`, `PrintGoNavHost.kt` (onboarding gate; clearing selection on Home).
-- `viewmodel/` — `PrinterViewModel` (discovery, connect, USB events), `PrintSettingsViewModel`
+- `viewmodel/` — `PrinterViewModel` (discovery, connect, USB events), `DriverViewModel` (picker + packs;
+  `suggest()`/`search()` are pure and unit-tested), `PrintSettingsViewModel`
   (per-printer settings, clamping to capabilities, `onDocumentsChanged`), `SelectionViewModel`, etc.
 - `model/` — `PrintSettings` (copies, page selection All/Odd/Even/Range, reverse order, pages per sheet,
   duplex, paper, orientation, scale incl. custom %, margins, alignment = print position, colour, quality),
@@ -61,6 +77,17 @@ keep rules in `app/proguard-rules.pro`.
   `UsbSession`/`UsbAutoSetup`/`UsbIds` for USB; `PrintJobService` foreground service; notifications.
 - `data/ipp/` — IPP encoder/decoder, `IppClient` (Get-Printer-Attributes with path fallbacks),
   `IppProbe` (what the printer supports), `IppPrintClient` (probe, Print-Job, job status, cancel).
+- `data/drivers/` — built-in printer drivers: `DriverCatalog` (`DriverKind`, `DriverEntry`, reads
+  `assets/drivers/catalog.json`), `DriverMatcher` (IEEE-1284 ID / name → driver; `best()` only when score ≥ 90),
+  `DriverPacks` (download from release driver-packs, SHA-256 check, install from file, zip-slip safe),
+  `DriverPrefs` (per-printer choice + remembered device ID), `DriverRunner` (runs `lib<prog>.so` from
+  `nativeLibraryDir` as a separate process: stdin = pages, stdout = printer data).
+- `data/print/NativeDrivers.kt` — renders a job with a driver (page order, blank backs, back-side turning,
+  options); `DriverStreams.kt` — `PgrWriter` (PGR stream, see `native/src/pgr.h`) and `EscprStream` (input of
+  Epson's own filter).
+- `native/` — driver builds: `sources.json` (pinned tarballs + sha256), `fetch_sources.py`, `build.sh`,
+  `cmake/{escpr,hpcups,splix,tools}` (+ `common.cmake` warning flags), `patches/` (CUPS: no pthread_cancel on
+  Android), `src/` (our GPL-3 front-ends `pg_gutenprint.c`, `pg_cupsraster.c`, `pgr.h`), `tools/make_packs.py`, `tools/smoke_test.py`.
 - `data/discovery/` — mDNS Wi-Fi discovery (`_ipp`, `_ipps`, `_pdl-datastream`, `_printer`; prefers IPv4),
   `SnmpDeviceId` (IEEE-1284 device id over SNMP), USB, Bluetooth.
 - `res/xml/network_security_config.xml` — **allows plain HTTP**. Without it Android blocks every IPP request
@@ -108,7 +135,26 @@ keep rules in `app/proguard-rules.pro`.
 11. **ESC/P-R** (Epson inkjets): 360 dpi, 3 mm margins, RGB lines RLE-compressed (0..127 literal n+1,
     129..255 repeat 257-n — the opposite of PWG). Sequence: exit packet mode, ESC @, REMOTE1 (TI, JS, JH, HD,
     PP), exit remote, ESC(R ESCPR, setq, setj, per page sttp/setn/dsnd…/endp, endj, ESC @, REMOTE1 LD JE.
-    Based on Epson's open-source library and the MIT python-epson encoder; **not yet tested on a real Epson**.
+    Based on Epson's open-source library and the MIT python-epson encoder. The owner reports the Epson L455
+    prints over USB with v1.1.0 (the L455 has no IPP-USB, so most likely this encoder; Connection line not seen).
+12. **Built-in drivers** (v1.2.0). Each driver is a separate program in the APK (`lib/<abi>/libpg_*.so`,
+    `useLegacyPackaging = true` so Android unpacks them; never load them with System.load):
+    `pg_escpr` (Epson's own filter, input = `EscprStream`), `pg_gutenprint` (libgutenprint; PGR on stdin;
+    `STP_DATA_PATH` = Gutenprint pack `xml/`), `pg_cupsraster` + `pg_hpcups` / `pg_splix` (PGR → CUPS raster for
+    the model's PPD → the CUPS filter; `--query` gives `hwres` and `backside`).
+    - When: (a) the user picked a driver for the printer (`DriverPrefs`) → always used, sent raw over USB printer
+      interface, Bluetooth, port 9100 or LPD; (b) automatically **only** where PrintGo had no route before (raw
+      printer with unknown language, USB with no known language, every IPP format refused) and
+      `DriverMatcher.best` is exact. Working routes are not changed: Epson over USB stays on PrintGo's own
+      ESC/P-R encoder (verified on the L455); Epson's driver is used only when picked.
+    - Packs contain **data only** (Gutenprint XML, HPLIP and SpliX PPDs); program code is only in the APK
+      (Play policy). The app trusts a pack only if its SHA-256 matches `assets/drivers/packs.json`.
+    - Two-sided: Epson's filter and Gutenprint turn back sides themselves; for HPLIP/SpliX PrintGo turns back
+      pages per the PPD's `cupsBackSide`/`cupsFlipDuplex` (like CUPS' pdftoraster) via `SheetFlip` in
+      `PdfPageRenderer.openRows`. Copies of an odd page count get a blank back so each copy starts on a new
+      sheet.
+    - HP printers that need HP's closed plug-in (`hpPrinterLanguage` ljzjstream/ljzxstream, e.g. P1102) are left
+      out of the catalog. The x86-only HP image processor is disabled (`DISABLE_IMAGEPROCESSOR`).
 
 ## Verified on real hardware
 - 2026-10-11: **HP LaserJet P2055dn over Wi-Fi → port 9100, PCL** prints correctly (owner confirmed).
@@ -119,14 +165,24 @@ keep rules in `app/proguard-rules.pro`.
   USB (M404). Over Wi-Fi the P3010 showed "Long edge" unselectable because its IPP answer named no two-sided
   mode. v1.1.1: when a printer lists **no** two-sided mode (`twoSidedReported()` false) the choice is offered
   with a hint and still sent (IPP `sides`, raster duplex flag); printers that do list modes are still respected.
+- 2026-10-12 (v1.2.0): built-in drivers (Epson ESC/P-R, Gutenprint, HPLIP, SpliX) with picker and packs.
+  Verified only by the CI smoke test (every driver produces plausible printer data on Linux); **not yet on a
+  real printer or phone** — ask the owner to try the P3010 with Printer driver → "HP LaserJet p3010 Series
+  (HP (HPLIP))" over Wi-Fi port 9100 and USB, and report the Connection line.
 - Not yet verified by the owner: two-sided, Legal, landscape, custom scale/position, USB, Bluetooth,
   other brands. Ask for the job's Connection line + a photo when a print comes out wrong.
 
 ## Known limitations (say so honestly; do not claim otherwise)
+- The repository was **private** on 2026-10-12. While it is private the phone cannot download driver packs from
+  the release (404) and the GPL source link in About does not work for others; the owner has to make it public
+  (Settings → Danger Zone → Change visibility). Until then packs can be installed from a file.
+- Driver programs are tested on Linux in CI, not on Android devices; the first real Android run may still show
+  problems (permissions, missing libc functions on old Android versions).
 - Two-sided raster (PWG/URF) does not yet turn the back sides for printers that need "flipped"/"rotated" backs.
 - PCL output is black-and-white (1-bit); colour lasers fed raw PCL print in grey.
-- Host-based/GDI printers (e.g. Canon LBP2900/LBP6000, HP LaserJet P1102/1020) need a computer driver and
-  cannot be driven directly; use "Print with system dialog" + the maker's print-service plugin.
+- Host-based/GDI printers that need a closed driver (Canon CAPT such as LBP2900/LBP6000, HP ZjStream such as
+  LaserJet P1102/1020) cannot be driven, even with the built-in drivers; use "Print with system dialog" + the
+  maker's print-service plugin.
 - No pause/resume; no printers that require a login; Office conversion is best-effort.
 - Phone and printer must be on the same Wi-Fi (guest networks often block discovery).
 

@@ -19,8 +19,7 @@ target_compile_definitions(escpr PRIVATE
 target_compile_options(escpr PRIVATE -w -fcommon)
 
 add_executable(pg_escpr
-  ${S}/filter.c ${S}/debug.c ${S}/str.c ${S}/err.c ${S}/mem.c ${S}/custompage.c ${S}/linux_cmn.c ${S}/xfifo.c
-  ${CMAKE_CURRENT_LIST_DIR}/../../src/compat/android_compat.c)
+  ${S}/filter.c ${S}/debug.c ${S}/str.c ${S}/err.c ${S}/mem.c ${S}/custompage.c ${S}/linux_cmn.c ${S}/xfifo.c)
 target_include_directories(pg_escpr PRIVATE ${L})
 target_compile_definitions(pg_escpr PRIVATE PACKAGE_STRING="epson-inkjet-printer-escpr 1.8.8")
 target_compile_options(pg_escpr PRIVATE -w -fcommon)
