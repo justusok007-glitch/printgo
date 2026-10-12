@@ -3,4 +3,4 @@
 # Copyright (C) 2026 the PrintGo authors. SPDX-License-Identifier: GPL-3.0-or-later
 add_compile_options(
   "$<$<COMPILE_LANGUAGE:C>:-Wno-error=implicit-function-declaration;-Wno-error=int-conversion;-Wno-error=incompatible-pointer-types;-Wno-error=implicit-int>"
-  "$<$<COMPILE_LANGUAGE:CXX>:-Wno-error=register;-Wno-register;-Wno-error=c++11-narrowing>")
+  "$<$<COMPILE_LANGUAGE:CXX>:-Wno-register;-Wno-narrowing>")

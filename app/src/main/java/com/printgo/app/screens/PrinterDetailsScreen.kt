@@ -96,8 +96,19 @@ fun PrinterDetailsScreen(
     printerId: String,
     printerViewModel: PrinterViewModel,
     onBackClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onOpenDriver: (String) -> Unit = {}
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    var driverLabel by remember { mutableStateOf("Automatic") }
+    LaunchedEffect(printerId) {
+        driverLabel = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            val id = com.printgo.app.data.drivers.DriverPrefs(context).choice(printerId)
+            if (id == null) "Automatic"
+            else com.printgo.app.data.drivers.DriverCatalog.find(context, id)?.let { "${it.displayName} (${it.kind.label})" }
+                ?: "Automatic"
+        }
+    }
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -162,7 +173,8 @@ fun PrinterDetailsScreen(
                     .padding(innerPadding),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator(color = PrimaryBlue)
+                if (isLoading) CircularProgressIndicator(color = PrimaryBlue)
+                else Text("This printer is no longer in the list. Go back and search again.", color = Color.Gray, modifier = Modifier.padding(24.dp))
             }
         } else {
             val p = printer!!
@@ -323,6 +335,31 @@ fun PrinterDetailsScreen(
                                     )
                                 }
                             }
+                        }
+                    }
+                }
+
+                // Printer driver (built-in drivers for printers that need one)
+                if (p.connectionType != ConnectionType.PDF) {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("printer_driver_card"),
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        border = BorderStroke(1.dp, Color(0xFFE2E8F0))
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("Printer driver", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = HeadingNavy)
+                                Text(driverLabel, fontSize = 13.sp, color = Color.Gray)
+                            }
+                            OutlinedButton(onClick = { onOpenDriver(p.id) }) { Text("Change") }
                         }
                     }
                 }

@@ -4,6 +4,10 @@ import android.content.Context
 import android.graphics.Bitmap
 import com.printgo.app.data.converter.PdfPageRenderer
 import com.printgo.app.data.converter.PrintableDocument
+import com.printgo.app.data.drivers.DriverCatalog
+import com.printgo.app.data.drivers.DriverEntry
+import com.printgo.app.data.drivers.DriverMatcher
+import com.printgo.app.data.drivers.DriverPrefs
 import com.printgo.app.data.ipp.IppClient
 import com.printgo.app.data.ipp.IppDecoder
 import com.printgo.app.data.ipp.IppEncoder
@@ -345,8 +349,10 @@ object PrintJobManager {
 
     private suspend fun transmit(job: PrintJobEntity, pdf: File) {
         val printer = printerOf(job)
+        val chosen = if (printer.connectionType != ConnectionType.PDF) chosenDriver(job) else null
         when {
             printer.connectionType == ConnectionType.PDF -> savePdf(job, pdf)
+            chosen != null -> sendWithDriver(job, printer, pdf, chosen, automatic = false)
             printer.connectionType == ConnectionType.WIFI && (printer.protocol == PrinterProtocol.IPP || printer.protocol == PrinterProtocol.IPPS) ->
                 sendIpp(job, printer, pdf)
             printer.connectionType == ConnectionType.WIFI && printer.protocol == PrinterProtocol.RAW9100 -> sendRawNetwork(job, printer, pdf)
@@ -398,14 +404,18 @@ object PrintJobManager {
 
         update(job.id) { it.copy(statusMessage = "Asking the printer what it accepts…", progress = 0.12f) }
         val probe = ipp.probe(printer0, fingerprint)
+        probe?.deviceId?.let { DriverPrefs(appContext).rememberDeviceId(job.printerId, it) }
         if (probe == null && allowRawFallback && printer0.host.isNotBlank()) {
             val rawOpen = withContext(Dispatchers.IO) { Transports.isPortOpen(printer0.host, 9100) }
             if (rawOpen) {
-                val lang = rawLanguageFor(job, printer0.host)
+                val deviceId = snmpDeviceId(job, printer0.host)
+                val lang = rawLanguageFor(job, deviceId)
+                val rawPrinter = printer0.copy(protocol = PrinterProtocol.RAW9100, port = 9100)
                 if (lang != null) {
-                    sendRaw(job, printer0.copy(protocol = PrinterProtocol.RAW9100, port = 9100), pdf, lang)
+                    sendRaw(job, rawPrinter, pdf, lang)
                     return
                 }
+                autoDriver(job, deviceId)?.let { sendWithDriver(job, rawPrinter, pdf, it); return }
             }
         }
         val printer = if (probe != null && probe.path.isNotBlank()) printer0.copy(resourcePath = probe.path) else printer0
@@ -413,7 +423,11 @@ object PrintJobManager {
         try {
             runIppJob(job, pdf, probe, "IPP", sender) { remoteId -> track(job.id, printer, fingerprint, remoteId) }
         } catch (e: AllFormatsRefused) {
-            throw PrintFailure(e.message ?: "The printer refused the job.", false)
+            // The printer refused every standard format: its own driver may still reach it.
+            val driver = autoDriver(job, probe?.deviceId, probe?.makeAndModel)
+                ?: throw PrintFailure(e.message ?: "The printer refused the job.", false)
+            sendWithDriver(job, printer, pdf, driver)
+            return
         }
         complete(job.id, "Printed on ${job.printerName}.")
     }
@@ -556,12 +570,18 @@ object PrintJobManager {
     }
 
     /** The raw language of a network printer: Settings choice, then what the printer says about itself. */
-    private suspend fun rawLanguageFor(job: PrintJobEntity, host: String): RawLanguage? {
+    private suspend fun rawLanguageFor(job: PrintJobEntity, deviceId: String?): RawLanguage? {
         val prefs = com.printgo.app.data.prefs.AppPreferences(appContext).current()
         if (prefs.bluetoothLanguage != "AUTO") return LanguagePicker.pick(null, job.printerName, prefs.bluetoothLanguage)
-        val deviceId = withContext(Dispatchers.IO) { com.printgo.app.data.discovery.SnmpDeviceId.query(host) }
         val formats = job.formatsCsv.split(",").map { it.trim() }.filter { it.isNotEmpty() }
         return LanguagePicker.pick(deviceId, job.printerName, "AUTO", strict = false, formats = formats)
+    }
+
+    /** The IEEE-1284 device ID a network printer reports over SNMP (remembered for driver suggestions). */
+    private suspend fun snmpDeviceId(job: PrintJobEntity, host: String): String? {
+        val id = withContext(Dispatchers.IO) { com.printgo.app.data.discovery.SnmpDeviceId.query(host) }
+        DriverPrefs(appContext).rememberDeviceId(job.printerId, id)
+        return id
     }
 
     /**
@@ -571,7 +591,8 @@ object PrintJobManager {
      */
     private suspend fun sendRawNetwork(job: PrintJobEntity, printer: Printer, pdf: File) {
         update(job.id) { it.copy(statusMessage = "Finding out which language the printer reads…", progress = 0.12f) }
-        val lang = rawLanguageFor(job, printer.host)
+        val deviceId = snmpDeviceId(job, printer.host)
+        val lang = rawLanguageFor(job, deviceId)
         if (lang == RawLanguage.PCL || lang == RawLanguage.POSTSCRIPT || lang == RawLanguage.ESCPOS) {
             sendRaw(job, printer, pdf, lang)
             return
@@ -589,10 +610,16 @@ object PrintJobManager {
                     return
                 } catch (e: AllFormatsRefused) {
                     // Nothing was accepted over IPP; the printer's own raw language is still worth a try.
-                    if (lang == null) throw PrintFailure(e.message ?: "The printer refused the job.", false)
+                    if (lang == null) {
+                        val driver = autoDriver(job, deviceId ?: probe.deviceId, probe.makeAndModel)
+                            ?: throw PrintFailure(e.message ?: "The printer refused the job.", false)
+                        sendWithDriver(job, printer, pdf, driver)
+                        return
+                    }
                 }
             }
         }
+        if (lang == null) autoDriver(job, deviceId)?.let { sendWithDriver(job, printer, pdf, it); return }
         if (lang == null) throw PrintFailure(
             "This printer does not say which language it reads. " +
                 "Choose it in Settings → Raw printer language, or use \"Print with system dialog\".", false
@@ -728,6 +755,10 @@ object PrintJobManager {
         else -> 0
     }
 
+    /**
+     * PrintGo's own encoders. ESC/P-R stays on PrintGo's encoder here (verified on the Epson L455 over USB);
+     * Epson's own driver is used only when the user picks it under Printer driver.
+     */
     private fun renderRawFile(job: PrintJobEntity, lang: RawLanguage, pdf: File, out: File, pjl: Boolean = false) {
         val copies = job.copies.coerceIn(1, 99)
         val grayscale = job.colorMode == PrintColorMode.GRAYSCALE.name
@@ -844,10 +875,22 @@ object PrintJobManager {
             }
             raw.use { s ->
                 val id = withContext(Dispatchers.IO) { s.deviceId() } ?: s.namesAsDeviceId()
-                val lang = LanguagePicker.pick(id, job.printerName, "AUTO", strict = true) ?: throw PrintFailure(
-                    ippProblem ?: "This printer uses its own USB language that PrintGo cannot create. Connect it over Wi-Fi, or use \"Print with system dialog\".",
-                    false
-                )
+                DriverPrefs(appContext).rememberDeviceId(job.printerId, id)
+                val lang = LanguagePicker.pick(id, job.printerName, "AUTO", strict = true)
+                if (lang == null) {
+                    val driver = autoDriver(job, id) ?: throw PrintFailure(
+                        ippProblem ?: "This printer uses its own USB language that PrintGo cannot create. " +
+                            "Pick its driver: Printers, tap ⓘ next to the printer, then Printer driver. Or use \"Print with system dialog\".",
+                        false
+                    )
+                    val tmp = File(appContext.cacheDir, "job_${job.id}.drv")
+                    try {
+                        renderWithDriver(job, pdf, driver, tmp, "USB", automatic = true)
+                        writeUsb(job, s, tmp)
+                    } finally { tmp.delete() }
+                    complete(job.id, "Sent to ${job.printerName}.")
+                    return
+                }
                 update(job.id) { it.copy(method = "USB • ${lang.label}", statusMessage = "Preparing pages…", progress = 0.25f) }
                 val tmp = File(appContext.cacheDir, "job_${job.id}.raw")
                 try {
@@ -875,6 +918,125 @@ object PrintJobManager {
                 update(job.id) { it.copy(statusMessage = "Sending to printer…", progress = 0.6f) }
                 withContext(Dispatchers.IO) { Transports.sendBluetooth(appContext, printer.host, fileChunks(tmp)) }
             } finally { tmp.delete() }
+        }
+        complete(job.id, "Sent to ${job.printerName}.")
+    }
+
+    // ---------- built-in printer drivers ----------
+
+    private fun specOf(job: PrintJobEntity, pdf: File) = DriverJobSpec(
+        pdf = pdf,
+        title = job.title,
+        paperWidthMm = job.paperWidthMm,
+        paperHeightMm = job.paperHeightMm,
+        color = !isGray(job),
+        duplex = duplexOf(job),
+        quality = runCatching { PrintQuality.valueOf(job.quality) }.getOrDefault(PrintQuality.NORMAL),
+        copies = job.copies,
+        collate = job.collate
+    )
+
+    /** The driver the user picked for this printer in Printer driver, if any. */
+    private fun chosenDriver(job: PrintJobEntity): DriverEntry? {
+        val id = DriverPrefs(appContext).choice(job.printerId) ?: return null
+        return if (id == NativeDrivers.EPSON_ESCPR.id) NativeDrivers.EPSON_ESCPR else DriverCatalog.find(appContext, id)
+    }
+
+    /** A built-in driver made for exactly this printer model (from its device ID, or its name). */
+    private fun autoDriver(job: PrintJobEntity, deviceId: String?, makeAndModel: String? = null): DriverEntry? {
+        val catalog = DriverCatalog.load(appContext)
+        if (catalog.isEmpty()) return null
+        val entry = DriverMatcher.best(deviceId, makeAndModel, catalog)
+            ?: DriverMatcher.best(deviceId, job.printerName, catalog)
+            ?: return null
+        return entry.takeIf { NativeDrivers.canRun(appContext, it) }
+    }
+
+    /** Renders the job with [driver] into [out]; a missing data pack is explained in plain words. */
+    private suspend fun renderWithDriver(job: PrintJobEntity, pdf: File, driver: DriverEntry, out: File, via: String, automatic: Boolean) {
+        NativeDrivers.missingPack(appContext, driver)?.let { pack ->
+            val size = if (pack.size > 0) " (${pack.sizeText})" else ""
+            throw PrintFailure(
+                "${job.printerName} needs the printer driver \"${driver.displayName}\". Download its driver pack$size once: " +
+                    "Printers, tap ⓘ next to the printer, then Printer driver.", false
+            )
+        }
+        val how = if (automatic) "the printer's driver" else "your chosen driver"
+        update(job.id) {
+            it.copy(
+                status = JobStatus.SENDING, statusMessage = "Preparing pages with $how…", progress = 0.2f,
+                method = "$via • Driver: ${NativeDrivers.label(driver)}"
+            )
+        }
+        try {
+            NativeDrivers.render(appContext, driver, specOf(job, pdf), out)
+        } catch (e: DriverFailure) {
+            throw PrintFailure(e.message ?: "The printer driver failed.", false)
+        } catch (e: java.io.IOException) {
+            throw PrintFailure(e.message ?: "The printer driver failed.", false)
+        }
+    }
+
+    private suspend fun writeUsb(job: PrintJobEntity, s: UsbSession, file: File) {
+        update(job.id) { it.copy(statusMessage = "Sending to printer…", progress = 0.6f) }
+        val total = file.length().coerceAtLeast(1)
+        var sent = 0L
+        withContext(Dispatchers.IO) {
+            for (c in fileChunks(file)) {
+                s.write(c)
+                sent += c.size
+                val frac = sent.toFloat() / total
+                scope.launch { update(job.id) { j -> j.copy(progress = 0.6f + 0.35f * frac) } }
+            }
+        }
+    }
+
+    /**
+     * Prints with a built-in driver: the driver makes the printer's own data, which goes over the printer's
+     * raw channel (USB printer interface, port 9100 or LPD, Bluetooth).
+     */
+    private suspend fun sendWithDriver(job: PrintJobEntity, printer: Printer, pdf: File, driver: DriverEntry, automatic: Boolean = true) {
+        val tmp = File(appContext.cacheDir, "job_${job.id}.drv")
+        try {
+            when (printer.connectionType) {
+                ConnectionType.USB -> {
+                    renderWithDriver(job, pdf, driver, tmp, "USB", automatic)
+                    val s = try {
+                        withContext(Dispatchers.IO) { UsbSession.open(appContext, printer.host, preferIppUsb = false) }
+                    } catch (e: TransportException) {
+                        throw PrintFailure(e.message ?: "Could not open the USB printer.", true)
+                    }
+                    s.use { writeUsb(job, it, tmp) }
+                }
+                ConnectionType.BLUETOOTH -> {
+                    renderWithDriver(job, pdf, driver, tmp, "Bluetooth", automatic)
+                    update(job.id) { it.copy(statusMessage = "Sending to printer…", progress = 0.6f) }
+                    withContext(Dispatchers.IO) { Transports.sendBluetooth(appContext, printer.host, fileChunks(tmp)) }
+                }
+                else -> {
+                    val host = printer.host
+                    val (port, useLpd) = withContext(Dispatchers.IO) {
+                        when {
+                            Transports.isPortOpen(host, 9100) -> 9100 to false
+                            Transports.isPortOpen(host, 515) -> 515 to true
+                            else -> 0 to false
+                        }
+                    }
+                    if (port == 0) throw PrintFailure(
+                        "${job.printerName} does not accept printer data over the network (port 9100 and LPD are closed). " +
+                            "Connect it with USB, or set Printer driver back to Automatic.", false
+                    )
+                    renderWithDriver(job, pdf, driver, tmp, if (useLpd) "Network (LPD 515)" else "Network (port 9100)", automatic)
+                    update(job.id) { it.copy(status = JobStatus.SENDING, statusMessage = "Sending to printer…", progress = 0.6f) }
+                    withContext(Dispatchers.IO) {
+                        val onProgress: (Float) -> Unit = { p -> scope.launch { update(job.id) { j -> j.copy(progress = 0.6f + 0.35f * p) } } }
+                        if (useLpd) Transports.sendLpd(host, 515, "raw", job.title, tmp, onProgress)
+                        else Transports.sendRaw9100(host, 9100, tmp, onProgress)
+                    }
+                }
+            }
+        } finally {
+            tmp.delete()
         }
         complete(job.id, "Sent to ${job.printerName}.")
     }

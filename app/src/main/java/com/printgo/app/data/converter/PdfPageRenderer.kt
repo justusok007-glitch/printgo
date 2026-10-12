@@ -123,10 +123,15 @@ class PdfPageRenderer(val pdfFile: File) : Closeable {
      * Close the returned source before rendering another page.
      */
     @Synchronized
-    fun openRows(pageIndex: Int, paperWidthPx: Int, paperHeightPx: Int? = null): PageRows {
+    fun openRows(
+        pageIndex: Int,
+        paperWidthPx: Int,
+        paperHeightPx: Int? = null,
+        flip: com.printgo.app.data.print.SheetFlip = com.printgo.app.data.print.SheetFlip.NONE
+    ): PageRows {
         clearCache()
         val page = renderer.openPage(pageIndex)
-        return PageRows(page, paperWidthPx, paperHeightPx)
+        return PageRows(page, paperWidthPx, paperHeightPx, flip)
     }
 
     /**
@@ -136,7 +141,8 @@ class PdfPageRenderer(val pdfFile: File) : Closeable {
     class PageRows internal constructor(
         private val page: PdfRenderer.Page,
         override val width: Int,
-        heightPx: Int?
+        heightPx: Int?,
+        private val flip: com.printgo.app.data.print.SheetFlip = com.printgo.app.data.print.SheetFlip.NONE
     ) : com.printgo.app.data.print.RowSource, Closeable {
         private val pw = page.width.toFloat()
         private val ph = page.height.toFloat()
@@ -156,6 +162,13 @@ class PdfPageRenderer(val pdfFile: File) : Closeable {
                 m.postTranslate(0f, pw)     // -> (y, pw - x)
             }
             m.postScale(scale, scaleY)
+            // Back sides some drivers expect turned (see SheetFlip); done on the whole sheet.
+            when (flip) {
+                com.printgo.app.data.print.SheetFlip.NONE -> {}
+                com.printgo.app.data.print.SheetFlip.ROTATE_180 -> { m.postScale(-1f, -1f); m.postTranslate(width.toFloat(), height.toFloat()) }
+                com.printgo.app.data.print.SheetFlip.MIRROR_X -> { m.postScale(-1f, 1f); m.postTranslate(width.toFloat(), 0f) }
+                com.printgo.app.data.print.SheetFlip.MIRROR_Y -> { m.postScale(1f, -1f); m.postTranslate(0f, height.toFloat()) }
+            }
             m.postTranslate(0f, -top.toFloat())
             page.render(band, null, m, PdfRenderer.Page.RENDER_MODE_FOR_PRINT)
             bandTop = top

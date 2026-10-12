@@ -30,6 +30,9 @@ import com.printgo.app.screens.HomeScreen
 import com.printgo.app.screens.PhotosScreen
 import com.printgo.app.screens.PreviewScreen
 import com.printgo.app.screens.PrintersScreen
+import com.printgo.app.screens.PrinterDetailsScreen
+import com.printgo.app.screens.DriverPickerScreen
+import com.printgo.app.screens.DriverPacksScreen
 import com.printgo.app.screens.SettingsScreen
 import com.printgo.app.screens.WebPagesScreen
 import com.printgo.app.viewmodel.PrintSettingsViewModel
@@ -155,8 +158,37 @@ fun PrintGoNavHost(
         composable(Screen.Printers.route) {
             PrintersScreen(
                 printerViewModel = printerViewModel,
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.popBackStack() },
+                onNavigateToDetails = { id -> navController.navigate(Screen.PrinterDetails.create(id)) }
             )
+        }
+
+        composable(
+            Screen.PrinterDetails.route,
+            arguments = listOf(navArgument("printerId") { type = NavType.StringType })
+        ) { entry ->
+            PrinterDetailsScreen(
+                printerId = entry.arguments?.getString("printerId").orEmpty(),
+                printerViewModel = printerViewModel,
+                onBackClick = { navController.popBackStack() },
+                onOpenDriver = { id -> navController.navigate(Screen.PrinterDriver.create(id)) }
+            )
+        }
+
+        composable(
+            Screen.PrinterDriver.route,
+            arguments = listOf(navArgument("printerId") { type = NavType.StringType })
+        ) { entry ->
+            DriverPickerScreen(
+                printerId = entry.arguments?.getString("printerId").orEmpty(),
+                printerViewModel = printerViewModel,
+                onBackClick = { navController.popBackStack() },
+                onOpenPacks = { navController.navigate(Screen.DriverPacks.route) }
+            )
+        }
+
+        composable(Screen.DriverPacks.route) {
+            DriverPacksScreen(onBackClick = { navController.popBackStack() })
         }
 
         composable(Screen.Preview.route) {
@@ -198,6 +230,7 @@ fun PrintGoNavHost(
                 onBackClick = { navController.popBackStack() },
                 onNavigateToPrinters = { navController.navigate(Screen.Printers.route) },
                 onNavigateToJobs = { navController.navigate(Screen.Jobs.route) },
+                onNavigateToDrivers = { navController.navigate(Screen.DriverPacks.route) },
                 onNavigateToHelp = { navController.navigate(Screen.Help.route) },
                 onNavigateToAbout = { navController.navigate(Screen.About.route) },
                 onNavigateToPrivacy = { navController.navigate(Screen.Privacy.route) },

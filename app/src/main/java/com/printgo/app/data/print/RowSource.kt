@@ -14,6 +14,39 @@ interface RowSource {
     fun readRow(y: Int, out: IntArray)
 }
 
+/** An empty white page (for example the blank back of the last sheet when copies are printed two-sided). */
+class BlankRowSource(override val width: Int, override val height: Int) : RowSource {
+    override fun readRow(y: Int, out: IntArray) {
+        java.util.Arrays.fill(out, 0, width, -1)
+    }
+}
+
+/**
+ * How a back side is turned before it goes to a driver that expects that (HPLIP and SpliX printers whose
+ * description says cupsBackSide Rotated/Flipped; CUPS normally does this turning on a computer).
+ */
+enum class SheetFlip {
+    NONE, ROTATE_180, MIRROR_X, MIRROR_Y;
+
+    companion object {
+        /** From pg_cupsraster's "backside=" answer. */
+        fun fromQuery(value: String?): SheetFlip = when (value?.trim()) {
+            "rotate" -> ROTATE_180
+            "flipx" -> MIRROR_X
+            "flipy" -> MIRROR_Y
+            else -> NONE
+        }
+
+        /** Where pixel (x, y) of the turned page comes from in the original page of size w x h. */
+        fun sourceOf(flip: SheetFlip, x: Int, y: Int, w: Int, h: Int): Pair<Int, Int> = when (flip) {
+            NONE -> x to y
+            ROTATE_180 -> (w - 1 - x) to (h - 1 - y)
+            MIRROR_X -> (w - 1 - x) to y
+            MIRROR_Y -> x to (h - 1 - y)
+        }
+    }
+}
+
 /** A plain in-memory page; used by tests and small pictures. */
 class IntArrayRowSource(override val width: Int, override val height: Int, private val pixels: IntArray) : RowSource {
     override fun readRow(y: Int, out: IntArray) {

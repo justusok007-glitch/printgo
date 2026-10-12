@@ -79,6 +79,7 @@ fun SettingsScreen(
     onBackClick: () -> Unit,
     onNavigateToPrinters: () -> Unit,
     onNavigateToJobs: () -> Unit = {},
+    onNavigateToDrivers: () -> Unit = {},
     onNavigateToHelp: () -> Unit = {},
     onNavigateToAbout: () -> Unit = {},
     onNavigateToPrivacy: () -> Unit = {},
@@ -122,6 +123,8 @@ fun SettingsScreen(
                 Icons.Filled.History, "Keep history for",
                 if (settings.keepHistoryDays == 0) "Do not keep history" else "${settings.keepHistoryDays} days"
             ) { showHistoryDialog = true }
+
+            SettingsRow(Icons.Filled.Print, "Printer drivers", "Driver packs for Epson, Canon, HP, Samsung and more", onNavigateToDrivers)
 
             SettingsRow(
                 Icons.Filled.Print, "File format for Wi-Fi printers",

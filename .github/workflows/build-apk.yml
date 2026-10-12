@@ -37,6 +37,8 @@ jobs:
             native/build.sh "$t" native-out 2>&1 | tee -a "$RUNNER_TEMP/native.log"
           done
           python3 native/tools/make_packs.py native-out 2>&1 | tee -a "$RUNNER_TEMP/native.log"
+          # Every driver must turn a test page into plausible printer data before it ships.
+          python3 native/tools/smoke_test.py native-out 2>&1 | tee -a "$RUNNER_TEMP/native.log"
           rm -rf native-out/work native-out/host
       - name: Upload drivers
         uses: actions/upload-artifact@v4

@@ -16,4 +16,11 @@ sealed class Screen(val route: String) {
     data object JobDetails : Screen("job/{jobId}") {
         fun create(id: String) = "job/$id"
     }
+    data object PrinterDetails : Screen("printer/{printerId}") {
+        fun create(id: String) = "printer/${android.net.Uri.encode(id)}"
+    }
+    data object PrinterDriver : Screen("printer/{printerId}/driver") {
+        fun create(id: String) = "printer/${android.net.Uri.encode(id)}/driver"
+    }
+    data object DriverPacks : Screen("drivers")
 }

@@ -304,6 +304,26 @@ static ppd_file_t *open_ppd(const char *path, const char *optstr, optset *o) {
   return ppd;
 }
 
+/*
+ * How the back side of a two-sided sheet must be turned before it goes to the driver, from the PPD's
+ * cupsBackSide (or the older cupsFlipDuplex), the same way CUPS' own raster filters read it:
+ * "none", "rotate" (180 degrees), "flipx" (mirror left-right) or "flipy" (mirror top-bottom).
+ */
+static const char *backside_for(ppd_file_t *ppd, const cups_page_header2_t *h) {
+  if (!h->Duplex) return "none";
+  ppd_attr_t *a = ppdFindAttr(ppd, "cupsBackSide", NULL);
+  const char *v = a && a->value ? a->value : NULL;
+  if (!v) {
+    ppd_attr_t *f = ppdFindAttr(ppd, "cupsFlipDuplex", NULL);
+    if (f && f->value && !strcasecmp(f->value, "true")) v = "Rotated";
+  }
+  if (!v) return "none";
+  if (!strcasecmp(v, "ManualTumble")) return h->Tumble ? "rotate" : "none";
+  if (!strcasecmp(v, "Rotated")) return h->Tumble ? "none" : "rotate";
+  if (!strcasecmp(v, "Flipped")) return h->Tumble ? "flipx" : "flipy";
+  return "none";
+}
+
 static int query(const char *ppd_path, const char *optstr) {
   optset o;
   ppd_file_t *ppd = open_ppd(ppd_path, optstr, &o);
@@ -318,7 +338,7 @@ static int query(const char *ppd_path, const char *optstr) {
          h.ImagingBoundingBox[1], h.ImagingBoundingBox[2], h.ImagingBoundingBox[3], h.Duplex, h.Tumble,
          ps ? ps->choice : "");
   for (int i = 0; i < o.num; i++) printf("%s%s=%s", i ? " " : "", o.opts[i].name, o.opts[i].value);
-  printf("\n");
+  printf("\nbackside=%s\n", backside_for(ppd, &h));
   return 0;
 }
 
