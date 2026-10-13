@@ -35,6 +35,10 @@ import com.printgo.app.screens.DriverPickerScreen
 import com.printgo.app.screens.DriverPacksScreen
 import com.printgo.app.screens.SettingsScreen
 import com.printgo.app.screens.WebPagesScreen
+import com.printgo.app.screens.ScanDocumentScreen
+import com.printgo.app.screens.ScanEditScreen
+import com.printgo.app.viewmodel.ScanPurpose
+import com.printgo.app.viewmodel.ScanViewModel
 import com.printgo.app.viewmodel.PrintSettingsViewModel
 import com.printgo.app.viewmodel.PrinterViewModel
 import com.printgo.app.viewmodel.SelectionViewModel
@@ -46,6 +50,7 @@ fun PrintGoNavHost(
     selectionViewModel: SelectionViewModel = viewModel(),
     printerViewModel: PrinterViewModel = viewModel(),
     printSettingsViewModel: PrintSettingsViewModel = viewModel(),
+    scanViewModel: ScanViewModel = viewModel(),
     navController: NavHostController = rememberNavController(),
     startDestination: String = Screen.Home.route,
     openJobsTick: Int = 0
@@ -84,6 +89,18 @@ fun PrintGoNavHost(
     }
 
     val start = firstRoute ?: return
+
+    fun openScanDocument() {
+        scanViewModel.startDocument()
+        navController.navigate(Screen.ScanDocument.create(camera = true))
+    }
+
+    fun openScanBeforePrint(items: List<com.printgo.app.model.PrintItem>) {
+        scanViewModel.startPhotos(items)
+        if (scanViewModel.state.value.pages.isEmpty()) return
+        scanViewModel.beginEdit()
+        navController.navigate(Screen.ScanEdit.route) { launchSingleTop = true }
+    }
     androidx.compose.runtime.DisposableEffect(navController) {
         val listener = androidx.navigation.NavController.OnDestinationChangedListener { _, destination, _ ->
             if (destination.route == Screen.Home.route) {
@@ -130,14 +147,58 @@ fun PrintGoNavHost(
                 onNavigateToWebPages = { navController.navigate(Screen.WebPages.route) },
                 onNavigateToSettings = { navController.navigate(Screen.Settings.route) },
                 onNavigateToPrinters = { navController.navigate(Screen.Printers.route) },
-                onNavigateToJobs = { navController.navigate(Screen.Jobs.route) }
+                onNavigateToJobs = { navController.navigate(Screen.Jobs.route) },
+                onNavigateToScan = { openScanDocument() }
             )
         }
 
         composable(Screen.Photos.route) {
             PhotosScreen(
                 selectionViewModel = selectionViewModel,
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.popBackStack() },
+                onScanBeforePrint = { openScanBeforePrint(selectionViewModel.selectedItems.value) },
+                onScanWithCamera = { openScanDocument() }
+            )
+        }
+
+        composable(Screen.ScanEdit.route) {
+            ScanEditScreen(
+                scanViewModel = scanViewModel,
+                onCancel = {
+                    scanViewModel.cancelEdit()
+                    navController.popBackStack()
+                },
+                onDone = {
+                    if (scanViewModel.state.value.purpose == ScanPurpose.PHOTOS) {
+                        // Edited copies replace the photos in the selection; printing then works as before.
+                        selectionViewModel.replaceItems(scanViewModel.finishPhotos())
+                        navController.popBackStack()
+                        selectionViewModel.onPrintClicked()
+                    } else {
+                        scanViewModel.endEdit()
+                        navController.popBackStack()
+                    }
+                }
+            )
+        }
+
+        composable(
+            Screen.ScanDocument.route,
+            arguments = listOf(navArgument("camera") { type = NavType.BoolType; defaultValue = false })
+        ) { entry ->
+            ScanDocumentScreen(
+                scanViewModel = scanViewModel,
+                startWithCamera = entry.arguments?.getBoolean("camera") ?: false,
+                onBack = { navController.popBackStack() },
+                onEditPage = { index ->
+                    scanViewModel.select(index)
+                    scanViewModel.beginEdit()
+                    navController.navigate(Screen.ScanEdit.route) { launchSingleTop = true }
+                },
+                onPrint = { item ->
+                    selectionViewModel.setItems(listOf(item))
+                    selectionViewModel.onPrintClicked()
+                }
             )
         }
 
@@ -198,6 +259,7 @@ fun PrintGoNavHost(
                 printSettingsViewModel = printSettingsViewModel,
                 onBackClick = { navController.popBackStack() },
                 onNavigateToPrinters = { navController.navigate(Screen.Printers.route) },
+                onScanPhotos = { openScanBeforePrint(selectionViewModel.selectedItems.value) },
                 onJobQueued = { id ->
                     selectionViewModel.clearSelection()
                     navController.navigate(Screen.JobDetails.create(id)) {

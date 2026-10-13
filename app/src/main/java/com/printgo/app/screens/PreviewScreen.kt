@@ -56,6 +56,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.DocumentScanner
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PictureAsPdf
@@ -168,7 +169,8 @@ fun PreviewScreen(
     onBackClick: () -> Unit,
     onNavigateToPrinters: () -> Unit,
     modifier: Modifier = Modifier,
-    onJobQueued: (String) -> Unit = {}
+    onJobQueued: (String) -> Unit = {},
+    onScanPhotos: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -327,6 +329,19 @@ fun PreviewScreen(
                     }
                 },
                 actions = {
+                    // Scan before Print: crop/straighten/filter the selected photos
+                    if (selectedItems.any { it.type == com.printgo.app.model.PrintItemType.IMAGE }) {
+                        IconButton(
+                            onClick = onScanPhotos,
+                            modifier = Modifier.testTag("preview_scan_button")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.DocumentScanner,
+                                contentDescription = "Scan before Print",
+                                tint = Color.White
+                            )
+                        }
+                    }
                     // PRINT action button with count badge
                     Surface(
                         modifier = Modifier

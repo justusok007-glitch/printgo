@@ -81,6 +81,17 @@ class SelectionViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
+    /** Swaps items for edited copies (Scan before Print), keeping their order. */
+    fun replaceItems(replacements: Map<Uri, PrintItem>) {
+        if (replacements.isEmpty()) return
+        _selectedItems.update { current -> current.map { replacements[it.uri] ?: it } }
+    }
+
+    /** Selects only [items] (a scanned PDF to print). */
+    fun setItems(items: List<PrintItem>) {
+        _selectedItems.value = items
+    }
+
     fun clearSelection() {
         _selectedItems.value = emptyList()
     }

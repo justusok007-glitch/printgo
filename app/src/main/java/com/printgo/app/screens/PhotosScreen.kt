@@ -38,6 +38,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.DocumentScanner
+import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.AddPhotoAlternate
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Check
@@ -104,7 +106,9 @@ fun PhotosScreen(
     selectionViewModel: SelectionViewModel,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
-    photosViewModel: PhotosViewModel = viewModel()
+    photosViewModel: PhotosViewModel = viewModel(),
+    onScanBeforePrint: () -> Unit = {},
+    onScanWithCamera: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val uiState by photosViewModel.uiState.collectAsStateWithLifecycle()
@@ -168,6 +172,16 @@ fun PhotosScreen(
                     }
                 },
                 actions = {
+                    IconButton(
+                        onClick = onScanWithCamera,
+                        modifier = Modifier.testTag("photos_camera_button")
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.PhotoCamera,
+                            contentDescription = "Scan with camera",
+                            tint = Color.White
+                        )
+                    }
                     IconButton(
                         onClick = {
                             photoPickerLauncher.launch(
@@ -459,12 +473,44 @@ fun PhotosScreen(
                             .navigationBarsPadding()
                             .padding(horizontal = 20.dp, vertical = 14.dp)
                     ) {
-                        PrimaryButton(
-                            text = "Print (${selectedItems.size})",
-                            onClick = { selectionViewModel.onPrintClicked() },
-                            backgroundColor = ActionBlue,
-                            testTag = "photos_print_button"
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            OutlinedButton(
+                                onClick = onScanBeforePrint,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(54.dp)
+                                    .testTag("photos_scan_button"),
+                                shape = RoundedCornerShape(16.dp),
+                                border = BorderStroke(1.5.dp, ActionBlue),
+                                contentPadding = PaddingValues(horizontal = 8.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.DocumentScanner,
+                                    contentDescription = null,
+                                    tint = ActionBlue,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = "Scan before Print",
+                                    color = ActionBlue,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    maxLines = 1
+                                )
+                            }
+                            PrimaryButton(
+                                text = "Print (${selectedItems.size})",
+                                onClick = { selectionViewModel.onPrintClicked() },
+                                modifier = Modifier.weight(1f),
+                                backgroundColor = ActionBlue,
+                                testTag = "photos_print_button"
+                            )
+                        }
                     }
                 }
             }

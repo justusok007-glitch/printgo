@@ -72,7 +72,8 @@ fun HomeScreen(
     onNavigateToSettings: () -> Unit,
     onNavigateToPrinters: () -> Unit,
     modifier: Modifier = Modifier,
-    onNavigateToJobs: () -> Unit = {}
+    onNavigateToJobs: () -> Unit = {},
+    onNavigateToScan: () -> Unit = {}
 ) {
     val coroutineScope = rememberCoroutineScope()
     val connectionStatus by printerViewModel.connectionStatus.collectAsStateWithLifecycle()
@@ -93,6 +94,7 @@ fun HomeScreen(
         onNavigateToSettings = onNavigateToSettings,
         onNavigateToPrinters = onNavigateToPrinters,
         onNavigateToJobs = onNavigateToJobs,
+        onNavigateToScan = onNavigateToScan,
         onRetryPrinter = {
             coroutineScope.launch {
                 printerViewModel.checkCurrentPrinterReachability()
@@ -112,7 +114,8 @@ fun HomeScreenContent(
     onNavigateToPrinters: () -> Unit,
     onRetryPrinter: () -> Unit,
     modifier: Modifier = Modifier,
-    onNavigateToJobs: () -> Unit = {}
+    onNavigateToJobs: () -> Unit = {},
+    onNavigateToScan: () -> Unit = {}
 ) {
     Column(
         modifier = modifier
@@ -198,7 +201,15 @@ fun HomeScreenContent(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(14.dp))
+                Spacer(modifier = Modifier.height(12.dp))
+                ScanDocumentEntry(
+                    onClick = onNavigateToScan,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
                 CreatorCredit(modifier = Modifier.fillMaxWidth())
                 Spacer(modifier = Modifier.height(4.dp))
 
@@ -210,6 +221,59 @@ fun HomeScreenContent(
                         .navigationBarsPadding()
                 )
             }
+        }
+    }
+}
+
+/** Slim "Scan document" entry: opens the camera and turns photos of pages into a PDF. */
+@Composable
+private fun ScanDocumentEntry(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    androidx.compose.material3.Surface(
+        modifier = modifier
+            .clip(androidx.compose.foundation.shape.RoundedCornerShape(18.dp))
+            .clickable(onClick = onClick)
+            .testTag("card_scan"),
+        shape = androidx.compose.foundation.shape.RoundedCornerShape(18.dp),
+        color = PrintGoTheme.colors.cardDocsBg,
+        border = androidx.compose.foundation.BorderStroke(1.dp, ActionGreen.copy(alpha = 0.35f))
+    ) {
+        androidx.compose.foundation.layout.Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            androidx.compose.material3.Surface(
+                modifier = Modifier.size(40.dp),
+                shape = androidx.compose.foundation.shape.CircleShape,
+                color = ActionGreen
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    androidx.compose.material3.Icon(
+                        imageVector = androidx.compose.material.icons.Icons.Filled.DocumentScanner,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.width(14.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Scan document",
+                    fontSize = 17.sp,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                    color = PrintGoTheme.colors.headingColor
+                )
+                Text(
+                    text = "Use your camera, then print or save as PDF",
+                    fontSize = 13.sp,
+                    color = BodyGray
+                )
+            }
+            androidx.compose.material3.Icon(
+                imageVector = androidx.compose.material.icons.Icons.Filled.CameraAlt,
+                contentDescription = null,
+                tint = ActionGreen
+            )
         }
     }
 }
