@@ -23,6 +23,10 @@ I am Saqib Khalil. I want you to continue developing my Android printing app **P
 - Built-in printer drivers (since v1.2.0): Epson ESC/P-R, Gutenprint, HPLIP (hpcups) and SpliX, compiled
   from source on GitHub Actions (`native/`), with a "Printer driver" picker (Printers → ⓘ) and downloadable
   data packs (release "driver-packs"). PrintGo is free software under GPL-3.0-or-later.
+- Scanner (since v1.3.0): "Scan before Print" for gallery photos, "Scan document" with the camera, crop
+  (free, paper shape, 4-corner straightening with automatic page detection, turn), filters (Original, Vibrant,
+  Carbon Black, Soft Tone, Clean Colour) and multi-page scan to one PDF (print or save/share). Pure Kotlin,
+  no ML Kit or OpenCV.
 - Features already built: printer discovery and saving, USB auto-detect, print preview, copies,
   all/odd/even/range pages, reverse order, pages per sheet, 2-sided, paper sizes (A4, A5, Letter, Legal,
   4x6), orientation, fit/fill/actual/custom scale, print position, margins, colour/greyscale, print jobs

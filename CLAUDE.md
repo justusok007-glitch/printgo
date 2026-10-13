@@ -57,6 +57,9 @@ keep rules in `app/proguard-rules.pro`.
   PrinterDetails (route `printer/{id}`, opened by the ⓘ button; has the "Printer driver" card), DriverScreens
   (`DriverPickerScreen` route `printer/{id}/driver`, `DriverPacksScreen` route `drivers` from Settings), Jobs, JobDetails (shows Connection line + "First page as sent to the printer"),
   Settings, Onboarding, Help/About/Privacy (`InfoScreens.kt`).
+- `screens/ScanEditScreen.kt` (route `scan/edit`: big picture, Crop/Filters tabs, page strip, corner magnifier)
+  and `screens/ScanDocumentScreen.kt` (route `scan/document?camera=`: "Scan to PDF" page list, add page by
+  camera/gallery, reorder/delete/edit, paper size, Print / Save as PDF + Share; also `rememberScanCamera`).
 - `navigation/` — `Routes.kt`, `PrintGoNavHost.kt` (onboarding gate; clearing selection on Home).
 - `viewmodel/` — `PrinterViewModel` (discovery, connect, USB events), `DriverViewModel` (picker + packs;
   `suggest()`/`search()` are pure and unit-tested), `PrintSettingsViewModel`
@@ -88,6 +91,18 @@ keep rules in `app/proguard-rules.pro`.
 - `native/` — driver builds: `sources.json` (pinned tarballs + sha256), `fetch_sources.py`, `build.sh`,
   `cmake/{escpr,hpcups,splix,tools}` (+ `common.cmake` warning flags), `patches/` (CUPS: no pthread_cancel on
   Android), `src/` (our GPL-3 front-ends `pg_gutenprint.c`, `pg_cupsraster.c`, `pgr.h`), `tools/make_packs.py`, `tools/smoke_test.py`.
+- `data/scan/` — scanner (v1.3.0). Pure Kotlin, JVM-tested in `ScanEngineTest.kt`: `ScanFilters.kt`
+  (`ScanFilter`, `ScanFilterEngine` on ARGB arrays in row bands, `BackgroundMap` = paper colour from a small copy
+  via max-filter + blur, used by Carbon Black/Clean Colour), `ScanGeometry.kt` (`Pt`, `Quad` relative 0..1 to the
+  turned picture, turns, EXIF/turn → stored pixel mapping, paper-ratio crop, homography), `PageDetector.kt`
+  (blur → Sobel → Otsu regions + edge-enclosed regions → hull → max-area quad; must be convex, ≥10 % area, sane
+  angles, strong edges and a steady brightness step on all 4 sides, else null → corners 6 % inside),
+  `ScanPages.kt` (`ScanPage` edit state, `renderKey`, list ops), `JpegPdfWriter.kt` (own PDF writer, JPEG
+  pages embedded as DCTDecode, landscape pictures get landscape pages). Android side: `ScanImageIO.kt`
+  (decode with power-of-two sampling capped by heap size, EXIF + turns + crop in one `Matrix.setPolyToPoly`
+  draw, filter in bands, JPEG out). `viewmodel/ScanViewModel.kt` holds pages, previews, detection, rendering.
+  Files live in `filesDir/scan/{camera,src,out,pdf}` (FileProvider path `scan/`), cleaned after 3 days.
+  The user's original photos are only read, never changed.
 - `data/discovery/` — mDNS Wi-Fi discovery (`_ipp`, `_ipps`, `_pdl-datastream`, `_printer`; prefers IPv4),
   `SnmpDeviceId` (IEEE-1284 device id over SNMP), USB, Bluetooth.
 - `res/xml/network_security_config.xml` — **allows plain HTTP**. Without it Android blocks every IPP request
@@ -156,6 +171,17 @@ keep rules in `app/proguard-rules.pro`.
     - HP printers that need HP's closed plug-in (`hpPrinterLanguage` ljzjstream/ljzxstream, e.g. P1102) are left
       out of the catalog. The x86-only HP image processor is disabled (`DISABLE_IMAGEPROCESSOR`).
 
+## Scanner rules (v1.3.0)
+- Scanning does not touch printing: "Scan before Print" swaps the selected photos for edited JPEG copies
+  (`SelectionViewModel.replaceItems`) and goes back to the normal Preview; unchanged photos keep the original item.
+  "Scan to PDF" builds one PDF and puts it in the selection as a normal PDF item; Save uses `PdfSaver.saveToDownloads`.
+- Final pages: about 300 dpi (photos: long side 3508 px; PDF: paper long side minus 6 mm margins), never larger
+  than the source; source decode capped at 6/12/16 MP depending on `maxMemory`.
+- Camera: `TakePicture` into `filesDir/scan/camera` via FileProvider. The app does **not** declare the CAMERA
+  permission (declaring it would force a runtime request for the camera intent). Cancel = nothing happens.
+- Entry points: Home "Scan document" strip (under the three cards, above the credit), Photos top bar camera
+  icon + "Scan before Print" button next to Print, Preview top bar scanner icon (only when images are selected).
+
 ## Verified on real hardware
 - 2026-10-11: **HP LaserJet P2055dn over Wi-Fi → port 9100, PCL** prints correctly (owner confirmed).
 - 2026-10-12 (v1.1.0): owner reported Epson L455, HP LaserJet Pro M404/M405 and HP LaserJet P3010 did not
@@ -169,6 +195,9 @@ keep rules in `app/proguard-rules.pro`.
   Verified only by the CI smoke test (every driver produces plausible printer data on Linux); **not yet on a
   real printer or phone** — ask the owner to try the P3010 with Printer driver → "HP LaserJet p3010 Series
   (HP (HPLIP))" over Wi-Fi port 9100 and USB, and report the Connection line.
+- 2026-10-13 (v1.3.0): scanner added. Only the pure maths is tested (JVM unit tests on synthetic images);
+  **not yet tried on a phone** — ask the owner to test gallery scan, each filter, the crop types, auto detection
+  on a dark table and on a busy background, camera scan and a 3-page PDF (print and save).
 - Not yet verified by the owner: two-sided, Legal, landscape, custom scale/position, USB, Bluetooth,
   other brands. Ask for the job's Connection line + a photo when a print comes out wrong.
 
@@ -183,6 +212,9 @@ keep rules in `app/proguard-rules.pro`.
 - Host-based/GDI printers that need a closed driver (Canon CAPT such as LBP2900/LBP6000, HP ZjStream such as
   LaserJet P1102/1020) cannot be driven, even with the built-in drivers; use "Print with system dialog" + the
   maker's print-service plugin.
+- Scanner page detection is simple image maths: it can miss pages on a white table, pages that run off the photo,
+  or very busy/low-contrast scenes; then the corners are placed slightly inside the photo for the user to drag.
+  EXIF mirror flags are ignored (only rotations, as in the existing image converter). No OCR.
 - No pause/resume; no printers that require a login; Office conversion is best-effort.
 - Phone and printer must be on the same Wi-Fi (guest networks often block discovery).
 
