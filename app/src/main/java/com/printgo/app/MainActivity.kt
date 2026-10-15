@@ -34,8 +34,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         // Handle shared files if launched via Intent
-        handleUsbIntent(intent)
-        selectionViewModel.handleIncomingIntent(this, intent)
+        // Only on a fresh start: after a screen rotation the same shared file must not be added again.
+        if (savedInstanceState == null) {
+            handleUsbIntent(intent)
+            selectionViewModel.handleIncomingIntent(this, intent)
+        }
         if (intent?.getBooleanExtra(EXTRA_OPEN_JOBS, false) == true) openJobsTick++
 
         setContent {

@@ -1,6 +1,7 @@
 package com.printgo.app
 
 import com.printgo.app.data.scan.BackgroundMap
+import com.printgo.app.data.scan.CropMode
 import com.printgo.app.data.scan.CropShape
 import com.printgo.app.data.scan.JpegInfo
 import com.printgo.app.data.scan.JpegPdfWriter
@@ -335,6 +336,26 @@ class ScanEngineTest {
         assertTrue(all.all { it.filter == ScanFilter.CARBON_BLACK && it.strength == 0.7f })
         val changed = p[2].copy(quarterTurns = 1)
         assertEquals(1, ScanPageList.replace(p, changed)[2].quarterTurns)
+    }
+
+    @Test
+    fun galleryAutoCropRules() {
+        val photo = pages(1)[0]
+        val found = Quad(Pt(0.1, 0.12), Pt(0.9, 0.1), Pt(0.88, 0.9), Pt(0.12, 0.92))
+        // A document found in a gallery photo is straightened with the 4-corner crop
+        val a = ScanPageList.applyDetection(photo, Quad.FULL, found, keepIfNotFound = true)
+        assertEquals(found, a.quad); assertEquals(CropMode.CORNERS, a.cropMode); assertTrue(a.detected)
+        // An ordinary photo (nothing found) is not cut
+        assertEquals(photo, ScanPageList.applyDetection(photo, Quad.FULL, null, keepIfNotFound = true))
+        // A document page with nothing found gets corners slightly inside the picture
+        val doc = photo.copy(cropMode = CropMode.CORNERS)
+        val b = ScanPageList.applyDetection(doc, Quad.FULL, null, keepIfNotFound = false)
+        assertEquals(ScanGeometry.insetQuad(), b.quad); assertTrue(b.detected)
+        // The user's own crop made while detection was running is kept
+        val moved = photo.copy(quad = Quad.rect(0.2, 0.2, 0.8, 0.8))
+        assertEquals(moved, ScanPageList.applyDetection(moved, Quad.FULL, found, keepIfNotFound = true))
+        // Already detected pages are not changed again
+        assertEquals(a, ScanPageList.applyDetection(a, a.quad, Quad.FULL, keepIfNotFound = true))
     }
 
     @Test

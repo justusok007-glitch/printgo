@@ -179,8 +179,20 @@ keep rules in `app/proguard-rules.pro`.
   than the source; source decode capped at 6/12/16 MP depending on `maxMemory`.
 - Camera: `TakePicture` into `filesDir/scan/camera` via FileProvider. The app does **not** declare the CAMERA
   permission (declaring it would force a runtime request for the camera intent). Cancel = nothing happens.
+- Automatic page detection (v1.3.1) runs in the background for **every** picture added: camera, gallery pages in
+  "Scan to PDF" (`addPages`) and every photo in "Scan before Print" (`startPhotos`). Rule in
+  `ScanPageList.applyDetection`: found → 4-corner crop; not found → document pages get corners 6 % inside, ordinary
+  photos stay uncut; a crop the user changed meanwhile is never overwritten. Done/Print/Save wait (max 20 s) for it.
 - Entry points: Home "Scan document" strip (under the three cards, above the credit), Photos top bar camera
   icon + "Scan before Print" button next to Print, Preview top bar scanner icon (only when images are selected).
+
+## Files shared from other apps (v1.3.1 fix)
+- `SelectionViewModel.handleIncomingIntent` handles SEND / SEND_MULTIPLE / VIEW (also ClipData-only shares) and
+  copies the file. The "open preview" request is a CONFLATED `Channel` (a SharedFlow dropped it when PrintGo was
+  started cold by the share). `receivingShare` stops the Home listener in `PrintGoNavHost` from clearing the
+  selection until the Preview is shown. `MainActivity` handles the start intent only when `savedInstanceState == null`.
+- Owner reported 2026-10-15 (v1.3.0): sharing a PDF from the file manager did not open it in PrintGo → fixed in
+  v1.3.1, **waiting for the owner to confirm**.
 
 ## Verified on real hardware
 - 2026-10-11: **HP LaserJet P2055dn over Wi-Fi → port 9100, PCL** prints correctly (owner confirmed).

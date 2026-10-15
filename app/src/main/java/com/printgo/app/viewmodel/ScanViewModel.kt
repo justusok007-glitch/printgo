@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -61,9 +62,11 @@ data class ScanUiState(
     val paper: ScanPaper = ScanPaper.A4,
     /** A plain message while pages are being prepared ("Preparing page 2 of 3…"), or null. */
     val busy: String? = null,
-    val detecting: Boolean = false
+    /** Pages whose edges are being looked for right now. */
+    val detectingIds: Set<String> = emptySet()
 ) {
     val current: ScanPage? get() = pages.getOrNull(index)
+    val detecting: Boolean get() = current?.id?.let { it in detectingIds } == true
 }
 
 /**
@@ -164,6 +167,8 @@ class ScanViewModel(application: Application) : AndroidViewModel(application) {
             ScanPage(id = id, source = item.uri.toString(), displayName = item.displayName)
         }
         _state.value = ScanUiState(purpose = ScanPurpose.PHOTOS, pages = pages, index = 0)
+        // Photos of documents get their page edges found and straightened by themselves; other photos stay as they are.
+        autoDetect(pages.map { it.id }, keepIfNotFound = true)
     }
 
     /** New multi-page scan (from Home or the camera button). */
@@ -181,12 +186,64 @@ class ScanViewModel(application: Application) : AndroidViewModel(application) {
             cropMode = CropMode.CORNERS
         )
         _state.update { it.copy(pages = it.pages + page, index = it.pages.size) }
+        autoDetect(listOf(page.id), keepIfNotFound = false)
+    }
+
+    /** Adds several picked pictures as pages; page edges are found for each in the background. */
+    fun addPages(files: List<File>) {
+        val start = _state.value.pages.size
+        val pages = files.mapIndexed { i, f ->
+            ScanPage(
+                id = UUID.randomUUID().toString(),
+                source = Uri.fromFile(f).toString(),
+                displayName = "Page ${start + i + 1}",
+                cropMode = CropMode.CORNERS
+            )
+        }
+        if (pages.isEmpty()) return
+        _state.update { it.copy(pages = it.pages + pages, index = start) }
+        autoDetect(pages.map { it.id }, keepIfNotFound = false)
+    }
+
+    /** Looks for the page edges of the given pages one after another, without blocking the screen. */
+    private fun autoDetect(ids: List<String>, keepIfNotFound: Boolean) {
+        viewModelScope.launch {
+            var found = 0
+            for (id in ids) {
+                val page = _state.value.pages.firstOrNull { it.id == id } ?: continue
+                if (page.detected || id in _state.value.detectingIds) continue
+                _state.update { it.copy(detectingIds = it.detectingIds + id) }
+                val quad = findPage(page)
+                if (quad != null) found++
+                _state.update { s ->
+                    s.copy(
+                        detectingIds = s.detectingIds - id,
+                        pages = s.pages.map { p ->
+                            if (p.id == id) ScanPageList.applyDetection(p, page.quad, quad, keepIfNotFound) else p
+                        }
+                    )
+                }
+            }
+            if (keepIfNotFound && found > 0) {
+                _messages.value = if (ids.size == 1) "Page edges found and straightened. Check them in Crop." else
+                    "Page edges found on $found of ${ids.size} photos. Check them in Crop."
+            }
+        }
+    }
+
+    /** Page corners found in the picture of [page] (as shown, with its turns), or null. */
+    private suspend fun findPage(page: ScanPage): Quad? = withContext(Dispatchers.Default) {
+        val b = runCatching { turned(page.source, page.quarterTurns) }.getOrNull() ?: return@withContext null
+        runCatching {
+            val (lum, w, h) = ScanImageIO.luma(b, 640)
+            PageDetector.detect(lum, w, h)?.quad
+        }.getOrNull()
     }
 
     fun beginEdit() { beforeEdit = _state.value }
 
     fun cancelEdit() {
-        beforeEdit?.let { saved -> _state.update { saved.copy(busy = null, detecting = false) } }
+        beforeEdit?.let { saved -> _state.update { saved.copy(busy = null, detectingIds = it.detectingIds) } }
         beforeEdit = null
     }
 
@@ -256,21 +313,16 @@ class ScanViewModel(application: Application) : AndroidViewModel(application) {
     /** Finds the page edges and places the four corners there (or slightly inside the photo). */
     fun detectPage() {
         val page = _state.value.current ?: return
-        if (_state.value.detecting) return
-        _state.update { it.copy(detecting = true) }
+        if (page.id in _state.value.detectingIds) return
+        _state.update { it.copy(detectingIds = it.detectingIds + page.id) }
         viewModelScope.launch {
-            val found = withContext(Dispatchers.Default) {
-                val b = runCatching { turned(page.source, page.quarterTurns) }.getOrNull() ?: return@withContext null
-                runCatching {
-                    val (lum, w, h) = ScanImageIO.luma(b, 640)
-                    PageDetector.detect(lum, w, h)
-                }.getOrNull()
-            }
+            val found = findPage(page)
             _state.update { s ->
-                val p = s.pages.firstOrNull { it.id == page.id } ?: return@update s.copy(detecting = false)
-                val quad = found?.quad ?: ScanGeometry.insetQuad()
+                val p = s.pages.firstOrNull { it.id == page.id }
+                    ?: return@update s.copy(detectingIds = s.detectingIds - page.id)
+                val quad = found ?: ScanGeometry.insetQuad()
                 s.copy(
-                    detecting = false,
+                    detectingIds = s.detectingIds - page.id,
                     pages = ScanPageList.replace(s.pages, p.copy(quad = quad, detected = true, cropMode = CropMode.CORNERS))
                 )
             }
@@ -369,6 +421,16 @@ class ScanViewModel(application: Application) : AndroidViewModel(application) {
 
     private suspend fun renderAll(pages: List<ScanPage>, maxLong: Int, skipUnchanged: Boolean): List<File?> =
         renderLock.withLock {
+            // Let automatic page detection finish first, so its crop is used.
+            if (_state.value.detectingIds.isNotEmpty()) {
+                _state.update { it.copy(busy = "Finding the page edges…") }
+                kotlinx.coroutines.withTimeoutOrNull(20_000) {
+                    _state.first { it.detectingIds.isEmpty() }
+                }
+            }
+            val current = _state.value.pages.associateBy { it.id }
+            @Suppress("NAME_SHADOWING")
+            val pages = pages.map { current[it.id] ?: it }
             val out = ArrayList<File?>()
             try {
                 pages.forEachIndexed { i, p ->

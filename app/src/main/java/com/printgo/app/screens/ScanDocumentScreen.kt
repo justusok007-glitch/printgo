@@ -178,7 +178,7 @@ fun ScanDocumentScreen(
     )
     val gallery = rememberScanGallery { files ->
         val first = scanViewModel.state.value.pages.size
-        files.forEach { scanViewModel.addPage(it, "Page ${scanViewModel.state.value.pages.size + 1}") }
+        scanViewModel.addPages(files)
         onEditPage(first)
     }
 

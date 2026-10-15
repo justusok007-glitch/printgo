@@ -103,7 +103,8 @@ fun PrintGoNavHost(
     }
     androidx.compose.runtime.DisposableEffect(navController) {
         val listener = androidx.navigation.NavController.OnDestinationChangedListener { _, destination, _ ->
-            if (destination.route == Screen.Home.route) {
+            if (destination.route == Screen.Preview.route) selectionViewModel.onPreviewShown()
+            if (destination.route == Screen.Home.route && !selectionViewModel.receivingShare) {
                 selectionViewModel.clearSelection()
                 com.printgo.app.data.layout.SheetLayoutEngine.clearCache()
             }

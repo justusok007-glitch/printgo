@@ -59,6 +59,21 @@ object ScanPageList {
     fun applyFilterToAll(pages: List<ScanPage>, filter: ScanFilter, strength: Float): List<ScanPage> =
         pages.map { it.copy(filter = filter, strength = strength) }
 
+    /**
+     * Result of automatic page detection for [page]. [quadAtStart] is the crop when detection started; if the
+     * user changed the crop meanwhile, or the page was already detected, nothing changes (returns the page as it
+     * is). A found page switches to the 4-corner crop. When nothing is found, a document page gets corners
+     * slightly inside the picture; an ordinary photo ([keepIfNotFound]) is left untouched so it is not cut.
+     */
+    fun applyDetection(page: ScanPage, quadAtStart: Quad, found: Quad?, keepIfNotFound: Boolean): ScanPage {
+        if (page.detected || page.quad != quadAtStart) return page
+        return when {
+            found != null -> page.copy(quad = found, cropMode = CropMode.CORNERS, detected = true)
+            keepIfNotFound -> page
+            else -> page.copy(quad = ScanGeometry.insetQuad(), cropMode = CropMode.CORNERS, detected = true)
+        }
+    }
+
     /** Index to show after the page at [removedIndex] was deleted from a list that now has [newSize] pages. */
     fun indexAfterRemove(removedIndex: Int, newSize: Int): Int =
         if (newSize <= 0) 0 else removedIndex.coerceIn(0, newSize - 1)

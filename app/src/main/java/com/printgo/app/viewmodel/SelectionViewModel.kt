@@ -11,7 +11,10 @@ import com.printgo.app.data.local.PrintGoDatabase
 import com.printgo.app.data.repository.RecentDocumentRepository
 import com.printgo.app.model.PrintItem
 import com.printgo.app.model.PrintItemType
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,8 +32,22 @@ class SelectionViewModel(application: Application) : AndroidViewModel(applicatio
     private val _selectedItems = MutableStateFlow<List<PrintItem>>(emptyList())
     val selectedItems: StateFlow<List<PrintItem>> = _selectedItems.asStateFlow()
 
-    private val _navigateToPreview = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
-    val navigateToPreview: SharedFlow<Unit> = _navigateToPreview.asSharedFlow()
+    // A channel keeps the request until the screen is ready to collect it (a shared file can arrive before the
+    // navigation is set up when PrintGo is started from another app).
+    private val _navigateToPreview = Channel<Unit>(Channel.CONFLATED)
+    val navigateToPreview: Flow<Unit> = _navigateToPreview.receiveAsFlow()
+
+    /**
+     * True from the moment a file is shared to PrintGo until the print preview is shown. The Home screen clears
+     * the selection when it appears; it must not do that while a shared file is on its way.
+     */
+    @Volatile
+    var receivingShare: Boolean = false
+        private set
+
+    fun onPreviewShown() {
+        receivingShare = false
+    }
 
     private val _snackbarMessage = MutableSharedFlow<String>(extraBufferCapacity = 1)
     val snackbarMessage: SharedFlow<String> = _snackbarMessage.asSharedFlow()
@@ -98,7 +115,7 @@ class SelectionViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun onPrintClicked() {
         if (_selectedItems.value.isNotEmpty()) {
-            _navigateToPreview.tryEmit(Unit)
+            _navigateToPreview.trySend(Unit)
         }
     }
 
@@ -125,7 +142,9 @@ class SelectionViewModel(application: Application) : AndroidViewModel(applicatio
     fun handleIncomingIntent(context: Context, intent: Intent?) {
         if (intent == null) return
         val action = intent.action ?: return
+        if (action != Intent.ACTION_SEND && action != Intent.ACTION_SEND_MULTIPLE && action != Intent.ACTION_VIEW) return
         val type = intent.type ?: "*/*"
+        receivingShare = true
 
         viewModelScope.launch {
             val items = mutableListOf<PrintItem>()
@@ -175,6 +194,24 @@ class SelectionViewModel(application: Application) : AndroidViewModel(applicatio
                 }
             }
 
+            // Some file managers put the file only in the intent's ClipData
+            if (items.isEmpty() && action != Intent.ACTION_VIEW) {
+                val clip = intent.clipData
+                if (clip != null) {
+                    for (i in 0 until clip.itemCount) {
+                        val uri = clip.getItemAt(i).uri ?: continue
+                        resolvePrintItem(context, uri, type)?.let { items.add(it) }
+                    }
+                }
+            }
+
+            if (items.isEmpty()) {
+                receivingShare = false
+                if (action == Intent.ACTION_VIEW || intent.hasExtra(Intent.EXTRA_STREAM) || intent.clipData != null) {
+                    showMessage("Could not open the shared file. Please try again.")
+                }
+            }
+
             if (items.isNotEmpty()) {
                 // Save documents to recent
                 items.forEach { item ->
@@ -183,7 +220,7 @@ class SelectionViewModel(application: Application) : AndroidViewModel(applicatio
                     }
                 }
                 _selectedItems.value = items
-                _navigateToPreview.tryEmit(Unit)
+                _navigateToPreview.trySend(Unit)
                 showMessage("Received ${items.size} file(s) to print")
             }
         }
