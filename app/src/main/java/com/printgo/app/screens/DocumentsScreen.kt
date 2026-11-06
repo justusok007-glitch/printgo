@@ -86,6 +86,7 @@ import com.printgo.app.R
 import com.printgo.app.components.PrimaryButton
 import com.printgo.app.model.PrintItem
 import com.printgo.app.model.PrintItemType
+import com.printgo.app.theme.BodyGray
 import com.printgo.app.theme.AccentGreen
 import com.printgo.app.theme.ActionGreen
 import com.printgo.app.theme.HeadingNavy
@@ -363,7 +364,7 @@ fun DocumentsScreen(
 
                         if (uiState.recentFiles.isNotEmpty()) {
                             TextButton(onClick = { documentsViewModel.clearAllRecents() }) {
-                                Text("Clear all", fontSize = 13.sp, color = Color.Gray)
+                                Text("Clear all", fontSize = 13.sp, color = BodyGray)
                             }
                         }
                     }
@@ -402,7 +403,7 @@ fun DocumentsScreen(
                                 Text(
                                     text = "Tap 'Browse Files' above to open PDF, Word, or Excel documents to print.",
                                     fontSize = 13.sp,
-                                    color = Color.Gray,
+                                    color = BodyGray,
                                     textAlign = androidx.compose.ui.text.style.TextAlign.Center
                                 )
                             }

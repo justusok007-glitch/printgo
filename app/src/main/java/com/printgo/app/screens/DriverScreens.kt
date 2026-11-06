@@ -347,7 +347,7 @@ private fun ChoiceRow(title: String, subtitle: String, selected: Boolean, badge:
             if (badge != null) {
                 Spacer(Modifier.width(6.dp))
                 Surface(shape = RoundedCornerShape(10.dp), color = LightBlue) {
-                    Text(badge, fontSize = 11.sp, color = ActionBlue, fontWeight = FontWeight.Bold,
+                    Text(badge, fontSize = 12.sp, color = ActionBlue, fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp))
                 }
             }

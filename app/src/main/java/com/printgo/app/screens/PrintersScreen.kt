@@ -111,6 +111,7 @@ import com.printgo.app.data.discovery.ScanStatus
 import com.printgo.app.model.ConnectionType
 import com.printgo.app.model.Printer
 import com.printgo.app.model.PrinterProtocol
+import com.printgo.app.theme.BodyGray
 import com.printgo.app.theme.AccentGreen
 import com.printgo.app.theme.ActionBlue
 import com.printgo.app.theme.ActionGreen
@@ -361,7 +362,7 @@ fun PrintersScreen(
                                 Text(
                                     text = "Connect this phone to the same Wi-Fi network as your printer to discover it automatically.",
                                     fontSize = 13.sp,
-                                    color = Color.Gray,
+                                    color = BodyGray,
                                     textAlign = TextAlign.Center
                                 )
                                 Spacer(modifier = Modifier.height(12.dp))
@@ -410,7 +411,7 @@ fun PrintersScreen(
                                 Text(
                                     text = "Enable Bluetooth to pair and connect with mobile Bluetooth receipt and label printers.",
                                     fontSize = 13.sp,
-                                    color = Color.Gray,
+                                    color = BodyGray,
                                     textAlign = TextAlign.Center
                                 )
                                 Spacer(modifier = Modifier.height(12.dp))
@@ -459,7 +460,7 @@ fun PrintersScreen(
                                 Text(
                                     text = "Plug your printer's USB cable into this device using a USB-OTG adapter. Power on the printer and grant permission when prompted.",
                                     fontSize = 13.sp,
-                                    color = Color.Gray,
+                                    color = BodyGray,
                                     textAlign = TextAlign.Center
                                 )
                                 Spacer(modifier = Modifier.height(12.dp))
@@ -552,7 +553,7 @@ fun PrintersScreen(
                                 Text(
                                     text = "Make sure your printer is turned on and connected to the same network.",
                                     fontSize = 12.sp,
-                                    color = Color.Gray,
+                                    color = BodyGray,
                                     textAlign = TextAlign.Center
                                 )
                                 Spacer(modifier = Modifier.height(12.dp))
@@ -609,7 +610,7 @@ fun PrintersScreen(
                             Text(
                                 text = "If your printer doesn't advertise via mDNS, you can connect directly by its IP address or send the job to Android's print spooler.",
                                 fontSize = 12.sp,
-                                color = Color.Gray
+                                color = BodyGray
                             )
                             Spacer(modifier = Modifier.height(14.dp))
                             Row(
@@ -673,8 +674,8 @@ fun PrintersScreen(
                                     )
                                     Text(
                                         text = "Injects mock WiFi & BT printers for emulator testing",
-                                        fontSize = 11.sp,
-                                        color = Color.Gray
+                                        fontSize = 12.sp,
+                                        color = BodyGray
                                     )
                                 }
                                 Switch(
@@ -721,7 +722,7 @@ fun PrintersScreen(
                         Text(
                             text = "Querying status and capabilities of ${state.printer.name}...",
                             fontSize = 13.sp,
-                            color = Color.Gray,
+                            color = BodyGray,
                             textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(24.dp))
@@ -765,7 +766,7 @@ fun PrintersScreen(
                         Text(
                             text = "${state.capabilities.makeAndModel} • State: ${state.capabilities.state}",
                             fontSize = 13.sp,
-                            color = Color.Gray
+                            color = BodyGray
                         )
                         Spacer(modifier = Modifier.height(24.dp))
                         PrimaryButton(
@@ -805,7 +806,7 @@ fun PrintersScreen(
                         Text(
                             text = "${state.printer.name} is using a self-signed security certificate on your local network.",
                             fontSize = 13.sp,
-                            color = Color.Gray,
+                            color = BodyGray,
                             textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(10.dp))
@@ -816,11 +817,11 @@ fun PrintersScreen(
                             border = BorderStroke(1.dp, Color(0xFFE2E8F0))
                         ) {
                             Column(modifier = Modifier.padding(10.dp)) {
-                                Text("SHA-256 Certificate Fingerprint:", fontSize = 11.sp, color = Color.Gray)
+                                Text("SHA-256 Certificate Fingerprint:", fontSize = 12.sp, color = BodyGray)
                                 Spacer(modifier = Modifier.height(2.dp))
                                 Text(
                                     text = state.fingerprint,
-                                    fontSize = 11.sp,
+                                    fontSize = 12.sp,
                                     fontFamily = FontFamily.Monospace,
                                     color = HeadingNavy
                                 )
@@ -877,7 +878,7 @@ fun PrintersScreen(
                         Text(
                             text = state.tip,
                             fontSize = 12.sp,
-                            color = Color.Gray,
+                            color = BodyGray,
                             textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(14.dp))
@@ -999,14 +1000,14 @@ private fun TroubleshootItem(number: Int, text: String) {
     Row(verticalAlignment = Alignment.Top) {
         Text(
             text = "$number.",
-            fontSize = 11.sp,
+            fontSize = 12.sp,
             fontWeight = FontWeight.Bold,
             color = PrimaryBlue,
             modifier = Modifier.width(16.dp)
         )
         Text(
             text = text,
-            fontSize = 11.sp,
+            fontSize = 12.sp,
             color = Color(0xFF475569),
             lineHeight = 15.sp
         )
@@ -1103,7 +1104,7 @@ private fun PrinterRowItem(
                 Text(
                     text = printer.displaySubtitle,
                     fontSize = 12.sp,
-                    color = Color.Gray,
+                    color = BodyGray,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -1122,7 +1123,7 @@ private fun PrinterRowItem(
             ) {
                 Text(
                     text = printer.connectionType.name,
-                    fontSize = 10.sp,
+                    fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
                     color = when (printer.connectionType) {
                         ConnectionType.WIFI -> PrimaryBlue
@@ -1336,7 +1337,7 @@ private fun ManualAddPrinterDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel", color = Color.Gray)
+                Text("Cancel", color = BodyGray)
             }
         }
     )
@@ -1373,7 +1374,7 @@ private fun RenamePrinterDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel", color = Color.Gray)
+                Text("Cancel", color = BodyGray)
             }
         }
     )

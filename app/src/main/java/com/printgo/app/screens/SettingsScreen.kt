@@ -314,7 +314,7 @@ private fun SettingsRow(icon: ImageVector, title: String, subtitle: String, onCl
             Spacer(Modifier.width(14.dp))
             Column(Modifier.weight(1f)) {
                 Text(title, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = HeadingNavy)
-                Text(subtitle, fontSize = 12.sp, color = Color.Gray)
+                Text(subtitle, fontSize = 12.sp, color = BodyGray)
             }
             Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(20.dp))
         }
@@ -334,7 +334,7 @@ private fun SettingsSwitchRow(icon: ImageVector, title: String, subtitle: String
             Spacer(Modifier.width(14.dp))
             Column(Modifier.weight(1f)) {
                 Text(title, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = HeadingNavy)
-                Text(subtitle, fontSize = 12.sp, color = Color.Gray)
+                Text(subtitle, fontSize = 12.sp, color = BodyGray)
             }
             Switch(checked = checked, onCheckedChange = onChange)
         }

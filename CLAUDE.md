@@ -13,6 +13,10 @@ requirements, and the printer bugs already found and fixed (so they are not rein
   - Home screen footer must stay exactly: **"Created by : Muhammad Saad Awan"** and an envelope icon with
     **saadawanok@gmail.com** (tappable mailto). See `CreatorCredit` in `screens/HomeScreen.kt`.
   - Plain, friendly wording in the UI; no technical jargon in user-facing messages.
+  - Readability rules (v1.3.3, from a UI/UX review): secondary text uses `BodyGray` (#5F6B7A, ≥4.5:1 on white),
+    never `Color.Gray`/light greys for text; no text below 12sp except tiny badges/counters (11sp); base body text
+    16sp (`bodyLarge`), 14sp (`bodyMedium`); every tappable thing has a ≥48dp touch area (or at least 32dp inside a
+    dense chip) and icon-only buttons have a `contentDescription`.
 
 ## How to build (there is no local Android SDK and no Gradle wrapper)
 - All builds run on **GitHub Actions**. Push to `main`, then check the run.

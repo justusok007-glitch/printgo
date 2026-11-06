@@ -91,6 +91,7 @@ import coil.compose.AsyncImage
 import com.printgo.app.R
 import com.printgo.app.components.PrimaryButton
 import com.printgo.app.model.PrintItem
+import com.printgo.app.theme.BodyGray
 import com.printgo.app.theme.AccentGreen
 import com.printgo.app.theme.ActionBlue
 import com.printgo.app.theme.HeadingNavy
@@ -269,7 +270,7 @@ fun PhotosScreen(
                                         ) {
                                             Text(album.name, fontWeight = FontWeight.Medium)
                                             Spacer(modifier = Modifier.width(16.dp))
-                                            Text("(${album.count})", color = Color.Gray)
+                                            Text("(${album.count})", color = BodyGray)
                                         }
                                     },
                                     onClick = {
@@ -407,7 +408,7 @@ fun PhotosScreen(
                             Text(
                                 text = "No images found in this album. You can select photos from anywhere using the system picker.",
                                 fontSize = 13.sp,
-                                color = Color.Gray,
+                                color = BodyGray,
                                 textAlign = TextAlign.Center
                             )
                             Spacer(modifier = Modifier.height(20.dp))

@@ -170,7 +170,7 @@ fun PrinterStatusCard(
                             Spacer(modifier = Modifier.height(1.dp))
                             Text(
                                 text = addressCaption,
-                                fontSize = 11.sp,
+                                fontSize = 12.sp,
                                 color = BodyGray.copy(alpha = 0.85f),
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
@@ -192,7 +192,7 @@ fun PrinterStatusCard(
                                     ) {
                                         Text(
                                             text = warning,
-                                            fontSize = 10.sp,
+                                            fontSize = 11.sp,
                                             fontWeight = FontWeight.Bold,
                                             color = Color(0xFFC2410C),
                                             modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.dp)

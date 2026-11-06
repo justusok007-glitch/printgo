@@ -105,6 +105,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.printgo.app.R
 import com.printgo.app.components.PrimaryButton
+import com.printgo.app.theme.BodyGray
 import com.printgo.app.theme.AccentGreen
 import com.printgo.app.theme.ActionBlue
 import com.printgo.app.theme.ActionGreen
@@ -439,7 +440,7 @@ fun WebPagesScreen(
 
                             if (recentPages.isNotEmpty()) {
                                 TextButton(onClick = { webPagesViewModel.clearAllRecentPages() }) {
-                                    Text("Clear all", fontSize = 13.sp, color = Color.Gray)
+                                    Text("Clear all", fontSize = 13.sp, color = BodyGray)
                                 }
                             }
                         }
@@ -477,7 +478,7 @@ fun WebPagesScreen(
                                     Text(
                                         text = "Type any web address, article link or Google search query above to print online articles, tickets and receipts.",
                                         fontSize = 13.sp,
-                                        color = Color.Gray,
+                                        color = BodyGray,
                                         textAlign = TextAlign.Center
                                     )
                                 }
@@ -532,7 +533,7 @@ fun WebPagesScreen(
                                                 Text(
                                                     text = page.url,
                                                     fontSize = 12.sp,
-                                                    color = Color.Gray,
+                                                    color = BodyGray,
                                                     maxLines = 1,
                                                     overflow = TextOverflow.Ellipsis
                                                 )
@@ -600,7 +601,7 @@ fun WebPagesScreen(
                                 Text(
                                     text = errorState?.description ?: "Please check your network connection and verify the web address.",
                                     fontSize = 13.sp,
-                                    color = Color.Gray,
+                                    color = BodyGray,
                                     textAlign = TextAlign.Center
                                 )
                                 Spacer(modifier = Modifier.height(20.dp))

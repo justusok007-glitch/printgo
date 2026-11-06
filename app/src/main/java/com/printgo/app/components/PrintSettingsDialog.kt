@@ -194,7 +194,7 @@ fun PrintSettingsDialog(
                     ) {
                         Text(
                             text = clampedNotice,
-                            fontSize = 11.5.sp,
+                            fontSize = 12.sp,
                             color = Color(0xFFC2410C),
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
                         )
@@ -597,7 +597,7 @@ private fun CopiesPickerDialog(
                         Text("Collate", fontWeight = FontWeight.SemiBold, color = HeadingNavy)
                         Text(
                             text = if (count > 1) "Sort multiple copies (1,2,3... 1,2,3)" else "Enabled for 2+ copies",
-                            fontSize = 11.5.sp,
+                            fontSize = 12.sp,
                             color = BodyGray
                         )
                     }
@@ -750,7 +750,7 @@ private fun PagesPickerDialog(
                             Text(
                                 text = parseResult.message,
                                 color = Color(0xFFDC2626),
-                                fontSize = 11.sp,
+                                fontSize = 12.sp,
                                 modifier = Modifier.padding(start = 32.dp)
                             )
                         }
@@ -759,7 +759,7 @@ private fun PagesPickerDialog(
                                 text = "${parseResult.pages.size} pages selected",
                                 color = AccentGreen,
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 11.5.sp,
+                                fontSize = 12.sp,
                                 modifier = Modifier.padding(start = 32.dp)
                             )
                         }
@@ -795,7 +795,7 @@ private fun PagesPickerDialog(
                     ) {
                         Text(
                             text = "$excludedPagesCount pages excluded in preview",
-                            fontSize = 11.5.sp,
+                            fontSize = 12.sp,
                             color = Color(0xFFDC2626)
                         )
                         TextButton(onClick = onResetExcluded) {
@@ -1048,7 +1048,7 @@ private fun DuplexPickerDialog(
                             color = if (supportsLong) HeadingNavy else BodyGray.copy(alpha = 0.5f)
                         )
                         if (!supportsLong) {
-                            Text("Not supported by this printer", fontSize = 11.sp, color = Color(0xFFDC2626))
+                            Text("Not supported by this printer", fontSize = 12.sp, color = Color(0xFFDC2626))
                         }
                     }
                 }
@@ -1073,7 +1073,7 @@ private fun DuplexPickerDialog(
                             color = if (supportsShort) HeadingNavy else BodyGray.copy(alpha = 0.5f)
                         )
                         if (!supportsShort) {
-                            Text("Not supported by this printer", fontSize = 11.sp, color = Color(0xFFDC2626))
+                            Text("Not supported by this printer", fontSize = 12.sp, color = Color(0xFFDC2626))
                         }
                     }
                 }
@@ -1488,7 +1488,7 @@ private fun PaperPrintingPickerDialog(
                                 ) {
                                     Text(
                                         text = "Default",
-                                        fontSize = 10.sp,
+                                        fontSize = 11.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = PrimaryBlue,
                                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
@@ -1568,7 +1568,7 @@ private fun PaperPrintingPickerDialog(
                             )
                             if (!isSupported) {
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("(Not supported)", fontSize = 11.sp, color = BodyGray)
+                                Text("(Not supported)", fontSize = 12.sp, color = BodyGray)
                             }
                         }
                     }
@@ -1601,7 +1601,7 @@ private fun PaperPrintingPickerDialog(
                             )
                             if (!isSupported) {
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("(Monochrome printer)", fontSize = 11.sp, color = Color(0xFFDC2626))
+                                Text("(Monochrome printer)", fontSize = 12.sp, color = Color(0xFFDC2626))
                             }
                         }
                     }
@@ -1685,7 +1685,7 @@ private fun ExtrasPickerDialog(
                     ) {
                         Column {
                             Text("Page numbers", fontWeight = FontWeight.SemiBold, color = HeadingNavy)
-                            Text("Prints sheet index at margin", fontSize = 11.5.sp, color = BodyGray)
+                            Text("Prints sheet index at margin", fontSize = 12.sp, color = BodyGray)
                         }
                         Switch(
                             checked = hasPageNumbers,
@@ -1726,7 +1726,7 @@ private fun ExtrasPickerDialog(
                     ) {
                         Column {
                             Text("Date & time stamp", fontWeight = FontWeight.SemiBold, color = HeadingNavy)
-                            Text("Prints timestamp at bottom corner", fontSize = 11.5.sp, color = BodyGray)
+                            Text("Prints timestamp at bottom corner", fontSize = 12.sp, color = BodyGray)
                         }
                         Switch(
                             checked = hasDate,
@@ -1747,7 +1747,7 @@ private fun ExtrasPickerDialog(
                     ) {
                         Column {
                             Text("File name header", fontWeight = FontWeight.SemiBold, color = HeadingNavy)
-                            Text("Prints document title at top corner", fontSize = 11.5.sp, color = BodyGray)
+                            Text("Prints document title at top corner", fontSize = 12.sp, color = BodyGray)
                         }
                         Switch(
                             checked = hasFileName,
@@ -1768,7 +1768,7 @@ private fun ExtrasPickerDialog(
                     ) {
                         Column {
                             Text("Watermark text", fontWeight = FontWeight.SemiBold, color = HeadingNavy)
-                            Text("Draws semi-transparent watermark", fontSize = 11.5.sp, color = BodyGray)
+                            Text("Draws semi-transparent watermark", fontSize = 12.sp, color = BodyGray)
                         }
                         Switch(
                             checked = hasWatermark,
@@ -1935,7 +1935,7 @@ private fun PresetsPickerDialog(
                                             ) {
                                                 Text(
                                                     text = "Built-in",
-                                                    fontSize = 9.5.sp,
+                                                    fontSize = 11.sp,
                                                     fontWeight = FontWeight.Bold,
                                                     color = BodyGray,
                                                     modifier = Modifier.padding(horizontal = 5.dp, vertical = 1.dp)
@@ -2005,7 +2005,7 @@ private fun PresetsPickerDialog(
                     )
                     if (errorMessage != null) {
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text(errorMessage!!, color = Color(0xFFDC2626), fontSize = 11.5.sp)
+                        Text(errorMessage!!, color = Color(0xFFDC2626), fontSize = 12.sp)
                     }
                 }
             },
@@ -2056,7 +2056,7 @@ private fun PresetsPickerDialog(
                     )
                     if (renameError != null) {
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text(renameError!!, color = Color(0xFFDC2626), fontSize = 11.5.sp)
+                        Text(renameError!!, color = Color(0xFFDC2626), fontSize = 12.sp)
                     }
                 }
             },

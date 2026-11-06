@@ -77,6 +77,7 @@ import com.printgo.app.model.ConnectionType
 import com.printgo.app.model.Marker
 import com.printgo.app.model.Printer
 import com.printgo.app.model.PrinterCapabilities
+import com.printgo.app.theme.BodyGray
 import com.printgo.app.theme.AccentGreen
 import com.printgo.app.theme.ActionBlue
 import com.printgo.app.theme.ActionGreen
@@ -174,7 +175,7 @@ fun PrinterDetailsScreen(
                 contentAlignment = Alignment.Center
             ) {
                 if (isLoading) CircularProgressIndicator(color = PrimaryBlue)
-                else Text("This printer is no longer in the list. Go back and search again.", color = Color.Gray, modifier = Modifier.padding(24.dp))
+                else Text("This printer is no longer in the list. Go back and search again.", color = BodyGray, modifier = Modifier.padding(24.dp))
             }
         } else {
             val p = printer!!
@@ -259,7 +260,7 @@ fun PrinterDetailsScreen(
                                 Text(
                                     text = caps.makeAndModel,
                                     fontSize = 13.sp,
-                                    color = Color.Gray,
+                                    color = BodyGray,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
@@ -357,7 +358,7 @@ fun PrinterDetailsScreen(
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text("Printer driver", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = HeadingNavy)
-                                Text(driverLabel, fontSize = 13.sp, color = Color.Gray)
+                                Text(driverLabel, fontSize = 13.sp, color = BodyGray)
                             }
                             OutlinedButton(onClick = { onOpenDriver(p.id) }) { Text("Change") }
                         }
@@ -417,7 +418,7 @@ fun PrinterDetailsScreen(
                             Text(
                                 text = "Supported Paper Sizes",
                                 fontSize = 12.sp,
-                                color = Color.Gray,
+                                color = BodyGray,
                                 fontWeight = FontWeight.Medium
                             )
                             Spacer(modifier = Modifier.height(6.dp))
@@ -482,7 +483,7 @@ fun PrinterDetailsScreen(
                             Text(
                                 text = "Document Formats",
                                 fontSize = 12.sp,
-                                color = Color.Gray,
+                                color = BodyGray,
                                 fontWeight = FontWeight.Medium
                             )
                             Spacer(modifier = Modifier.height(4.dp))
@@ -526,7 +527,7 @@ fun PrinterDetailsScreen(
                                 Text(
                                     text = if (res.isSuccess) "${res.message} • ${res.responseTimeMs}ms response" else res.message,
                                     fontSize = 12.sp,
-                                    color = Color.Gray
+                                    color = BodyGray
                                 )
                             }
                         }
@@ -659,7 +660,7 @@ fun PrinterDetailsScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showRenameDialog = false }) {
-                    Text("Cancel", color = Color.Gray)
+                    Text("Cancel", color = BodyGray)
                 }
             }
         )
@@ -728,7 +729,7 @@ private fun CapabilityBadge(
         border = BorderStroke(1.dp, Color(0xFFE2E8F0))
     ) {
         Column(modifier = Modifier.padding(10.dp)) {
-            Text(text = label, fontSize = 11.sp, color = Color.Gray)
+            Text(text = label, fontSize = 12.sp, color = BodyGray)
             Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = value,

@@ -317,7 +317,7 @@ private fun PageStrip(
                     modifier = Modifier.align(Alignment.BottomEnd).padding(2.dp),
                     shape = CircleShape, color = if (i == selected) AccentGreen else Color.White
                 ) {
-                    Text("${i + 1}", fontSize = 10.sp, color = HeadingNavy, modifier = Modifier.padding(horizontal = 5.dp))
+                    Text("${i + 1}", fontSize = 11.sp, color = HeadingNavy, modifier = Modifier.padding(horizontal = 5.dp))
                 }
             }
         }
@@ -392,7 +392,7 @@ private fun FilterPanel(page: ScanPage, thumbs: Map<ScanFilter, Bitmap>, pageCou
                         else CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp, color = ActionBlue)
                     }
                     Text(
-                        f.label, fontSize = 11.sp, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        f.label, fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis,
                         fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
                         color = if (selected) PrimaryBlue else HeadingNavy,
                         modifier = Modifier.width(72.dp).padding(top = 3.dp), textAlign = TextAlign.Center

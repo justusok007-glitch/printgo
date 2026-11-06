@@ -83,6 +83,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -146,6 +147,7 @@ import com.printgo.app.model.PrintOrientation
 import com.printgo.app.model.PrintQuality
 import com.printgo.app.model.PrintScale
 import com.printgo.app.model.PrintSettings
+import com.printgo.app.theme.BodyGray
 import com.printgo.app.theme.AccentGreen
 import com.printgo.app.theme.ActionBlue
 import com.printgo.app.theme.ActionGreen
@@ -644,7 +646,7 @@ private fun EmptySelectionCard(onGoHome: () -> Unit) {
                 Text(
                     text = "Choose documents, photos or web pages to preview layout and print.",
                     fontSize = 13.sp,
-                    color = Color.Gray,
+                    color = BodyGray,
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(20.dp))
@@ -696,7 +698,7 @@ private fun SettingsSummaryHeaderCard(
                 // Line 2: Scale | Margins | Alignment
                 Text(
                     text = "${settings.scale.label} • ${settings.margins.label} • Position: ${settings.alignment.label}",
-                    fontSize = 11.sp,
+                    fontSize = 12.sp,
                     color = Color(0xFF475569)
                 )
                 Spacer(modifier = Modifier.height(2.dp))
@@ -710,7 +712,7 @@ private fun SettingsSummaryHeaderCard(
                 }
                 Text(
                     text = "Copies: ${settings.copies} • $pageSelectionText${if (settings.reverseOrder) " (reversed)" else ""} • ${settings.colorMode.label} • ${settings.pagesPerSheet.count}-up",
-                    fontSize = 11.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
                     color = PrimaryBlue
                 )
@@ -772,7 +774,7 @@ private fun DocumentManagementHeader(
                     ) {
                         Text(
                             text = doc.title,
-                            fontSize = 11.sp,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.Medium,
                             color = HeadingNavy,
                             maxLines = 1,
@@ -780,14 +782,21 @@ private fun DocumentManagementHeader(
                             modifier = Modifier.widthIn(max = 120.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "Remove document",
-                            tint = Color.Gray,
+                        // Small "x", but a finger-sized place to tap it
+                        Box(
                             modifier = Modifier
-                                .size(14.dp)
-                                .clickable { onRemoveDocument(doc) }
-                        )
+                                .size(32.dp)
+                                .clip(CircleShape)
+                                .clickable(role = androidx.compose.ui.semantics.Role.Button) { onRemoveDocument(doc) },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Remove ${doc.title}",
+                                tint = BodyGray,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
                     }
                 }
             }
@@ -877,7 +886,7 @@ private fun SheetPreviewCard(
                         ) {
                             Text(
                                 text = "EXCLUDED FROM PRINT",
-                                fontSize = 11.sp,
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White,
                                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
@@ -895,9 +904,10 @@ private fun SheetPreviewCard(
             ) {
                 Surface(
                     modifier = Modifier
-                        .size(28.dp)
+                        .minimumInteractiveComponentSize()
+                        .size(32.dp)
                         .clip(CircleShape)
-                        .clickable { showOptionsMenu = true },
+                        .clickable(role = androidx.compose.ui.semantics.Role.Button) { showOptionsMenu = true },
                     shape = CircleShape,
                     color = Color.Black.copy(alpha = 0.35f)
                 ) {
@@ -981,7 +991,7 @@ private fun SheetPreviewCard(
         ) {
             Text(
                 text = "${sheet.sheetIndex + 1} / $totalSheets",
-                fontSize = 11.sp,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
                 color = HeadingNavy,
                 modifier = Modifier.padding(horizontal = 14.dp, vertical = 3.dp)
@@ -1019,7 +1029,7 @@ private fun ShimmerSkeletonBox(aspectRatio: Float) {
                 color = PrimaryBlue
             )
             Spacer(modifier = Modifier.height(6.dp))
-            Text("Rendering sheet...", fontSize = 10.sp, color = Color.Gray)
+            Text("Rendering sheet...", fontSize = 11.sp, color = BodyGray)
         }
     }
 }
@@ -1056,8 +1066,8 @@ private fun BottomPrintInfoLine(
             )
             Text(
                 text = "$copies cop${if (copies > 1) "ies" else "y"} • ${paperSize.name} (${paperSize.widthMm}×${paperSize.heightMm} mm)",
-                fontSize = 11.sp,
-                color = Color.Gray
+                fontSize = 12.sp,
+                color = BodyGray
             )
         }
     }
@@ -1116,7 +1126,7 @@ private fun PrintSettingsBottomSheet(
             ) {
                 Column {
                     Text("Copies", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = HeadingNavy)
-                    Text("1 to ${capabilities?.copiesMax ?: 99}", fontSize = 11.sp, color = Color.Gray)
+                    Text("1 to ${capabilities?.copiesMax ?: 99}", fontSize = 12.sp, color = BodyGray)
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(onClick = { if (settings.copies > 1) onUpdateSettings { it.copy(copies = it.copies - 1) } }) {
@@ -1156,7 +1166,7 @@ private fun PrintSettingsBottomSheet(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text("Reverse order", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = HeadingNavy)
-                    Text("Print the selected pages last page first", fontSize = 11.sp, color = Color.Gray)
+                    Text("Print the selected pages last page first", fontSize = 12.sp, color = BodyGray)
                 }
                 Switch(
                     checked = settings.reverseOrder,
@@ -1269,7 +1279,7 @@ private fun <T> ChipGroup(
     hint: String? = null
 ) {
     Text(title, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = HeadingNavy)
-    if (hint != null) Text(hint, fontSize = 11.sp, color = Color.Gray)
+    if (hint != null) Text(hint, fontSize = 12.sp, color = BodyGray)
     Spacer(modifier = Modifier.height(6.dp))
     FlowRow(
         modifier = Modifier.fillMaxWidth(),
@@ -1353,15 +1363,15 @@ private fun PageSelectionSection(
                         is PageRangeResult.Success -> "${rangeResult.pages.size} of $totalPages pages selected"
                         null -> "Document has $totalPages pages. Use commas and dashes, e.g. 1-3, 5, 8"
                     },
-                    fontSize = 11.sp
+                    fontSize = 12.sp
                 )
             }
         )
     } else if (totalPages > 0) {
         Text(
             "${selectedPageCount(selection, totalPages)} of $totalPages pages selected",
-            fontSize = 11.sp,
-            color = Color.Gray
+            fontSize = 12.sp,
+            color = BodyGray
         )
     }
 }
@@ -1423,7 +1433,7 @@ private fun ScaleSection(
                 modifier = Modifier.widthIn(min = 48.dp)
             )
         }
-        Text("Percent of the page's actual size (25–400%).", fontSize = 11.sp, color = Color.Gray)
+        Text("Percent of the page's actual size (25–400%).", fontSize = 12.sp, color = BodyGray)
     }
 }
 
@@ -1435,8 +1445,8 @@ private fun PrintPositionSection(
     Text("Print Position", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = HeadingNavy)
     Text(
         "Where the page sits on the paper when it does not fill it (actual size, custom scale, or a different shape).",
-        fontSize = 11.sp,
-        color = Color.Gray
+        fontSize = 12.sp,
+        color = BodyGray
     )
     Spacer(modifier = Modifier.height(8.dp))
     val grid = listOf(
@@ -1642,7 +1652,7 @@ private fun FullScreenSheetViewer(
 
                     Text(
                         text = "Double-tap or pinch to zoom",
-                        fontSize = 11.sp,
+                        fontSize = 12.sp,
                         color = Color.LightGray
                     )
 
