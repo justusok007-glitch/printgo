@@ -124,6 +124,13 @@ keep rules in `app/proguard-rules.pro`.
    quality, scaling, media) are sent **only if the printer lists them**. On 0x040B/0x0400/HTTP 400/cut-off
    upload: retry once with `minimal=true` (format + copies only), then the next format; 0x040A → next format.
    JPEG is sent with `print-scaling=fit`; raster sends none. PCL/PostScript/ESC-P-R send `copies=1`.
+   **Copies (v1.3.2):** PrintGo makes copies itself for every format it renders (PWG, URF, PCL, PostScript,
+   ESC/P-R, JPEG) using `NativeDrivers.pageOrder`: whole copy after whole copy (1,2,3,1,2,3; 1,1,2,2,… only when
+   collate is off and one-sided); two-sided copies are always whole sets and an odd page count gets a blank back so
+   each copy starts on a new sheet. The printer is asked for 1 copy (IPP copies omitted, PCL `ESC&l1X`, PostScript
+   `/NumCopies 1` and `setpagedevice` only on the first page). Only a PDF payload (and raw PDF with PJL) still uses
+   the printer's own copies + `multiple-document-handling`. Owner-reported bugs fixed by this: USB/OTG printed only
+   1 copy; Wi-Fi two-sided copies came out 1-2,1-2,1-2,3,3,3 instead of separate sets.
    If IPP does not answer at all but port 9100 is open and the language is known → raw (`sendRaw`).
 3. **Wi-Fi raw (port 9100)**: language from Settings, else SNMP device id, else mDNS `pdl`, else name
    (`LanguagePicker`). PCL/PostScript printers are sent raw directly (verified route); Epson/unknown are
@@ -170,6 +177,12 @@ keep rules in `app/proguard-rules.pro`.
       sheet.
     - HP printers that need HP's closed plug-in (`hpPrinterLanguage` ljzjstream/ljzxstream, e.g. P1102) are left
       out of the catalog. The x86-only HP image processor is disabled (`DISABLE_IMAGEPROCESSOR`).
+
+## Print settings (v1.3.2)
+- Every print starts from the default settings (owner's wish): `PrintSettingsViewModel.resetForNewPrint()` runs when
+  Home opens, after a job is queued and when a file is shared in. Settings are no longer saved per printer or
+  globally (the old `printer_settings_cache` prefs are cleared on start); only the printer's default paper is used.
+  Choices made during one print survive moving between Preview, Printers and Photos. Presets still work.
 
 ## Scanner rules (v1.3.0)
 - Scanning does not touch printing: "Scan before Print" swaps the selected photos for edited JPEG copies

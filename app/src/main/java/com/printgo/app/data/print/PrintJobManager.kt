@@ -469,8 +469,10 @@ object PrintJobManager {
             for (plan in plans) {
                 data class Payload(val file: File, val label: String)
                 val payloads = mutableListOf<Payload>()
-                // Printers that cannot make enough copies of a raster stream get the pages repeated here.
-                val rasterCopies = if (probe != null && job.copies > 1 && probe.copiesMax in 1 until job.copies) job.copies else 1
+                // Copies of raster pages are always made here, one whole copy after the other (each copy starts
+                // on a new sheet when printing two-sided). Many printers print only one copy of a raster stream,
+                // or repeat each sheet (1,1,1,2,2,2), when asked with the "copies" option.
+                val rasterCopies = job.copies.coerceAtLeast(1)
                 var opts = baseOpts
                 val detail = when (plan.kind) {
                     SendKind.PWG, SendKind.URF -> "${plan.kind.label} ${plan.dpi} dpi${if (plan.grayscale) ", grey" else ""}"
@@ -483,14 +485,14 @@ object PrintJobManager {
                         val out = File(appContext.cacheDir, "job_${job.id}.pwg").also { temps += it }
                         withContext(Dispatchers.Default) { renderPwg(job, pdf, out, plan.dpi, plan.grayscale, duplexOk, rasterCopies) }
                         payloads += Payload(out, "PWG raster")
-                        opts = opts.copy(printScaling = null, copies = if (rasterCopies > 1) 1 else opts.copies)
+                        opts = opts.copy(printScaling = null, copies = 1)
                     }
                     SendKind.URF -> {
                         val out = File(appContext.cacheDir, "job_${job.id}.urf").also { temps += it }
                         val urfDuplex = duplexOk && (probe == null || probe.urfDuplex || probe.urf.isEmpty())
                         withContext(Dispatchers.Default) { renderUrf(job, pdf, out, plan.dpi, plan.grayscale, urfDuplex, rasterCopies) }
                         payloads += Payload(out, "AirPrint raster")
-                        opts = opts.copy(printScaling = null, copies = if (rasterCopies > 1) 1 else opts.copies)
+                        opts = opts.copy(printScaling = null, copies = 1)
                     }
                     SendKind.PCL, SendKind.POSTSCRIPT, SendKind.ESCPR -> {
                         val lang = when (plan.kind) { SendKind.PCL -> RawLanguage.PCL; SendKind.POSTSCRIPT -> RawLanguage.POSTSCRIPT; else -> RawLanguage.ESCPR }
@@ -515,6 +517,13 @@ object PrintJobManager {
                         }
                         // Pictures carry no paper size: let the printer fit them to the page.
                         opts = opts.copy(printScaling = "fit")
+                        // One picture per page: whole copies are sent one after the other (asking the printer for
+                        // copies of each picture would give 1,1,1,2,2,2).
+                        if (job.copies > 1 && job.collate) {
+                            val one = payloads.toList()
+                            repeat(job.copies.coerceAtMost(99) - 1) { payloads += one }
+                            opts = opts.copy(copies = 1)
+                        }
                     }
                 }
 
@@ -683,11 +692,13 @@ object PrintJobManager {
         }
     }
 
-    /** Page order for client-side copies: 0,1,2,0,1,2 (collated) or 0,0,1,1,2,2. */
-    private fun pageOrder(pages: Int, copies: Int, collate: Boolean): List<Int> {
-        val c = copies.coerceAtLeast(1)
-        return if (collate) (0 until c).flatMap { 0 until pages } else (0 until pages).flatMap { p -> List(c) { p } }
-    }
+    /**
+     * Page order for copies made by PrintGo: whole copies one after the other (0,1,2,0,1,2), or 0,0,1,1,2,2 when
+     * the user turned "collate" off. Two-sided copies are always whole copies, and an odd page count gets a blank
+     * back ([NativeDrivers.BLANK]) after each copy so the next copy starts on a new sheet.
+     */
+    private fun pageOrder(job: PrintJobEntity, pages: Int, copies: Int, twoSided: Boolean): List<Int> =
+        NativeDrivers.pageOrder(pages, copies, job.collate, twoSided)
 
     /** Raster size of the (portrait) paper at [dpi], rounded down like CUPS does. */
     private fun rasterSize(job: PrintJobEntity, dpi: Int): Pair<Int, Int> {
@@ -702,12 +713,12 @@ object PrintJobManager {
         val quality = when (job.quality) { PrintQuality.DRAFT.name -> 3; PrintQuality.HIGH.name -> 5; else -> 4 }
         val sizeName = IppMedia.keywordFor(paperOf(job))
         PdfPageRenderer(pdf).use { r ->
-            val order = pageOrder(r.pageCount, copies, job.collate)
+            val order = pageOrder(job, r.pageCount, copies, twoSided)
             out.outputStream().buffered(256 * 1024).use { os ->
                 PwgRasterEncoder.writeDocumentStart(os)
                 val (w, h) = rasterSize(job, dpi)
                 for (i in order) {
-                    r.openRows(i, w, h).use { rows ->
+                    rowsFor(r, i, w, h).use { rows ->
                         val header = PwgRasterEncoder.buildPageHeader(
                             rows.width, rows.height, dpi, grayscale, twoSided, tumble, 1, ptW, ptH, quality, order.size, sizeName
                         )
@@ -722,17 +733,27 @@ object PrintJobManager {
         val quality = when (job.quality) { PrintQuality.DRAFT.name -> 3; PrintQuality.HIGH.name -> 5; else -> 4 }
         val duplex = if (!twoSided) 0 else if (job.duplex == DuplexMode.TWO_SIDED_SHORT_EDGE.name) 2 else 1
         PdfPageRenderer(pdf).use { r ->
-            val order = pageOrder(r.pageCount, copies, job.collate)
+            val order = pageOrder(job, r.pageCount, copies, twoSided)
             out.outputStream().buffered(256 * 1024).use { os ->
                 UrfEncoder.writeDocumentStart(os, order.size)
                 val (w, h) = rasterSize(job, dpi)
                 for (i in order) {
-                    r.openRows(i, w, h).use { rows ->
+                    rowsFor(r, i, w, h).use { rows ->
                         UrfEncoder.writePage(os, rows, dpi, grayscale, duplex, quality)
                     }
                 }
             }
         }
+    }
+
+    /** Rows of page [i], or a white page for [NativeDrivers.BLANK]. */
+    private fun rowsFor(r: PdfPageRenderer, i: Int, w: Int, h: Int): RowSourceHandle =
+        if (i == NativeDrivers.BLANK) RowSourceHandle(BlankRowSource(w, h), null)
+        else r.openRows(i, w, h).let { RowSourceHandle(it, it) }
+
+    /** A page source that may need closing (rendered pages do, blank pages do not). */
+    private class RowSourceHandle(val src: RowSource, private val closeable: java.io.Closeable?) : RowSource by src, java.io.Closeable {
+        override fun close() { closeable?.close() }
     }
 
     internal fun pickLanguage(deviceId: String?, name: String, btPref: String, strict: Boolean = false): RawLanguage? =
@@ -778,12 +799,16 @@ object PrintJobManager {
                     os.write(byteArrayOf(0x1B)); os.write("%-12345X".toByteArray())
                 }
                 RawLanguage.PCL -> {
-                    PclEncoder.start(os, copies, duplexCode(job), PclEncoder.paperSizeCode(job.paperWidthMm, job.paperHeightMm), job.title)
+                    // Copies are made by repeating the pages (ESC&l#X would print each sheet several times in a row).
+                    PclEncoder.start(os, 1, duplexCode(job), PclEncoder.paperSizeCode(job.paperWidthMm, job.paperHeightMm), job.title)
                     val dpi = 300
                     PdfPageRenderer(pdf).use { r ->
-                        for (i in 0 until r.pageCount) {
-                            val bmp = r.renderForPortraitPaper(i, (minOf(job.paperWidthMm, job.paperHeightMm) / 25.4f * dpi).toInt())
+                        var last: Bitmap? = null
+                        for (i in pageOrder(job, r.pageCount, copies, duplexCode(job) != 0)) {
+                            val bmp = if (i == NativeDrivers.BLANK) blankLike(last) else
+                                r.renderForPortraitPaper(i, (minOf(job.paperWidthMm, job.paperHeightMm) / 25.4f * dpi).toInt())
                             PclEncoder.writePage(os, bmp, dpi, PclEncoder.logicalOffset300(job.paperWidthMm) * dpi / 300)
+                            last = bmp
                             r.clearCache()
                         }
                     }
@@ -794,9 +819,13 @@ object PrintJobManager {
                     PostScriptEncoder.start(os, job.title)
                     val dpi = if (job.quality == PrintQuality.HIGH.name) 200 else 150
                     PdfPageRenderer(pdf).use { r ->
-                        for (i in 0 until r.pageCount) {
-                            val bmp = r.renderForPortraitPaper(i, (minOf(job.paperWidthMm, job.paperHeightMm) / 25.4f * dpi).toInt())
-                            PostScriptEncoder.writePage(os, bmp, ptW, ptH, grayscale, copies, duplexCode(job))
+                        var last: Bitmap? = null
+                        pageOrder(job, r.pageCount, copies, duplexCode(job) != 0).forEachIndexed { n, i ->
+                            val bmp = if (i == NativeDrivers.BLANK) blankLike(last) else
+                                r.renderForPortraitPaper(i, (minOf(job.paperWidthMm, job.paperHeightMm) / 25.4f * dpi).toInt())
+                            // Page setup once: repeating it can push a two-sided printer onto a new sheet.
+                            PostScriptEncoder.writePage(os, bmp, ptW, ptH, grayscale, 1, duplexCode(job), setup = n == 0)
+                            last = bmp
                             r.clearCache()
                         }
                     }
@@ -816,9 +845,9 @@ object PrintJobManager {
                     }
                     EscprEncoder.startJob(os, g, color = !grayscale, quality = quality, time = time)
                     PdfPageRenderer(pdf).use { r ->
-                        val order = pageOrder(r.pageCount, copies, job.collate)
+                        val order = pageOrder(job, r.pageCount, copies, duplexCode(job) != 0)
                         order.forEachIndexed { n, i ->
-                            r.openRows(i, g.paperW, g.paperH).use { rows ->
+                            rowsFor(r, i, g.paperW, g.paperH).use { rows ->
                                 EscprEncoder.writePage(os, rows, g, n + 1, order.size - 1 - n, grayscale)
                             }
                         }
@@ -843,6 +872,12 @@ object PrintJobManager {
                 }
             }
         }
+    }
+
+    /** White page the size of [like] (the blank back after an odd-page copy). */
+    private fun blankLike(like: Bitmap?): Bitmap {
+        val w = like?.width ?: 2480; val h = like?.height ?: 3508
+        return Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888).apply { eraseColor(android.graphics.Color.WHITE) }
     }
 
     private suspend fun sendDirect(job: PrintJobEntity, printer: Printer, pdf: File) {

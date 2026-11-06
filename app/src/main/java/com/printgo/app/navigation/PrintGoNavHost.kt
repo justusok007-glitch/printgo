@@ -81,6 +81,8 @@ fun PrintGoNavHost(
     // Whenever an item or multiple items trigger navigateToPreview (e.g. from intent share or Print button)
     LaunchedEffect(selectionViewModel, navController) {
         selectionViewModel.navigateToPreview.collectLatest {
+            // A file shared from another app is a new print: start from the default settings.
+            if (selectionViewModel.receivingShare) printSettingsViewModel.resetForNewPrint()
             awaitGraph()
             navController.navigate(Screen.Preview.route) {
                 launchSingleTop = true
@@ -106,6 +108,8 @@ fun PrintGoNavHost(
             if (destination.route == Screen.Preview.route) selectionViewModel.onPreviewShown()
             if (destination.route == Screen.Home.route && !selectionViewModel.receivingShare) {
                 selectionViewModel.clearSelection()
+                // Back on Home = the next print starts again from the default settings.
+                printSettingsViewModel.resetForNewPrint()
                 com.printgo.app.data.layout.SheetLayoutEngine.clearCache()
             }
         }
@@ -263,6 +267,7 @@ fun PrintGoNavHost(
                 onScanPhotos = { openScanBeforePrint(selectionViewModel.selectedItems.value) },
                 onJobQueued = { id ->
                     selectionViewModel.clearSelection()
+                    printSettingsViewModel.resetForNewPrint()
                     navController.navigate(Screen.JobDetails.create(id)) {
                         popUpTo(Screen.Home.route)
                     }

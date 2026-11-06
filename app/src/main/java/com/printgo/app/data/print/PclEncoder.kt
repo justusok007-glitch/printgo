@@ -83,12 +83,15 @@ object PostScriptEncoder {
         out.write("%!PS-Adobe-3.0\n%%Title: ${title.replace('\n', ' ').take(60)}\n%%Pages: (atend)\n%%EndComments\n".toByteArray())
     }
 
-    fun writePage(out: OutputStream, bmp: Bitmap, widthPt: Int, heightPt: Int, grayscale: Boolean, copies: Int, duplex: Int) {
+    fun writePage(
+        out: OutputStream, bmp: Bitmap, widthPt: Int, heightPt: Int, grayscale: Boolean, copies: Int, duplex: Int,
+        setup: Boolean = true
+    ) {
         val w = bmp.width
         val h = bmp.height
         val comps = if (grayscale) 1 else 3
         val dup = when (duplex) { 1 -> "/Duplex true /Tumble false"; 2 -> "/Duplex true /Tumble true"; else -> "/Duplex false" }
-        out.write("<< /PageSize [$widthPt $heightPt] /NumCopies $copies $dup >> setpagedevice\n".toByteArray())
+        if (setup) out.write("<< /PageSize [$widthPt $heightPt] /NumCopies $copies $dup >> setpagedevice\n".toByteArray())
         out.write("gsave $widthPt $heightPt scale\n".toByteArray())
         out.write("/DeviceRGB setcolorspace\n".toByteArray().takeIf { !grayscale } ?: "/DeviceGray setcolorspace\n".toByteArray())
         out.write(

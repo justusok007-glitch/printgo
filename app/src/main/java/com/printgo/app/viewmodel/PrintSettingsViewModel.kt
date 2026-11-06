@@ -58,16 +58,30 @@ class PrintSettingsViewModel(application: Application) : AndroidViewModel(applic
     init {
         viewModelScope.launch(Dispatchers.IO) {
             presetRepository.ensureBuiltInPresets()
-            loadGlobalDefaultSettings()
+            // Settings of earlier prints are no longer brought back (every print starts from the defaults).
+            prefs.edit().clear().apply()
         }
     }
 
-    private fun loadGlobalDefaultSettings() {
-        val globalJson = prefs.getString("global_default_settings", null)
-        if (globalJson != null) {
-            val loaded = SettingsJsonAdapter.fromJson(globalJson)
-            _settings.value = loaded
-        }
+    /** True once the user changed a setting for the current print. */
+    private var touched = false
+
+    /** Default settings for a printer: PrintGo's defaults with the printer's own default paper if it names one. */
+    private fun defaultsFor(caps: PrinterCapabilities?): PrintSettings {
+        val media = caps?.mediaSupported?.find { it.name.equals(caps.mediaDefault, ignoreCase = true) }
+        return if (media != null) PrintSettings.DEFAULT.copy(paperSize = media) else PrintSettings.DEFAULT
+    }
+
+    /**
+     * Starts a new print with the default settings (the owner wants every print to start fresh, not with the
+     * choices of the last one). Called when the Home screen opens, after a job was sent and when a file is shared
+     * to PrintGo from another app.
+     */
+    fun resetForNewPrint() {
+        touched = false
+        lastDocumentsKey = null
+        _clampedNotice.value = null
+        _settings.value = validateAndDetectClamping(defaultsFor(_capabilities.value), _capabilities.value)
     }
 
     /**
@@ -79,55 +93,24 @@ class PrintSettingsViewModel(application: Application) : AndroidViewModel(applic
         val printerId = printer?.id
         _activePrinterId.value = printerId
 
-        viewModelScope.launch(Dispatchers.IO) {
-            val restoredSettings = if (printerId != null) {
-                val savedJson = prefs.getString("settings_$printerId", null)
-                if (savedJson != null) {
-                    SettingsJsonAdapter.fromJson(savedJson)
-                } else {
-                    // Global default for new printers with printer default media if present
-                    val defaultMedia = printerCapabilities?.mediaSupported?.find {
-                        it.name.equals(printerCapabilities.mediaDefault, ignoreCase = true)
-                    }
-                    if (defaultMedia != null) {
-                        PrintSettings.DEFAULT.copy(paperSize = defaultMedia)
-                    } else {
-                        PrintSettings.DEFAULT
-                    }
-                }
-            } else {
-                PrintSettings.DEFAULT
-            }
-
-            // Validate against capabilities
-            val clamped = validateAndDetectClamping(restoredSettings, printerCapabilities)
-            _settings.update { current ->
-                clamped.copy(
-                    pageRotations = current.pageRotations,
-                    excludedPages = current.excludedPages,
-                    pageSelection = current.pageSelection
-                )
-            }
+        // A new print starts from this printer's defaults; choices already made for this print are kept and
+        // only fitted to what the printer can do.
+        val base = if (touched) _settings.value else defaultsFor(printerCapabilities)
+        val clamped = validateAndDetectClamping(base, printerCapabilities)
+        _settings.update { current ->
+            clamped.copy(
+                pageRotations = current.pageRotations,
+                excludedPages = current.excludedPages,
+                pageSelection = current.pageSelection
+            )
         }
     }
 
     fun updateSettings(transform: (PrintSettings) -> PrintSettings) {
         _settings.update { current ->
             val candidate = transform(current)
-            val validated = validateAndDetectClamping(candidate, _capabilities.value)
-
-            val pId = _activePrinterId.value
-            viewModelScope.launch(Dispatchers.IO) {
-                val json = SettingsJsonAdapter.toJson(validated)
-                prefs.edit().apply {
-                    putString("global_default_settings", json)
-                    if (pId != null) {
-                        putString("settings_$pId", json)
-                    }
-                }.apply()
-            }
-
-            validated
+            touched = true
+            validateAndDetectClamping(candidate, _capabilities.value)
         }
     }
 
@@ -257,19 +240,13 @@ class PrintSettingsViewModel(application: Application) : AndroidViewModel(applic
 
     fun resetToDefaults() {
         _settings.update { current ->
-            val def = PrintSettings.DEFAULT.copy(
+            PrintSettings.DEFAULT.copy(
                 paperSize = current.paperSize,
-                activePresetName = null
+                activePresetName = null,
+                pageRotations = current.pageRotations,
+                excludedPages = current.excludedPages,
+                pageSelection = current.pageSelection
             )
-            val pId = _activePrinterId.value
-            viewModelScope.launch(Dispatchers.IO) {
-                val json = SettingsJsonAdapter.toJson(def)
-                prefs.edit().apply {
-                    putString("global_default_settings", json)
-                    if (pId != null) putString("settings_$pId", json)
-                }.apply()
-            }
-            def
         }
     }
 
